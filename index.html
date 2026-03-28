@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kutumbaba – Restaurant Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #f9f9f9;
+      color: #333;
+    }
+    h1 { color: #e44d26; }
+    button {
+      background: #e44d26;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background: #c0392b; }
+    #status { margin: 16px 0; font-style: italic; color: #555; }
+    #results { margin-top: 20px; }
+    .error { color: red; font-weight: bold; }
+    pre {
+      background: #eee;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍽️ Kutumbaba Restaurant Finder</h1>
+  <p>Click the button below to fetch restaurants through the local proxy server.</p>
+  <button id="fetchBtn" onclick="fetchRestaurants()">Fetch Restaurants</button>
+  <p id="status"></p>
+  <div id="results"></div>
+
+  <script>
+    const PROXY_URL = 'http://localhost:3000/restaurants';
+
+    async function fetchRestaurants() {
+      const statusEl = document.getElementById('status');
+      const resultsEl = document.getElementById('results');
+
+      statusEl.textContent = 'Fetching restaurants from proxy...';
+      resultsEl.innerHTML = '';
+
+      try {
+        const response = await fetch(PROXY_URL);
+
+        if (!response.ok) {
+          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        statusEl.textContent = '✅ Restaurants fetched successfully!';
+        resultsEl.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+      } catch (err) {
+        statusEl.innerHTML =
+          '<span class="error">❌ Restaurant fetch error: ' + err.message + '</span>';
+        console.error('Restaurant fetch error:', err);
+      }
+    }
+  </script>
+</body>
+</html>
