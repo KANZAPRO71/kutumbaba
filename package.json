@@ -1,0 +1,15 @@
+{
+  "name": "kutumbaba",
+  "version": "1.0.0",
+  "description": "Restaurant proxy server with CORS support",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.22.1",
+    "node-fetch": "^2.7.0"
+  }
+}
