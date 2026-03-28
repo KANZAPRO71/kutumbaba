@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kutumbaba – Restaurant Finder</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
+        background: #f7f7f7;
+        color: #333;
+        min-height: 100vh;
+      }
+      header {
+        background: #e85d04;
+        color: #fff;
+        padding: 1rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      header h1 {
+        font-size: 1.5rem;
+      }
+      main {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      #status {
+        margin-bottom: 1rem;
+        font-style: italic;
+        color: #666;
+      }
+      #status.error {
+        color: #c0392b;
+        font-style: normal;
+        font-weight: 500;
+      }
+      #status.success {
+        color: #27ae60;
+        font-style: normal;
+        font-weight: 500;
+      }
+      #restaurant-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem;
+      }
+      .restaurant-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        padding: 1.25rem;
+      }
+      .restaurant-card h2 {
+        font-size: 1.1rem;
+        margin-bottom: 0.4rem;
+      }
+      .restaurant-card p {
+        font-size: 0.875rem;
+        color: #666;
+      }
+      button#retry-btn {
+        margin-top: 1rem;
+        padding: 0.5rem 1.25rem;
+        background: #e85d04;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+      button#retry-btn:hover {
+        background: #c0392b;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span>🍽️</span>
+      <h1>Kutumbaba – Restaurant Finder</h1>
+    </header>
+    <main>
+      <p id="status">Fetching restaurants from proxy...</p>
+      <div id="restaurant-list"></div>
+      <button id="retry-btn" style="display: none">🔄 Retry</button>
+    </main>
+
+    <script>
+      const statusEl = document.getElementById('status');
+      const listEl = document.getElementById('restaurant-list');
+      const retryBtn = document.getElementById('retry-btn');
+
+      async function fetchRestaurants() {
+        statusEl.textContent = 'Fetching restaurants from proxy...';
+        statusEl.className = '';
+        listEl.innerHTML = '';
+        retryBtn.style.display = 'none';
+
+        try {
+          const response = await fetch('/api/restaurants');
+
+          if (!response.ok) {
+            const data = await response.json().catch(() => ({}));
+            throw new Error(
+              data.error ||
+                `Server returned ${response.status} ${response.statusText}`,
+            );
+          }
+
+          const restaurants = await response.json();
+          const items = Array.isArray(restaurants)
+            ? restaurants
+            : [restaurants];
+
+          if (items.length === 0) {
+            statusEl.textContent = 'No restaurants found.';
+            statusEl.className = '';
+            return;
+          }
+
+          statusEl.textContent = `✅ Found ${items.length} restaurant(s).`;
+          statusEl.className = 'success';
+
+          items.forEach((r) => {
+            const card = document.createElement('div');
+            card.className = 'restaurant-card';
+            card.innerHTML = `
+              <h2>${escapeHtml(r.name || 'Unknown')}</h2>
+              <p>${escapeHtml(r.cuisine || r.category || '')}</p>
+              <p>${escapeHtml(r.address || r.location || '')}</p>
+            `;
+            listEl.appendChild(card);
+          });
+        } catch (err) {
+          const msg = err.message || 'Unknown error';
+          statusEl.textContent = `❌ Restaurant fetch error: ${msg}`;
+          statusEl.className = 'error';
+          retryBtn.style.display = 'inline-block';
+          console.error('Restaurant fetch error:', err);
+        }
+      }
+
+      function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(String(str)));
+        return div.innerHTML;
+      }
+
+      retryBtn.addEventListener('click', fetchRestaurants);
+
+      fetchRestaurants();
+    </script>
+  </body>
+</html>
