@@ -50,6 +50,21 @@ test('extractFacts captures a preference', () => {
   );
 });
 
+test('extractFacts splits multi-clause preferences cleanly', () => {
+  const facts = extractFacts(
+    'I love spicy ramen and my favorite team is the Warriors',
+    NOW,
+  );
+  const texts = facts.memories.map((m) => m.text);
+  assert.ok(texts.includes('Loves spicy ramen.'), texts.join(' | '));
+  assert.ok(
+    texts.some((t) => /Favourite team is the Warriors\./i.test(t)),
+    texts.join(' | '),
+  );
+  // The messy combined phrase must NOT be stored.
+  assert.ok(!texts.some((t) => /ramen and/i.test(t)), texts.join(' | '));
+});
+
 test('extractFacts turns "remind me to…" into a dated reminder', () => {
   const facts = extractFacts('Remind me to call Sarah tomorrow', NOW);
   assert.equal(facts.reminders.length, 1);

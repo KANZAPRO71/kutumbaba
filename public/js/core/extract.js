@@ -29,6 +29,12 @@ function titleCase(str) {
   return str.replace(/\b([a-z])/g, (_, c) => c.toUpperCase());
 }
 
+// Keep only the first clause so "spicy ramen and my favorite team is X" doesn't
+// get swallowed into one memory.
+function firstClause(str) {
+  return clean(str.split(/\s+(?:and|but|because|although|,|;)\s+/i)[0]);
+}
+
 // Turn "call Sarah tomorrow at 5pm" into "Call Sarah" (strip trailing time refs).
 function stripDue(str) {
   return clean(str.replace(DUE_PHRASE, ' '));
@@ -90,15 +96,16 @@ export function extractFacts(text, now = new Date()) {
   // ---- Preferences ----
   m = t.match(/\bi (like|love|enjoy|prefer|hate|dislike|can't stand)\s+([a-z0-9 ,.'-]{2,60})/i);
   if (m) {
+    const verb = m[1] === "can't stand" ? "Can't stand" : `${cap(m[1])}s`;
     result.memories.push({
-      text: `${cap(m[1])}s ${clean(m[2])}.`,
+      text: `${verb} ${firstClause(m[2])}.`,
       category: 'preference',
     });
   }
-  m = t.match(/\bmy (?:favou?rite|fav)\s+([a-z ]{2,25})\s+is\s+([a-z0-9 ,.'-]{2,40})/i);
+  m = t.match(/\bmy (?:favou?rite|fav)\s+([a-z ]{2,25}?)\s+is\s+([a-z0-9 ,.'-]{2,40})/i);
   if (m) {
     result.memories.push({
-      text: `Favourite ${clean(m[1])} is ${clean(m[2])}.`,
+      text: `Favourite ${clean(m[1])} is ${firstClause(m[2])}.`,
       category: 'preference',
     });
   }
