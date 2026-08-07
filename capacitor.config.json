@@ -1,0 +1,16 @@
+{
+  "appId": "com.jarvis.assistant",
+  "appName": "Jarvis",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SpeechRecognition": {
+      "permissions": ["android.permission.RECORD_AUDIO"]
+    }
+  }
+}
