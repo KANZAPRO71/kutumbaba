@@ -234,7 +234,7 @@ export default function App() {
   }
 
   return (
-    <div className="mx-auto flex h-full min-h-full max-w-md flex-col bg-ink text-mist shadow-[0_0_80px_rgba(0,0,0,0.45)]">
+    <div className="relative mx-auto flex h-full min-h-full max-w-md flex-col bg-ink text-mist shadow-[0_0_80px_rgba(0,0,0,0.45)]">
       <header className="flex items-center justify-between px-4 pb-2 pt-4">
         <div className="flex items-center gap-2.5">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-signal-2 to-signal font-display text-sm font-bold text-ink">
@@ -330,7 +330,10 @@ export default function App() {
       </nav>
 
       {toast && (
-        <div className="pointer-events-none fixed bottom-24 left-1/2 z-50 -translate-x-1/2 animate-rise-in rounded-full border border-white/10 bg-ink-3/95 px-4 py-2 text-xs font-medium text-white shadow-lg">
+        <div
+          data-testid="toast"
+          className="pointer-events-none absolute left-1/2 top-16 z-50 -translate-x-1/2 animate-rise-in rounded-full border border-signal/30 bg-ink-3/95 px-4 py-2 text-xs font-medium text-white shadow-lg"
+        >
           {toast}
         </div>
       )}

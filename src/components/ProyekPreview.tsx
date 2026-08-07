@@ -60,6 +60,7 @@ export function ProyekPreview({ app, onCompleteTask }: Props) {
           <button
             key={label}
             type="button"
+            data-testid={label === 'To Do List' ? 'complete-task' : undefined}
             onClick={label === 'To Do List' ? onCompleteTask : undefined}
             className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-mist transition hover:border-signal-2/40 hover:text-white"
           >
