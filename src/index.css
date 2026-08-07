@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "Outfit", ui-sans-serif, sans-serif;
+  --color-ink: #07101f;
+  --color-ink-2: #0c1a30;
+  --color-ink-3: #13263f;
+  --color-steel: #8aa4c4;
+  --color-mist: #c5d6ea;
+  --color-signal: #4ec4a8;
+  --color-signal-2: #6ec8ff;
+  --color-warn: #e8b86d;
+  --color-danger: #e87a7a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-mist);
+  background: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3.2s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-rise-in {
+  animation: rise-in 0.45s ease-out both;
+}
+
+.animate-progress {
+  animation: progress-indeterminate 1.4s ease-in-out infinite;
+}
