@@ -46,6 +46,7 @@ export function TokoPreview({ app, cartCount, onAddToCart }: Props) {
             </div>
             <button
               type="button"
+              data-testid="add-to-cart"
               onClick={() => onAddToCart(product)}
               className="shrink-0 rounded-xl bg-signal-2/90 px-3 py-2 text-xs font-semibold text-ink transition hover:bg-signal-2"
             >

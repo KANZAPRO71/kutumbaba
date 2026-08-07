@@ -88,8 +88,9 @@ export function AiAssistant({
                 key={suggestion}
                 type="button"
                 disabled={building}
+                data-testid="suggestion-chip"
                 onClick={() => onSend(suggestion)}
-                className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-left text-[11px] text-mist transition hover:border-signal-2/40 disabled:opacity-50"
+                className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-left text-[11px] text-mist transition hover:border-signal-2/40 disabled:opacity-50"
               >
                 {suggestion}
               </button>
@@ -135,12 +136,14 @@ export function AiAssistant({
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Ketik pesan..."
             disabled={building}
+            data-testid="chat-input"
             className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-steel/70 disabled:opacity-60"
             aria-label="Pesan untuk AI Assistant"
           />
           <button
             type="submit"
             disabled={building || !draft.trim()}
+            data-testid="send-message"
             className="grid h-10 w-10 place-items-center rounded-xl bg-signal-2 text-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Kirim pesan"
           >
