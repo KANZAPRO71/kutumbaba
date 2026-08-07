@@ -1,5 +1,7 @@
-# Object file
-*.o
+# Node.js
+node_modules/
+npm-debug.log*
+.env*
 
-# Ada Library Information
-*.ali
+# OS / editor
+.DS_Store

@@ -1,0 +1,17 @@
+{
+  "name": "jarvis",
+  "install": "npm install",
+  "terminals": [
+    {
+      "name": "web",
+      "command": "npm run dev",
+      "description": "Serves the Jarvis web app (static, zero-dependency Node server) on port 3000. Open http://localhost:3000 to talk to Jarvis."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 3000
+    }
+  ]
+}
