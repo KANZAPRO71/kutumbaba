@@ -1,0 +1,17 @@
+{
+  "name": "kutumbaba",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "server",
+      "command": "npm run dev",
+      "description": "Restaurant proxy server (Express) on port 3000. Serves the frontend from public/ and proxies GET /api/restaurants to the upstream configured by RESTAURANTS_API_URL."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 3000
+    }
+  ]
+}
