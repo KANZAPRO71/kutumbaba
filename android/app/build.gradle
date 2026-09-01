@@ -23,6 +23,13 @@ def loadGeminiApiKeyFromEnv() {
     return key.replace("\\", "\\\\").replace("\"", "\\\"")
 }
 
+// GitHub / public APK: gradlew assembleDebug -PnoEmbedApiKey=true
+def embedGeminiApiKey = !(
+    project.hasProperty("noEmbedApiKey") &&
+    project.property("noEmbedApiKey").toString() == "true"
+)
+def geminiApiKeyForBuild = embedGeminiApiKey ? loadGeminiApiKeyFromEnv() : ""
+
 // Copy persona_ai package into Chaquopy source tree before each build
 tasks.register('syncPersonaPython', Copy) {
     from("../../src/persona_ai")
@@ -45,11 +52,11 @@ android {
         applicationId "com.persona.ai"
         minSdk 24
         targetSdk 34
-        versionCode 142
-        versionName "2.9.54-follow-through"
+        versionCode 143
+        versionName "2.9.55-latency-fix"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "GEMINI_API_KEY", "\"${loadGeminiApiKeyFromEnv()}\""
+        buildConfigField "String", "GEMINI_API_KEY", "\"${geminiApiKeyForBuild}\""
 
         ndk {
             abiFilters "arm64-v8a"

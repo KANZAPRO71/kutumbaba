@@ -15,9 +15,9 @@ $tag = "v$versionName"
 $dist = Join-Path $Root "dist"
 $apkSrc = Join-Path $Root "android\app\build\outputs\apk\debug\app-debug.apk"
 
-Write-Host "Building APK..."
+Write-Host "Building APK (BYOK only — no embedded API key)..."
 Push-Location (Join-Path $Root "android")
-& .\gradlew assembleDebug | Out-Host
+& .\gradlew assembleDebug -PnoEmbedApiKey=true | Out-Host
 Pop-Location
 
 if (-not (Test-Path $apkSrc)) {
@@ -49,9 +49,9 @@ $notes = @"
 2. Install → buka Papua AI → Gemini API key → ngobrol
 
 ### Highlights
+- BYOK: APK tidak menyertakan Gemini API key — masukkan key sendiri saat onboarding
+- Latency fix: pre-turn steer hanya saat diperlukan, VAD lebih responsif
 - FOLLOW_THROUGH: ikuti energi user santai/short tanpa dorong pertanyaan
-- ConversationController sidecar (anti menu/interview/repeat)
-- Fix tombol UI, voice picker, empty-turn silence
 "@
 
 $existing = & $gh release view $tag --repo KANZAPRO71/kutumbaba 2>$null
