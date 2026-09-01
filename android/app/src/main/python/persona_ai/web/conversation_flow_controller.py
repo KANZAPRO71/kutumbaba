@@ -57,6 +57,12 @@ MENU_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"\bmau cerita apa\b", re.I), "FM9"),
     (re.compile(r"\bsilakan pilih\b", re.I), "FM10"),
     (re.compile(r"\bapa (lagi|nih) (yang|mau)\b", re.I), "FM11"),
+    (re.compile(r"\bcerita apa lagi\b", re.I), "FM15"),
+    (re.compile(r"\bko mau\b", re.I), "FM16"),
+    (re.compile(r"\bmau ngobrol apa\b", re.I), "FM17"),
+    (re.compile(r"\bmau apa\b", re.I), "FM18"),
+    (re.compile(r"\bmau lagi\b", re.I), "FM19"),
+    (re.compile(r"\bko mau (bahas|cerita|dengar|ngobrol)\b", re.I), "FM20"),
 ]
 
 HELPER_PATTERNS: list[tuple[re.Pattern[str], str]] = [
@@ -102,8 +108,7 @@ _USER_SHORT = re.compile(
     re.I,
 )
 _USER_SANTAI = re.compile(
-    r"\b(santai|tenang|relax|tak usah|tra usah|jangan (terlalu )?pikir|"
-    r"bacarita saja|ngobrol (saja|aja|mengalir)|mengalir saja)\b",
+    r"^(santai( aja| saja)?|tenang( aja| saja)?|relax|tra usah serius)\.?\s*$",
     re.I,
 )
 _USER_CAPEK = re.compile(
@@ -311,7 +316,6 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=False,
             reason="deliver_mop",
-            needs_pre_turn_steer=True,
         )
 
     if user.intent == "santai":
@@ -321,7 +325,6 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=True,
             reason="user_santai",
-            needs_pre_turn_steer=True,
         )
 
     if user.intent == "capek":
@@ -331,7 +334,6 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=True,
             reason="user_capek",
-            needs_pre_turn_steer=True,
         )
 
     if user.intent == "closure":
@@ -341,7 +343,6 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=True,
             reason="user_closure",
-            needs_pre_turn_steer=True,
         )
 
     # Short answer → follow topic, do not interview
@@ -352,7 +353,6 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=True,
             reason="short_answer_follow",
-            needs_pre_turn_steer=True,
         )
 
     # Anti-question streak — track state only; steer via sidecar if slip repeats
@@ -406,11 +406,9 @@ def build_pre_turn_steer(decision: FlowDecision) -> str:
         ])
     elif decision.directive == FlowDirective.COMMENT_ONLY:
         lines.extend([
-            "FOLLOW_THROUGH — match user's chill energy; do NOT PUSH_FORWARD with questions.",
-            "Short comment or reaction — tongkrongan friend.",
-            "NO menu ('mau bahas apa'), NO helper tone, NO closing question.",
-            "Example: 'Iyo eh, santai saja toh.' Optional: 'Tong biar ngobrol mengalir saja.' then stop.",
-            "Do NOT ask 'ko ada cerita apa', 'apa yang ko pikirkan', or offer new topics.",
+            "Match user's chill energy — short comment with concrete content, no interview questions.",
+            "NO menu, NO helper tone, NO closing question.",
+            "Do NOT mirror user's words — add a fresh angle on their topic.",
         ])
     elif decision.directive == FlowDirective.NO_HELPER:
         lines.extend([

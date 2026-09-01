@@ -26,8 +26,8 @@ def test_from_profile_reads_live_security_block() -> None:
     profile = PersonalityProfile(id="t", preset_id="default_companion", display_name="Persona")
     cfg = LiveSecurityConfig.from_profile(profile)
     assert cfg.storage_mode == "everything"
-    assert cfg.default_dynamic_variables.get("agent_name") == "Persona"
-    assert cfg.fallback_voice_name == "Leda"
+    assert cfg.default_dynamic_variables.get("agent_name") == "Mince"
+    assert cfg.fallback_voice_name == "Aoede"
 
 
 def test_pii_redaction_masks_email() -> None:
@@ -72,9 +72,9 @@ def test_guardrails_build_policy_context() -> None:
 
 
 def test_automatic_fallback_voice() -> None:
-    cfg = LiveSecurityConfig(automatic_fallback=True, fallback_voice_name="Leda")
-    assert cfg.effective_fallback_voice("Sulafat") == "Leda"
-    assert cfg.effective_fallback_voice("Leda") is None
+    cfg = LiveSecurityConfig(automatic_fallback=True, fallback_voice_name="Aoede")
+    assert cfg.effective_fallback_voice("Leda") == "Aoede"
+    assert cfg.effective_fallback_voice("Aoede") is None
 
 
 def test_dynamic_variables_substitution() -> None:

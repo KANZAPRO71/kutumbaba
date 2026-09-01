@@ -26,6 +26,7 @@ _GOVERNANCE_HEADER = "[PERSONA_GOVERNANCE]"
 
 from persona_ai.memory.models import UserMemoryRecord
 from persona_ai.web.session_memory import (
+    NATURAL_RECENT_VERBATIM_TURNS,
     collapse_history as _collapse_history,
     format_live_history_block,
     format_user_memory_block,
@@ -54,6 +55,16 @@ from persona_ai.personality.papua_voice_prosody import (
     voice_prosody_prompt_lines,
 )
 from persona_ai.personality.papua_live_system_instruction import master_system_instruction_lines
+from persona_ai.personality.papua_mince_instruction import mince_natural_instruction_lines
+
+
+def _effective_live_dialect(dialect: str | None, profile: PersonalityProfile) -> str | None:
+    """Web/desktop often omits dialect — default Indonesian companion to Papua."""
+    if is_papua_dialect(dialect):
+        return dialect.strip().lower()
+    if (profile.default_language or "id") == "id":
+        return "papua"
+    return dialect
 
 
 def _append_session_memory(
@@ -63,6 +74,7 @@ def _append_session_memory(
     dialect: str | None,
     post_call: dict | None = None,
     user_memories: list[UserMemoryRecord] | None = None,
+    recent_verbatim_turns: int | None = None,
 ) -> None:
     del user_memories
     recap = format_live_history_block(
@@ -70,6 +82,8 @@ def _append_session_memory(
         post_call=post_call,
         dialect=dialect,
         include_user_memory=False,
+        recent_verbatim_turns=recent_verbatim_turns,
+        filter_filler_loops=recent_verbatim_turns is not None,
     )
     if recap:
         lines.extend(["", recap])
@@ -303,12 +317,14 @@ def _natural_voice_compact_lines(
             "10% bawa cerita baru (LEAD) — jarang.",
             "Question budget: max 1 pertanyaan per 3 giliran AI — bukan tiap turn.",
             "Anti-streak: kalau barusan sudah tanya, giliran ini TANPA pertanyaan.",
-            "JANGAN menu topik ('mau bahas apa', 'cuaca atau perjalanan atau mop', 'tadi lagu apa').",
+            "JANGAN menu topik ('mau bahas apa', 'mau cerita apa', 'cuaca atau perjalanan atau mop', 'tadi lagu apa').",
+            "LANJUTKAN cerita/topik yang sedang jalan — jangan interview dengan 'mau...' tiap giliran.",
             "JANGAN bahasa penolong ('sa siap dengar/membantu', 'sa kasih masukan', 'kasian sekali').",
-            "Kalau ko bilang santai/capek/makasih: tanggapi hangat singkat, lalu diam — bukan konselor atau host.",
-            "FOLLOW_THROUGH: ikuti energi user (santai/short) — respons singkat tanpa pertanyaan.",
+            "FORBIDDEN KERAS: 'santai saja/aja', 'tenang saja/aja' — zero.",
+            "FORBIDDEN KERAS: 'mau...', 'ko mau...' (mau bahas/cerita/dengar/ngobrol apa) — zero. "
+            "Lanjutkan cerita/topik, bukan interview menu.",
+            "Kalau ko bilang capek/makasih/tra usah serius: tanggapi dengan isi konkret — lanjut topik.",
             "Jangan PUSH_FORWARD: jangan dorong percakapan dengan tanya balik atau tawar topik.",
-            "Contoh santai: 'Iyo eh, santai saja toh.' — opsional satu komentar kecil, lalu diam.",
             "Teman nongkrong, bukan CS: tanpa 'Tentu saja', 'Saya dengar', 'Iyaa paham', "
             "atau tanya balik 'ada lagi'.",
             "Tanpa bullet/1-2-3; variasi natural; jangan ulang jawaban sama dalam satu panggilan.",
@@ -340,36 +356,34 @@ def _build_natural_live_instruction(
     post_call: dict | None = None,
     user_memories: list[UserMemoryRecord] | None = None,
 ) -> str:
-    """Short S2S prompt — prosody and turn-taking come from Gemini Live, not steer gates."""
-    name = profile.display_name or "Papua AI"
+    """Short S2S prompt — character + few-shot; prosody from Gemini Live voice."""
+    name = profile.display_name or "Mince"
     lang = profile.default_language or "id"
+    dialect = _effective_live_dialect(dialect, profile)
     papua = is_papua_dialect(dialect) and lang == "id"
-    lang_prompt = papua_language_prompt() if papua else _LANGUAGE_PROMPTS.get(lang, _LANGUAGE_PROMPTS["id"])
     time_cfg = TimeAwarenessConfig.from_profile(profile)
 
     if papua:
-        lines = [
-            f"Ko ngobrol sama {name} — sobat tongkrongan di panggilan suara, bukan helpdesk.",
-            lang_prompt,
-            *_natural_voice_compact_lines(profile, dialect=dialect),
-            *_natural_grounding_lines(dialect=dialect),
-        ]
+        lines = list(mince_natural_instruction_lines(name=name))
     else:
+        lang_prompt = _LANGUAGE_PROMPTS.get(lang, _LANGUAGE_PROMPTS["id"])
         lines = [
-            f"You are {name} — a friend on a live voice call.",
+            f"You are {name} — a friend on a live voice call, not an assistant.",
             lang_prompt,
             *_natural_voice_compact_lines(profile, dialect=dialect),
         ]
     lines.extend(time_cfg.prompt_lines(language=lang))
-    dialect_brief = _natural_dialect_brief_lines(dialect, language=lang)
-    if dialect_brief:
-        lines.extend(dialect_brief)
+    if papua:
+        dialect_brief = _natural_dialect_brief_lines(dialect, language=lang)
+        if dialect_brief:
+            lines.extend(dialect_brief)
     _append_session_memory(
         lines,
         history,
         dialect=dialect,
         post_call=post_call,
         user_memories=user_memories,
+        recent_verbatim_turns=NATURAL_RECENT_VERBATIM_TURNS if papua else None,
     )
     return "\n".join(lines)
 

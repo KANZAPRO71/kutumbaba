@@ -277,7 +277,7 @@ class GeminiLiveCall {
     onCallTimer,
   }) {
     this.sessionId = sessionId;
-    this.voiceName = voiceName || "Sulafat";
+    this.voiceName = voiceName || "Leda";
     this.languageCode = languageCode || "id-ID";
     this.onStatus = onStatus || (() => {});
     this.onTranscript = onTranscript || (() => {});
@@ -422,9 +422,9 @@ class GeminiLiveCall {
           session_id: this.sessionId,
           voice_name: this.voiceName,
           language_code: this.languageCode,
+          dialect: "papua",
         };
         if (IS_EMBEDDED_APP) {
-          sessionPayload.dialect = "papua";
           sessionPayload.embedded_app = true;
           const sim = loadProsodySim();
           if (sim) sessionPayload.papua_prosody_sim = sim;
@@ -825,9 +825,9 @@ class GeminiLiveCall {
             session_id: this.sessionId,
             voice_name: this.voiceName,
             language_code: this.languageCode,
+            dialect: "papua",
           };
           if (IS_EMBEDDED_APP) {
-            sessionPayload.dialect = "papua";
             sessionPayload.embedded_app = true;
           }
           this.ws.send(JSON.stringify(sessionPayload));
@@ -1188,7 +1188,7 @@ class GeminiLiveCall {
     if (this._isActive) return Promise.resolve();
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        reject(new Error("Timeout — Papua AI voice tidak aktif"));
+        reject(new Error("Timeout — suara Mince tidak aktif"));
       }, WS_TIMEOUT_MS);
       this._activeResolve = () => {
         clearTimeout(timer);

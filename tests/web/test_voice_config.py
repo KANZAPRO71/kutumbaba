@@ -90,7 +90,7 @@ def test_from_profile_reads_preset_live_voice() -> None:
     assert cfg.default_tone == "companion_friend"
     assert cfg.enable_natural_fillers is True
     assert cfg.enable_high_empathy is True
-    assert cfg.voice_name == "Sulafat"
+    assert cfg.voice_name == "Leda"
     assert cfg.language_code == "id-ID"
     assert cfg.generation_temperature == 0.65
 
@@ -166,7 +166,7 @@ def test_denoising_modes_adjust_mic_thresholds() -> None:
 
 
 def test_normalize_voice_name_fallback() -> None:
-    assert normalize_voice_name("invalid") == "Sulafat"
+    assert normalize_voice_name("invalid") == "Leda"
     assert normalize_voice_name("leda") == "Leda"
 
 
@@ -193,6 +193,6 @@ def test_spoken_style_lines_retell_tone() -> None:
 
 def test_with_client_overrides() -> None:
     cfg = LiveVoiceConfig()
-    updated = cfg.with_client_overrides(voice_name="Puck", language_code="en-US")
-    assert updated.voice_name == "Puck"
+    updated = cfg.with_client_overrides(voice_name="Aoede", language_code="en-US")
+    assert updated.voice_name == "Aoede"
     assert updated.language_code == "en-US"

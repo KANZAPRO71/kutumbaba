@@ -50,8 +50,9 @@ $notes = @"
 
 ### Highlights
 - BYOK: APK tidak menyertakan Gemini API key — masukkan key sendiri saat onboarding
-- Latency fix: pre-turn steer hanya saat diperlukan, VAD lebih responsif
-- FOLLOW_THROUGH: ikuti energi user santai/short tanpa dorong pertanyaan
+- Persona **Mince** + suara **Leda** — natural S2S Papua
+- Ban loop: **santai saja**, **mau...** / **ko mau...** — lanjut cerita, bukan menu interview
+- Latency giliran 2+: activity_end lebih cepat, echo-hold dipendekkan
 "@
 
 $existing = & $gh release view $tag --repo KANZAPRO71/kutumbaba 2>$null

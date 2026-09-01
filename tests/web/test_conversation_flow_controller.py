@@ -40,7 +40,7 @@ def test_menu_detected():
 
 
 def test_user_santai_comment_only():
-    signal = analyze_user_turn("Santai sudah, tak usah terlalu pikir.")
+    signal = analyze_user_turn("santai aja")
     decision = decide_next_turn(ConversationState(), signal)
     assert decision.directive == FlowDirective.COMMENT_ONLY
     assert not decision.allow_question
@@ -91,12 +91,13 @@ def test_flow_controller_tracks_question_streak():
     assert flow.state.must_not_question is True
 
 
-def test_flow_controller_pre_turn_after_santai():
+def test_flow_controller_no_pre_turn_after_santai():
     flow = ConversationFlowController()
-    steer = flow.on_user_final("Aduh iya toh? Santai sudah.")
-    assert steer is not None
-    assert "[FLOW ADJUSTMENT]" in steer
-    assert "NO menu" in steer or "question" in steer.lower()
+    steer = flow.on_user_final("santai aja")
+    assert steer is None
+    assert flow.last_decision is not None
+    assert flow.last_decision.reason == "user_santai"
+    assert flow.last_decision.needs_pre_turn_steer is False
 
 
 def test_flow_controller_correction_after_menu():
@@ -133,7 +134,13 @@ def test_normal_turn_skips_pre_turn_steer():
     assert flow.last_decision.needs_pre_turn_steer is False
 
 
-    signal = analyze_user_turn("Peduli sekarang, santai saja.")
+    signal = analyze_user_turn("santai aja")
     decision = decide_next_turn(ConversationState(), signal)
     assert decision.directive == FlowDirective.COMMENT_ONLY
     assert not decision.allow_question
+    assert decision.needs_pre_turn_steer is False
+
+
+def test_santai_in_long_sentence_is_normal_intent():
+    signal = analyze_user_turn("Peduli sekarang, santai saja.")
+    assert signal.intent == "normal"

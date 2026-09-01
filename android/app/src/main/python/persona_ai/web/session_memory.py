@@ -7,6 +7,7 @@ from persona_ai.memory.engine import format_memory_block, load_memories_for_prom
 from persona_ai.memory.models import UserMemoryRecord
 
 RECENT_VERBATIM_TURNS = 14
+NATURAL_RECENT_VERBATIM_TURNS = 4
 OLDER_DIGEST_TURNS = 20
 MAX_VERBATIM_CHARS = 700
 MAX_DIGEST_CHARS = 200
@@ -59,6 +60,7 @@ def memory_rules_lines(*, dialect: str | None = None) -> list[str]:
         return [
             "Konteks obrolan (internal — jangan bacakan ke user):",
             "- Lanjutkan natural dari riwayat di bawah; jawab konsisten kalau topik sama.",
+            "- Riwayat di bawah untuk konteks — variasi natural, jangan ulang kalimat persis.",
             "- Jangan sebut 'ingatan', 'daftar', atau konfirmasi 'siap ingat'.",
         ]
     return [
@@ -109,8 +111,17 @@ def format_live_history_block(
     dialect: str | None = None,
     user_memories: list[UserMemoryRecord] | None = None,
     include_user_memory: bool = False,
+    recent_verbatim_turns: int | None = None,
+    filter_filler_loops: bool = False,
 ) -> str:
     """Two-tier recap: older digest + recent verbatim turns."""
+    from persona_ai.personality.papua_dialect_phrases import is_papua_dialect
+    from persona_ai.personality.papua_loop_guard import should_omit_assistant_from_recap
+
+    recent_cap = recent_verbatim_turns if recent_verbatim_turns is not None else RECENT_VERBATIM_TURNS
+    recent_cap = max(2, min(recent_cap, RECENT_VERBATIM_TURNS))
+    papua = is_papua_dialect(dialect)
+    skip_filler = filter_filler_loops and papua
     user_block = (
         format_user_memory_block(user_memories, dialect=dialect)
         if include_user_memory
@@ -138,17 +149,24 @@ def format_live_history_block(
     total = len(collapsed)
     lines.append(f"Total {total} giliran tersimpan di sesi ini.")
 
-    if total > RECENT_VERBATIM_TURNS:
-        older = collapsed[: -RECENT_VERBATIM_TURNS][-OLDER_DIGEST_TURNS:]
+    if total > recent_cap:
+        older = collapsed[: -recent_cap][-OLDER_DIGEST_TURNS:]
         if older:
             lines.append("Ringkasan awal (jangan lupa konteks):")
             for msg in older:
+                if skip_filler and msg.role == "assistant" and should_omit_assistant_from_recap(msg.text or ""):
+                    continue
                 label = "Ko" if msg.role == "user" else "Sa"
                 lines.append(f"  · {label}: {_trim(msg.text or '', MAX_DIGEST_CHARS)}")
 
-    recent = collapsed[-RECENT_VERBATIM_TURNS:]
+    recent = collapsed[-recent_cap:]
     lines.append("Percakapan terbaru (lanjutkan dari sini):")
+    recent_norms: list[str] = []
     for msg in recent:
+        if skip_filler and msg.role == "assistant":
+            if should_omit_assistant_from_recap(msg.text or "", recent=recent_norms):
+                continue
+            recent_norms.append(" ".join((msg.text or "").strip().split()).lower())
         label = "Ko" if msg.role == "user" else "Sa"
         lines.append(f"{label}: {_trim(msg.text or '', MAX_VERBATIM_CHARS)}")
 

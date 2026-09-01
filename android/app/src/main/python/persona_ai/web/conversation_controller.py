@@ -183,9 +183,8 @@ class ConversationController:
             "Kalau ko baru saja ucapkan terima kasih atau pamit, jangan buka topik baru."
         ),
         DriftCategory.PUSH_FORWARD: (
-            "User baru bilang santai/short — ikuti energi, jangan dorong percakapan maju. "
-            "Contoh cukup: 'Iyo eh, santai saja toh.' Opsional satu komentar kecil, lalu diam. "
-            "Jangan tanya 'ko ada cerita apa', 'apa yang ko pikirkan', atau tawarkan topik."
+            "User bilang short/chill — satu reaksi hangat yang BEDA dari giliran sebelumnya. "
+            "Lanjut ke isi topik, tanpa pertanyaan penutup atau menu."
         ),
         DriftCategory.REPETITION: (
             "Jangan mengulang kalimat, sapaan, atau filler yang sama dari giliran sebelumnya. "
@@ -217,6 +216,8 @@ class ConversationController:
     @classmethod
     def from_live_mode(cls, live_mode: Any) -> ConversationController:
         cooldown = float(getattr(live_mode, "slip_nudge_cooldown_s", cls.STEER_COOLDOWN))
+        if getattr(live_mode, "is_natural", False):
+            return cls(steer_cooldown=cooldown, deliver_steer=False)
         deliver = bool(
             getattr(live_mode, "slip_nudge", False)
             or getattr(live_mode, "flow_steer", True)
@@ -341,9 +342,21 @@ class ConversationController:
         from persona_ai.web.conversation_flow_controller import analyze_user_turn
 
         signal = analyze_user_turn(text)
+        lowered = text.lower()
+        chill_embedded = any(
+            phrase in lowered
+            for phrase in (
+                "santai aja",
+                "santai saja",
+                "tenang aja",
+                "tenang saja",
+                "tra usah serius",
+            )
+        )
         self.state.last_user_follow_through = (
             signal.intent in ("santai", "short", "closure", "capek")
             or signal.short_answer
+            or chill_embedded
         )
 
     def analyze(self, text: str) -> dict[str, int]:

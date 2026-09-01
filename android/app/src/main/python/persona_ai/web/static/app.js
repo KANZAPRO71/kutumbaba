@@ -68,13 +68,25 @@ const BGM_OPTIONS = [
   { value: "hiphop_papua", label: "Hip-Hop Papua — tempo cepat" },
 ];
 let cachedLiveVoices = null;
-let cachedDefaultVoice = "Sulafat";
+let cachedDefaultVoice = "Leda";
+let cachedPersonaName = "Mince";
+const LEGACY_VOICE_ALIASES = { Sulafat: "Leda", Puck: "Leda", Tinus: "Leda" };
 const BYOK_STORAGE_KEY = "persona_gemini_api_key";
 const ONBOARDING_KEY = "persona_onboarding_v2";
 const ONBOARDING_STEPS = 4;
 /** Voice-first UI — no chat bubbles; orb stays visible. */
 const SHOW_CHAT_TEXT = false;
 const RESUME_SKIP_KEY = "persona_resume_skip_id";
+
+function personaLabel() {
+  return cachedPersonaName || "Mince";
+}
+
+function normalizeSavedVoice(saved, defaultVoice) {
+  const fallback = defaultVoice || cachedDefaultVoice || "Leda";
+  if (!saved) return fallback;
+  return LEGACY_VOICE_ALIASES[saved] || saved;
+}
 
 const isEmbeddedApp = new URLSearchParams(location.search).get("app") === "1";
 
@@ -747,14 +759,18 @@ async function saveSettings() {
 }
 
 function selectedVoiceName() {
-  return voiceSelect?.value || localStorage.getItem(VOICE_STORAGE_KEY) || "Sulafat";
+  const saved = normalizeSavedVoice(
+    localStorage.getItem(VOICE_STORAGE_KEY),
+    cachedDefaultVoice
+  );
+  return voiceSelect?.value || saved || cachedDefaultVoice || "Leda";
 }
 
 function populateVoiceOptions(voices, defaultVoice) {
   if (!voiceSelect || !Array.isArray(voices) || !voices.length) return;
   cachedLiveVoices = voices;
-  cachedDefaultVoice = defaultVoice || voices[0]?.name || "Sulafat";
-  const saved = localStorage.getItem(VOICE_STORAGE_KEY);
+  cachedDefaultVoice = defaultVoice || voices[0]?.name || "Leda";
+  const saved = normalizeSavedVoice(localStorage.getItem(VOICE_STORAGE_KEY), cachedDefaultVoice);
   voiceSelect.innerHTML = "";
   for (const v of voices) {
     const opt = document.createElement("option");
@@ -800,7 +816,10 @@ function renderVoicePickerList() {
     btn.type = "button";
     btn.className = "settings-picker-option";
     btn.dataset.voice = v.name;
-    btn.textContent = `${v.name} — ${v.style.toLowerCase()}`;
+    btn.textContent =
+      v.name === "Leda"
+        ? `${v.name} — ${v.style.toLowerCase()} (default Mince)`
+        : `${v.name} — ${v.style.toLowerCase()}`;
     btn.setAttribute("role", "option");
     btn.setAttribute("aria-selected", v.name === current ? "true" : "false");
     if (v.name === current) btn.classList.add("is-selected");
@@ -998,7 +1017,7 @@ async function startCall() {
   if (!navigator.mediaDevices?.getUserMedia) {
     renderSystem(
       isEmbeddedApp
-        ? "Mikrofon tidak tersedia — pastikan izin mic diizinkan di pengaturan app Papua AI."
+        ? `Mikrofon tidak tersedia — pastikan izin mic diizinkan di pengaturan app ${personaLabel()}.`
         : "Browser ini tidak mendukung mikrofon. Buka di Chrome/Edge (HTTPS atau localhost)."
     );
     return;
@@ -1028,7 +1047,7 @@ async function startCall() {
       } else if (state === "active") {
         setLiveIndicator(true);
         voiceBars.classList.remove("idle");
-        setVoiceStatus(agentSpeaking ? "Papua AI lagi ngomong…" : "Cerita aja");
+        setVoiceStatus(agentSpeaking ? `${personaLabel()} lagi ngomong…` : "Cerita aja");
         voiceBars.classList.toggle("agent-talking", agentSpeaking);
         voiceBars.classList.toggle("user-turn", !agentSpeaking);
         setCompanionOrbState(agentSpeaking ? "speaking" : "listening");
@@ -1048,7 +1067,7 @@ async function startCall() {
       voiceBars.classList.toggle("agent-talking", active);
       voiceBars.classList.toggle("user-turn", !active);
       if (liveCall?.active) {
-        setVoiceStatus(active ? "Papua AI lagi ngomong…" : "Cerita aja");
+        setVoiceStatus(active ? `${personaLabel()} lagi ngomong…` : "Cerita aja");
         setCompanionOrbState(active ? "speaking" : "listening");
       }
     },
@@ -1233,8 +1252,9 @@ async function loadHealth() {
     const serverReady = data.gemini_key_set !== false;
     const clientReady = hasByokKey();
     const connected = serverReady || (isEmbeddedApp && clientReady);
+    cachedPersonaName = data.persona_name || "Mince";
     statusDot.classList.toggle("offline", !connected);
-    modelStatus.textContent = "Papua AI";
+    modelStatus.textContent = personaLabel();
     defaultLanguage = data.default_language || "id-ID";
     populateVoiceOptions(data.live_voices, data.default_voice);
     populateBgmOptions();
@@ -1243,11 +1263,12 @@ async function loadHealth() {
     }
     updateCallButtonReady(serverReady || clientReady);
     if (!connected) {
-      renderSystem(`${data.persona_name || "Papua AI"} belum tersambung — cek API key di pengaturan ⚙`);
+      renderSystem(`${personaLabel()} belum tersambung — cek API key di pengaturan ⚙`);
     }
   } catch {
+    cachedPersonaName = "Mince";
     statusDot.classList.add("offline");
-    modelStatus.textContent = "Papua AI";
+    modelStatus.textContent = personaLabel();
     updateCallButtonReady(hasByokKey());
     renderSystem("Backend belum siap — tunggu sebentar lalu refresh");
   }

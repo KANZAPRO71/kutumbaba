@@ -64,7 +64,14 @@ from persona_ai.personality.papua_smart_barge_in import (
 )
 from persona_ai.personality.papua_laugh_track import mark_humor_turn, should_play_laugh_track, should_play_jedag_jedug
 from persona_ai.web.conversation_controller import ConversationController
-from persona_ai.web.conversation_flow_controller import ConversationFlowController
+from persona_ai.personality.papua_loop_guard import (
+    history_poisoned_by_santai,
+    mark_block_santai_reply,
+)
+from persona_ai.web.conversation_flow_controller import (
+    ConversationFlowController,
+    analyze_user_turn,
+)
 from persona_ai.web.voice_instruction import (
     build_engine_directive_for_transcript,
     build_live_voice_instruction,
@@ -84,9 +91,11 @@ GEMINI_LIVE_REFRESH_S = 420.0
 # Natural S2S must not lock the mic pipeline — only governed/steered turns do.
 NATURAL_TURN_STUCK_S = 12.0
 # Natural S2S: gap between activity_end and next activity_start.
-NATURAL_GAP_AFTER_END_S = 0.10
+NATURAL_GAP_AFTER_END_S = 0.05
 # Natural S2S silence endpoint — faster than governed VAD; no partial_stable spam.
-NATURAL_SILENCE_COMMIT_S = 0.55
+NATURAL_SILENCE_COMMIT_S = 0.38
+# Shorter tail after agent audio in natural mode — unlock user turn faster.
+NATURAL_AGENT_REPLY_TAIL_S = 0.45
 
 GEMINI_RESUME_COOLDOWN_S = 8.0
 GEMINI_SESSION_EXPIRED_MSG = "Sesi voice Gemini habis. Sambungkan ulang panggilan."
@@ -373,6 +382,13 @@ def _word_overlap_ratio(a: str, b: str) -> float:
     return len(wa & wb) / min(len(wa), len(wb))
 
 
+def _agent_reply_tail_hold_s(gov: dict) -> float:
+    """How long after agent audio we treat the reply as still in-flight."""
+    if _is_natural_s2s(gov):
+        return max(NATURAL_AGENT_REPLY_TAIL_S, _echo_hold_seconds(gov) * 0.25)
+    return _echo_hold_seconds(gov) + 1.0
+
+
 def _agent_reply_already_started(gov: dict, *, now: float | None = None) -> bool:
     """True when Gemini audio for this turn is already playing — avoid steer that re-speaks."""
     clock = now if now is not None else time.monotonic()
@@ -381,7 +397,7 @@ def _agent_reply_already_started(gov: dict, *, now: float | None = None) -> bool
     if gov.get("steered_audio_seen") or gov.get("awaiting_turn_complete"):
         return True
     last_fwd = gov.get("last_forward_at")
-    hold = _echo_hold_seconds(gov) + 1.0
+    hold = _agent_reply_tail_hold_s(gov)
     if isinstance(last_fwd, (int, float)) and last_fwd > 0:
         if clock - last_fwd < hold:
             return True
@@ -728,7 +744,12 @@ def _should_open_user_activity(
         # After barge-in floor=user, or loud speech — allow interrupt during agent tail.
         if gov.get("floor") != "user" and rms < threshold * 1.2:
             return False
-    if isinstance(last_fwd, (int, float)) and last_fwd > 0 and (clock - last_fwd) < _echo_hold_seconds(gov):
+    if (
+        isinstance(last_fwd, (int, float))
+        and last_fwd > 0
+        and (clock - last_fwd) < _echo_hold_seconds(gov)
+        and not (_is_natural_s2s(gov) and gov.get("floor") == "user")
+    ):
         threshold = max(threshold, ECHO_OPEN_RMS)
     return rms >= threshold
 
@@ -1145,7 +1166,7 @@ def _natural_silence_commit_ready(
     if not _natural_user_transcript(gov):
         return False
     clock = now if now is not None else time.monotonic()
-    if _agent_playback_guard(gov, now=clock):
+    if _agent_playback_guard(gov, now=clock) and gov.get("floor") != "user":
         return False
     peak = float(gov.get("turn_peak_mic_rms") or 0.0)
     if peak < _loud_mic_rms(gov):
@@ -1592,6 +1613,32 @@ async def _steer_gemini_session(session, steer_prompt: str, *, send_lock: asynci
         await session.send_realtime_input(text=steer_prompt)
 
 
+async def _schedule_pre_turn_loop_nudge(
+    gov: dict,
+    session,
+    *,
+    send_lock: asyncio.Lock,
+) -> None:
+    """Fire loop nudge without blocking activity_end — latency first."""
+    from persona_ai.personality.papua_loop_guard import (
+        build_pre_turn_loop_nudge,
+        consume_pre_turn_loop_nudges,
+        pre_turn_loop_nudge_needed,
+    )
+
+    if not pre_turn_loop_nudge_needed(gov):
+        return
+    nudge = build_pre_turn_loop_nudge(gov)
+    if not nudge:
+        return
+    consume_pre_turn_loop_nudges(gov)
+    try:
+        await _steer_gemini_session(session, nudge, send_lock=send_lock)
+        _log.info("pre-turn loop nudge sent (async)")
+    except Exception:
+        _log.exception("pre-turn loop nudge failed")
+
+
 def _natural_persist_user_turn(runtime: PersonaRuntime, session_id: str, text: str) -> None:
     """Lightweight session write for natural S2S — skip full Persona pipeline."""
     session = runtime._store.load(session_id)
@@ -1609,6 +1656,11 @@ def _observe_model_turn_complete(gov: dict, text: str) -> None:
     """Sidecar hook 1 — observe full assistant transcript after turn completes."""
     if not gov.get("natural_mode"):
         return
+    cleaned = text.strip()
+    if cleaned:
+        from persona_ai.personality.papua_loop_guard import note_assistant_turn
+
+        note_assistant_turn(gov, cleaned)
     conv = gov.get("conv_ctrl")
     if not isinstance(conv, ConversationController):
         return
@@ -1685,7 +1737,12 @@ async def _on_safe_turn_boundary(
             len(finalized),
         )
     yield_turn(reason)
-    if gov.get("natural_mode"):
+    conv = gov.get("conv_ctrl")
+    if (
+        gov.get("natural_mode")
+        and isinstance(conv, ConversationController)
+        and conv.deliver_steer
+    ):
         _mark_conversation_steer_deferred(gov)
         _log.info(
             "conversation steer deferred reason=%s pending=%s",
@@ -1811,6 +1868,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         live_dialect = live_dialect.strip().lower() or None
     else:
         live_dialect = None
+    if not live_dialect and (profile.default_language or "id") == "id":
+        live_dialect = "papua"
     if is_papua_dialect(live_dialect):
         voice_cfg = enrich_voice_config_for_papua(voice_cfg)
     # No scripted opening steer — avoids double greeting with system instruction.
@@ -1918,6 +1977,12 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         "webhook_call_started_sent": False,
         "natural_mode": live_mode.is_natural,
         "natural_endpoint_sent": False,
+        "recent_assistant_lines": [],
+        "assistant_opener_streak": 0,
+        "santai_phrase_streak": 0,
+        "mau_offer_streak": 0,
+        "block_santai_reply": False,
+        "last_assistant_opener": "",
         "conv_ctrl": ConversationController.from_live_mode(live_mode),
         "flow_ctrl": ConversationFlowController(),
         "assistant_turn_observed": False,
@@ -1991,19 +2056,22 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                             last_exc: Exception | None = None
                             for try_handle in handles:
                                 history, post_call = load_session_context(runtime, session_ref["id"])
-                                if try_handle:
-                                    setup_instruction = instruction
-                                else:
-                                    setup_instruction = build_live_voice_instruction(
-                                        profile,
-                                        history=history,
-                                        dialect=live_dialect,
-                                        post_call=post_call,
+                                setup_instruction = build_live_voice_instruction(
+                                    profile,
+                                    history=history,
+                                    dialect=live_dialect,
+                                    post_call=post_call,
+                                )
+                                resume_handle = try_handle
+                                if try_handle and history_poisoned_by_santai(history):
+                                    resume_handle = None
+                                    _log.info(
+                                        "gemini resume without handle — santai loop in history"
                                     )
                                 config = _live_connect_config(
                                     setup_instruction,
                                     voice_cfg,
-                                    resumption_handle=try_handle,
+                                    resumption_handle=resume_handle,
                                 )
                                 new_cm = client.aio.live.connect(model=model, config=config)
                                 try:
@@ -2132,6 +2200,12 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         return
                 gov["_last_yield_reason"] = reason
                 gov["_last_yield_at"] = now
+                if gov.get("natural_mode") and reason in (
+                    "turn_complete",
+                    "natural_audio_done",
+                    "greeting_done",
+                ):
+                    gov["last_forward_at"] = 0.0
                 set_floor("user", reason=reason)
                 payload: dict = {"type": "turn_complete", "reason": reason}
                 if should_play_laugh_track(gov, gov.get("dialect")):
@@ -3402,32 +3476,15 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                             if isinstance(conv, ConversationController):
                                                 conv.observe_user_turn(text.strip())
                                             flow = gov.get("flow_ctrl")
-                                            pre_steer = None
                                             if isinstance(flow, ConversationFlowController):
-                                                pre_steer = flow.on_user_final(text.strip())
+                                                flow.on_user_final(text.strip())
+                                            if analyze_user_turn(text.strip()).intent == "santai":
+                                                mark_block_santai_reply(gov)
                                             _reset_vad_turn(gov)
                                             gov["ready_for_next_utterance"] = True
                                             gov["user_activity_open"] = False
                                             gov["natural_endpoint_sent"] = True
                                             if gov.get("gemini_activity_open"):
-                                                if pre_steer and not _agent_reply_already_started(gov):
-                                                    try:
-                                                        await _steer_gemini_session(
-                                                            session,
-                                                            pre_steer,
-                                                            send_lock=session_send_lock,
-                                                        )
-                                                        _log.info(
-                                                            "flow pre-turn steer delivered intent=%s len=%s",
-                                                            flow.last_decision.reason
-                                                            if flow.last_decision
-                                                            else "unknown",
-                                                            len(pre_steer),
-                                                        )
-                                                    except Exception:
-                                                        _log.exception(
-                                                            "flow pre-turn steer delivery failed"
-                                                        )
                                                 if _agent_reply_already_started(gov):
                                                     _log.info(
                                                         "natural ASR final — skip activity_end, agent replying"
@@ -3438,6 +3495,13 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                                     _log.info(
                                                         "natural immediate activity_end %r",
                                                         text[:80],
+                                                    )
+                                                    asyncio.create_task(
+                                                        _schedule_pre_turn_loop_nudge(
+                                                            gov,
+                                                            session,
+                                                            send_lock=session_send_lock,
+                                                        )
                                                     )
                                             asyncio.create_task(
                                                 apply_governance(
@@ -4062,7 +4126,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         if not isinstance(last_fwd, (int, float)) or last_fwd <= 0:
                             continue
                         now = time.monotonic()
-                        if now - last_fwd < 2.5:
+                        if now - last_fwd < 1.6:
                             continue
                         last_tc = float(gov.get("last_turn_complete_at") or 0.0)
                         if last_tc >= last_fwd:

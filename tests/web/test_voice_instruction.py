@@ -16,9 +16,9 @@ class TestVoiceInstruction:
     def test_baseline_from_preset(self):
         profile = load_default_preset()
         text = build_live_voice_instruction(profile)
-        assert "Bahasa Indonesia" in text
+        assert "Bahasa Indonesia" in text or "Melayu Papua" in text
         assert "ChatGPT voice" not in text
-        assert "teman ngobrol" in text.lower() or "friend" in text.lower()
+        assert "tongkrongan" in text.lower() or "friend" in text.lower()
         assert "Current Time Awareness:" in text
         assert "PERSONA_GOVERNANCE" not in text
         assert "Agent Handbook" not in text
@@ -27,6 +27,27 @@ class TestVoiceInstruction:
         assert "Anti-ulang" not in text
         assert "Anti-chatbot" not in text
         assert "Suara & prosody" not in text
+
+    def test_mince_few_shot_instruction(self):
+        profile = load_default_preset()
+        text = build_live_voice_instruction(profile, dialect="papua")
+        assert "Mince" in text
+        assert "FREKUENSI NATURAL" in text
+        assert "Adooo" in text
+        assert "Hahaha" in text
+        assert "REACTION FIRST" not in text
+        assert "CONTENT FIRST" not in text
+        assert "NO 'MAU...' MENU" in text or "FORBIDDEN 'MAU...'" in text
+        assert "FORBIDDEN" in text
+        assert "santai saja" in text.lower()
+        assert "ko mau cerita yang mana" not in text.lower()
+
+    def test_web_default_dialect_uses_mince(self):
+        profile = load_default_preset()
+        text = build_live_voice_instruction(profile, dialect=None)
+        assert "FORBIDDEN" in text
+        assert "Mince" in text
+        assert "FREKUENSI NATURAL" in text
 
     def test_instruction_includes_prior_conversation(self):
         profile = load_default_preset()
@@ -79,11 +100,12 @@ class TestVoiceInstruction:
         profile = load_default_preset()
         text = build_live_voice_instruction(profile, dialect="papua")
         assert "Papua" in text
-        assert "sobat jayapura" in text.lower()
+        assert "tongkrongan" in text.lower()
         assert " sa/ko" in text.lower() or "sa/ko" in text.lower()
         assert len(text) < 3500
         assert "Pengetahuan Papua" not in text
-        assert build_live_voice_instruction(profile, dialect=None) != text
+        # Web/desktop defaults missing dialect to papua for Mince.
+        assert build_live_voice_instruction(profile, dialect=None) == text
 
     def test_papua_phrase_corpus_size(self):
         from persona_ai.personality.papua_dialect_phrases import phrase_count

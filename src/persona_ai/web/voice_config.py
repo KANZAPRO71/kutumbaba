@@ -9,7 +9,7 @@ from persona_ai.core.types import PersonalityProfile
 from persona_ai.personality.preset import read_preset_json
 from persona_ai.web.agent_handbook import AgentHandbookConfig
 
-DEFAULT_LIVE_VOICE_NAME = "Sulafat"
+DEFAULT_LIVE_VOICE_NAME = "Leda"
 DEFAULT_LIVE_LANGUAGE_CODE = "id-ID"
 
 # Gemini Live prebuilt voices (curated for UI — full set in Google docs).
