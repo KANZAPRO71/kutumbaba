@@ -12,28 +12,28 @@ const MIC_BATCH_SAMPLES = 1600;
 const PLAYBACK_LOOKAHEAD_S = 0.10;
 const PLAYBACK_UNDERRUN_SLIP_S = 0.012;
 const MIN_PLAYABLE_PCM_BYTES = 480; // ~10 ms @ 24 kHz mono s16le
-const BARGE_IN_SUSTAINED_FRAMES = 36;
-const BARGE_IN_MIN_RMS = 0.045;
-const BARGE_IN_GRACE_MS = 280;
-const BARGE_IN_COOLDOWN_MS = 450;
-const BARGE_IN_ECHO_GUARD = 1.35;
+const BARGE_IN_SUSTAINED_FRAMES = 28;
+const BARGE_IN_MIN_RMS = 0.042;
+const BARGE_IN_GRACE_MS = 200;
+const BARGE_IN_COOLDOWN_MS = 380;
+const BARGE_IN_ECHO_GUARD = 1.22;
 /** HP WebView: speaker lebih dekat ke mic — barge-in sedikit lebih ketat. */
 const IS_EMBEDDED_APP =
   typeof location !== "undefined" &&
   new URLSearchParams(location.search).get("app") === "1";
-const BARGE_IN_ECHO_GUARD_MOBILE = 1.48;
+const BARGE_IN_ECHO_GUARD_MOBILE = 1.28;
 const MOBILE_BARGE_TIGHTEN = {
-  rms_add: 0.012,
-  grace_add_ms: 90,
-  sustain_add_frames: 10,
-  cooldown_add_ms: 120,
-  min_rms: 0.052,
+  rms_add: 0.008,
+  grace_add_ms: 40,
+  sustain_add_frames: 4,
+  cooldown_add_ms: 60,
+  min_rms: 0.048,
 };
-const MOBILE_MIC_TAIL_MS = 700;
+const MOBILE_MIC_TAIL_MS = 280;
 const SOFT_BARGE_DUCK_MS = 480;
 const DROP_AGENT_AUDIO_MS = 450;
 const IGNORE_AGENT_FLOOR_MS = 900;
-const SMART_BARGE_MIN_MS = 800;
+const SMART_BARGE_MIN_MS = 450;
 const SMART_BARGE_CHALLENGES = [
   "ko tipu",
   "ko bohong",
@@ -47,7 +47,18 @@ const SMART_BARGE_CHALLENGES = [
   "diam sudah",
   "mop lain",
   "mop baru",
+  "tunggu dulu",
+  "tunggu",
+  "stop",
+  "diam",
+  "eh ko",
+  "cukup sudah",
+  "potong",
+  "tra usah",
 ];
+const SMART_BARGE_FILLERS = new Set([
+  "iyo", "iya", "ah", "eh", "em", "oh", "uh", "um", "hmm", "hm", "ee", "toh", "kah",
+]);
 
 const PROSODY_SIM_STORAGE_KEY = "papua_prosody_sim";
 
@@ -593,6 +604,25 @@ class GeminiLiveCall {
     return SMART_BARGE_CHALLENGES.some((phrase) => q.includes(phrase));
   }
 
+  _isFillerOnly(text) {
+    const q = String(text || "")
+      .trim()
+      .toLowerCase();
+    if (!q) return true;
+    const words = q.split(/\s+/).filter(Boolean);
+    if (!words.length) return true;
+    if (words.length === 1 && SMART_BARGE_FILLERS.has(words[0])) return true;
+    return q.length <= 4 && SMART_BARGE_FILLERS.has(q);
+  }
+
+  _shouldSmartBarge(text) {
+    const q = String(text || "").trim();
+    if (!q) return false;
+    if (this._isChallengeInterrupt(q)) return true;
+    const words = q.split(/\s+/).filter(Boolean);
+    return words.length >= 2 && !this._isFillerOnly(q);
+  }
+
   _executeBargeIn(transcript = "") {
     const now = performance.now();
     this._bargeInCooldown = now;
@@ -604,9 +634,8 @@ class GeminiLiveCall {
       this.ws.send(JSON.stringify({ type: "barge_in", transcript: transcript || "" }));
     }
     const finish = () => this._applyFloor("user", "barge_in");
-    // HP: echo speaker sering picu RMS barge-in — jangan duck/cut kecuali ada teks jelas.
     if (IS_EMBEDDED_APP && !hasTranscript) {
-      finish();
+      this._duckPlayback(SOFT_BARGE_DUCK_MS, finish, { hardCut: false });
       return;
     }
     this._duckPlayback(SOFT_BARGE_DUCK_MS, finish, { hardCut: hasTranscript });
@@ -616,22 +645,21 @@ class GeminiLiveCall {
     if (this._floor !== "agent" && !this._agentSpeaking && !this._playbackBusy()) return;
     if (!text) return;
     const q = String(text).trim();
-    const words = q.split(/\s+/).filter(Boolean);
-    if (this._isChallengeInterrupt(q)) {
-      const minMs = this._voiceConfig.smart_barge_min_ms ?? SMART_BARGE_MIN_MS;
-      const since = this._bargeSpeechSince || performance.now();
-      const duration = performance.now() - since;
-      if (duration < minMs && !finished) return;
-      if (typeof console !== "undefined" && console.info) {
-        console.info("[persona smart barge-in]", { text: q.slice(0, 80), duration });
-      }
-      this._executeBargeIn(q);
+    if (!this._shouldSmartBarge(q)) return;
+    const challenge = this._isChallengeInterrupt(q);
+    const minMs = challenge
+      ? (this._voiceConfig.smart_barge_min_ms ?? SMART_BARGE_MIN_MS)
+      : 520;
+    const since = this._bargeSpeechSince || performance.now();
+    const duration = performance.now() - since;
+    if (duration < minMs && !finished && !challenge) return;
+    if (typeof console !== "undefined" && console.info) {
+      console.info("[persona smart barge-in]", { text: q.slice(0, 80), duration, challenge });
     }
+    this._executeBargeIn(q);
   }
 
   _maybeBargeIn(input) {
-    // HP WebView: RMS barge-in hampir selalu echo speaker — hanya transcript smart barge.
-    if (IS_EMBEDDED_APP) return;
     if (this._floor !== "agent" && !this._agentSpeaking && !this._playbackBusy()) return;
     const now = performance.now();
     const grace = this._voiceConfig.barge_in_grace_ms ?? BARGE_IN_GRACE_MS;
@@ -984,11 +1012,12 @@ class GeminiLiveCall {
   _sendMicPcm(input) {
     if (!this._micEnabled) return;
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this._isActive) return;
-    // Floor=agent is the echo gate. After barge-in the client yields to user
-    // immediately so this speech reaches Gemini instead of being dropped.
-    if (!this._naturalS2S && this._floor === "agent") return;
-    if (IS_EMBEDDED_APP && this._agentSpeaking && this._floor === "agent") return;
-    if (this._playbackBusy()) return;
+    // Natural S2S: full-duplex mic — server-side echo filter; needed for barge-in.
+    if (!this._naturalS2S) {
+      if (this._floor === "agent") return;
+      if (IS_EMBEDDED_APP && this._agentSpeaking && this._floor === "agent") return;
+      if (this._playbackBusy()) return;
+    }
     const down = downsample(input, this._inputRate, INPUT_RATE);
     if (!down.length) return;
 
@@ -1135,8 +1164,16 @@ class GeminiLiveCall {
       this._agentSpeaking = true;
       return;
     }
-    // Keep floor=agent until playback drains — prevents echo ASR on mobile.
-    if (this._playbackBusy()) {
+    if (reason === "barge_in") {
+      this._floor = "user";
+      this._agentSpeaking = false;
+      this._agentSpeakingSince = 0;
+      this._setAgentTalking(false);
+      this._enableMicSend("barge_in");
+      return;
+    }
+    // Keep floor=agent until playback drains — prevents echo ASR on governed mode.
+    if (this._playbackBusy() && !this._naturalS2S) {
       this._armMicAfterPlayback();
       return;
     }

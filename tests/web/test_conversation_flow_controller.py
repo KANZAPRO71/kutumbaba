@@ -104,9 +104,13 @@ def test_flow_controller_correction_after_menu():
     flow.on_assistant_finished(
         "Mau bahas apa nih? Soal cuaca, tentang perjalanan, atau mop?"
     )
-    steer = flow.take_correction_steer()
-    assert steer is not None
-    assert "menu" in steer.lower() or "mau bahas" in steer.lower()
+    assert flow.take_correction_steer() is None
+
+
+def test_single_closing_question_no_correction_steer():
+    flow = ConversationFlowController()
+    flow.on_assistant_finished("Terus habis itu bagaimana?")
+    assert flow.take_correction_steer() is None
 
 
 def test_natural_turns_increment():
@@ -121,7 +125,14 @@ def test_window_constants():
     assert WINDOW_TURNS == 3
 
 
-def test_user_santai_peduli_sekarang():
+def test_normal_turn_skips_pre_turn_steer():
+    flow = ConversationFlowController()
+    steer = flow.on_user_final("Terus habis itu jadi ribet di kantor.")
+    assert steer is None
+    assert flow.last_decision is not None
+    assert flow.last_decision.needs_pre_turn_steer is False
+
+
     signal = analyze_user_turn("Peduli sekarang, santai saja.")
     decision = decide_next_turn(ConversationState(), signal)
     assert decision.directive == FlowDirective.COMMENT_ONLY

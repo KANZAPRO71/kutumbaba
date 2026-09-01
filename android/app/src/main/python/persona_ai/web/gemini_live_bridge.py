@@ -27,6 +27,8 @@ from google.genai import types
 
 from persona_ai.llm.gemini_models import gemini_live_model
 from persona_ai.runtime import PersonaRuntime
+from persona_ai.core.types import Message
+from persona_ai.session.models import SessionState
 from persona_ai.web.persona_live import (
     LiveSteerMode,
     decide_live_action,
@@ -82,9 +84,9 @@ GEMINI_LIVE_REFRESH_S = 420.0
 # Natural S2S must not lock the mic pipeline — only governed/steered turns do.
 NATURAL_TURN_STUCK_S = 12.0
 # Natural S2S: gap between activity_end and next activity_start.
-NATURAL_GAP_AFTER_END_S = 0.18
+NATURAL_GAP_AFTER_END_S = 0.10
 # Natural S2S silence endpoint — faster than governed VAD; no partial_stable spam.
-NATURAL_SILENCE_COMMIT_S = 0.85
+NATURAL_SILENCE_COMMIT_S = 0.55
 
 GEMINI_RESUME_COOLDOWN_S = 8.0
 GEMINI_SESSION_EXPIRED_MSG = "Sesi voice Gemini habis. Sambungkan ulang panggilan."
@@ -93,7 +95,7 @@ MAX_AUDIO_QUEUE_CHUNKS = 8  # drop backlog beyond ~0.8 s
 LOUD_MIC_RMS = 0.05
 # Speaker echo after agent playback — ignore until the tail dies.
 ECHO_HOLD_AFTER_AGENT_S = 2.0
-ECHO_HOLD_AFTER_AGENT_MOBILE_S = 12.0
+ECHO_HOLD_AFTER_AGENT_MOBILE_S = 4.5
 ECHO_OPEN_RMS = 0.10
 # Force-clear ASR recovery when Gemini stops returning transcripts.
 ASR_STUCK_RECOVERY_S = 5.0
@@ -723,7 +725,9 @@ def _should_open_user_activity(
     clock = now if now is not None else time.monotonic()
     last_fwd = gov.get("last_forward_at")
     if _is_natural_s2s(gov) and _agent_playback_guard(gov, now=clock):
-        return False
+        # After barge-in floor=user, or loud speech — allow interrupt during agent tail.
+        if gov.get("floor") != "user" and rms < threshold * 1.2:
+            return False
     if isinstance(last_fwd, (int, float)) and last_fwd > 0 and (clock - last_fwd) < _echo_hold_seconds(gov):
         threshold = max(threshold, ECHO_OPEN_RMS)
     return rms >= threshold
@@ -1150,7 +1154,7 @@ def _natural_silence_commit_ready(
     started = gov.get("activity_started_at")
     if not isinstance(last_loud, (int, float)) or not isinstance(started, (int, float)):
         return False
-    if clock - started < 0.35:
+    if clock - started < 0.22:
         return False
     silence_s = max(
         NATURAL_SILENCE_COMMIT_S,
@@ -1465,7 +1469,7 @@ def _apply_barge_in(gov: dict, *, soft: bool = False) -> None:
     gov["model_generating"] = False
     gov["recovery_generation_complete"] = False
     gov["awaiting_asr_recovery"] = False
-    gov["ignore_model_audio"] = not soft
+    gov["ignore_model_audio"] = True
     gov["greeting_phase"] = False
     _clear_asr_recovery(gov)
     gov["partial_text"] = ""
@@ -1588,6 +1592,19 @@ async def _steer_gemini_session(session, steer_prompt: str, *, send_lock: asynci
         await session.send_realtime_input(text=steer_prompt)
 
 
+def _natural_persist_user_turn(runtime: PersonaRuntime, session_id: str, text: str) -> None:
+    """Lightweight session write for natural S2S — skip full Persona pipeline."""
+    session = runtime._store.load(session_id)
+    if session is None:
+        session = SessionState.new(
+            session_id,
+            profile_warmth=runtime.personality_profile.warmth,
+        )
+    session.messages.append(Message(role="user", text=text))
+    session.turn_index += 1
+    runtime._store.save(session)
+
+
 def _observe_model_turn_complete(gov: dict, text: str) -> None:
     """Sidecar hook 1 — observe full assistant transcript after turn completes."""
     if not gov.get("natural_mode"):
@@ -1638,12 +1655,8 @@ def _finalize_assistant_turn(
 
 def _mark_conversation_steer_deferred(gov: dict) -> None:
     conv = gov.get("conv_ctrl")
-    flow = gov.get("flow_ctrl")
     pending_conv = isinstance(conv, ConversationController) and conv.state.pending_steer
-    pending_flow = (
-        isinstance(flow, ConversationFlowController) and flow.pending_correction_steer
-    )
-    if pending_conv or pending_flow:
+    if pending_conv:
         gov["conv_steer_deferred"] = True
 
 
@@ -1700,20 +1713,7 @@ async def _flush_pending_conversation_steer(
         return
     flow = gov.get("flow_ctrl")
     if isinstance(flow, ConversationFlowController):
-        correction = flow.take_correction_steer()
-        if correction:
-            try:
-                await _steer_gemini_session(session, correction, send_lock=send_lock)
-                _log.info(
-                    "flow correction steer delivered reason=%s len=%s",
-                    reason or "unknown",
-                    len(correction),
-                )
-            except Exception:
-                _log.exception(
-                    "flow correction steer delivery failed reason=%s",
-                    reason or "unknown",
-                )
+        flow.take_correction_steer()
     conv = gov.get("conv_ctrl")
     if not isinstance(conv, ConversationController):
         return
@@ -1730,36 +1730,6 @@ async def _flush_pending_conversation_steer(
         )
     except Exception:
         _log.exception("conversation steer delivery failed reason=%s", reason or "unknown")
-
-
-async def _flow_pre_turn_on_user_final(
-    gov: dict,
-    session,
-    text: str,
-    *,
-    send_lock: asyncio.Lock,
-) -> None:
-    """Proactive FOLLOW_THROUGH steer before Gemini replies to low-energy user turns."""
-    if not gov.get("natural_mode") or not text.strip():
-        return
-    conv = gov.get("conv_ctrl")
-    if isinstance(conv, ConversationController):
-        conv.observe_user_turn(text)
-    flow = gov.get("flow_ctrl")
-    if not isinstance(flow, ConversationFlowController):
-        return
-    steer = flow.on_user_final(text)
-    if not steer or _agent_reply_already_started(gov):
-        return
-    try:
-        await _steer_gemini_session(session, steer, send_lock=send_lock)
-        _log.info(
-            "flow pre-turn steer delivered intent=%s len=%s",
-            flow.last_decision.reason if flow.last_decision else "unknown",
-            len(steer),
-        )
-    except Exception:
-        _log.exception("flow pre-turn steer delivery failed")
 
 
 async def _await_client_session(ws: WebSocket, *, timeout: float = 12.0) -> dict:
@@ -2370,14 +2340,9 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     _log.info("drained %s leftover mic chunks (%s)", dropped, reason)
 
             async def send_activity_start(*, user: bool = True, opening_rms: float | None = None) -> bool:
-                if gov.get("natural_mode") and gov.get("conv_steer_deferred"):
+                deferred_steer = gov.get("natural_mode") and gov.get("conv_steer_deferred")
+                if deferred_steer:
                     gov["conv_steer_deferred"] = False
-                    await _flush_pending_conversation_steer(
-                        gov,
-                        session,
-                        send_lock=session_send_lock,
-                        reason="pre_user_turn",
-                    )
                 if not _is_natural_s2s(gov):
                     if gov.get("awaiting_turn_complete"):
                         _log.info("activity_start deferred — awaiting steered turn_complete")
@@ -2438,6 +2403,15 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     gov["ignore_model_audio"] = False
                     gov["natural_endpoint_sent"] = False
                     set_floor("user", reason="user_activity")
+                if deferred_steer:
+                    asyncio.create_task(
+                        _flush_pending_conversation_steer(
+                            gov,
+                            session,
+                            send_lock=session_send_lock,
+                            reason="post_activity_start",
+                        )
+                    )
                 return True
 
             async def send_activity_end() -> None:
@@ -2631,6 +2605,9 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                 thread = load_session_messages(runtime, key)
                 post_call = load_session_post_call(runtime, key)
                 if partial:
+                    if gov.get("natural_mode"):
+                        gov["partial_text"] = normalized
+                        return
                     if normalized == gov["partial_text"]:
                         return
                     gov["partial_text"] = normalized
@@ -2664,6 +2641,21 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     gov["accept_mic"] = True
                     gov["awaiting_turn_complete"] = False
                     yield_turn_to_user("duplicate_transcript")
+                    return
+
+                if gov.get("natural_mode"):
+                    _last_transcript[key] = normalized
+                    gov["last_governed_transcript"] = normalized
+                    await asyncio.to_thread(
+                        _natural_persist_user_turn,
+                        runtime,
+                        key,
+                        normalized,
+                    )
+                    gov["commit_scheduled"] = False
+                    gov["ready_for_next_utterance"] = True
+                    if gov.get("final_scheduled_for") == normalized:
+                        gov["final_scheduled_for"] = ""
                     return
 
                 web_steer_extra = ""
@@ -3406,17 +3398,36 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                             text,
                                         )
                                         if gov.get("natural_mode") and text.strip():
-                                            await _flow_pre_turn_on_user_final(
-                                                gov,
-                                                session,
-                                                text.strip(),
-                                                send_lock=session_send_lock,
-                                            )
+                                            conv = gov.get("conv_ctrl")
+                                            if isinstance(conv, ConversationController):
+                                                conv.observe_user_turn(text.strip())
+                                            flow = gov.get("flow_ctrl")
+                                            pre_steer = None
+                                            if isinstance(flow, ConversationFlowController):
+                                                pre_steer = flow.on_user_final(text.strip())
                                             _reset_vad_turn(gov)
                                             gov["ready_for_next_utterance"] = True
                                             gov["user_activity_open"] = False
                                             gov["natural_endpoint_sent"] = True
                                             if gov.get("gemini_activity_open"):
+                                                if pre_steer and not _agent_reply_already_started(gov):
+                                                    try:
+                                                        await _steer_gemini_session(
+                                                            session,
+                                                            pre_steer,
+                                                            send_lock=session_send_lock,
+                                                        )
+                                                        _log.info(
+                                                            "flow pre-turn steer delivered intent=%s len=%s",
+                                                            flow.last_decision.reason
+                                                            if flow.last_decision
+                                                            else "unknown",
+                                                            len(pre_steer),
+                                                        )
+                                                    except Exception:
+                                                        _log.exception(
+                                                            "flow pre-turn steer delivery failed"
+                                                        )
                                                 if _agent_reply_already_started(gov):
                                                     _log.info(
                                                         "natural ASR final — skip activity_end, agent replying"

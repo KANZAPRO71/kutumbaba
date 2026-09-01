@@ -65,4 +65,4 @@ Versi beta — bug report & saran UX sangat welcome. Buka [Issues](https://githu
 
 ---
 
-**Versi saat ini:** 2.9.55-latency-fix (beta)
+**Versi saat ini:** 2.9.57-barge-in (beta)

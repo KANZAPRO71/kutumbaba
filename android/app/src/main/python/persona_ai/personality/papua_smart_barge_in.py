@@ -6,6 +6,8 @@ import re
 import time
 
 MIN_CHALLENGE_DURATION_S = 0.8
+MIN_SPEECH_BARGE_DURATION_S = 0.35
+MIN_SPEECH_BARGE_WORDS = 2
 
 _FILLER_ONLY = frozenset({
     "iyo", "iya", "ah", "eh", "em", "ehem", "hem", "oh", "uh", "um",
@@ -27,6 +29,14 @@ _CHALLENGE_PHRASES = (
     "ganti cerita",
     "mop lain",
     "mop baru",
+    "tunggu dulu",
+    "tunggu",
+    "stop",
+    "diam",
+    "eh ko",
+    "cukup sudah",
+    "potong dulu",
+    "tra usah",
 )
 
 
@@ -82,21 +92,21 @@ def should_allow_barge_in(
     dialect: str | None = None,
     client_rms: bool = False,
 ) -> bool:
-    """Filter barge-in Papua: filler pendek ditolak; potong alami & penantang diterima."""
+    """Filter barge-in: filler pendek ditolak; ucapan jelas & potong alami diterima."""
     from persona_ai.personality.papua_dialect_phrases import is_papua_dialect
 
-    if not is_papua_dialect(dialect):
+    if client_rms:
+        last_fwd = gov.get("last_forward_at")
+        if isinstance(last_fwd, (int, float)) and last_fwd > 0:
+            hold = 3.5 if gov.get("embedded_app") else 2.0
+            if time.monotonic() - last_fwd < hold:
+                return False
         return True
 
-    if client_rms:
-        if gov.get("embedded_app"):
-            last_fwd = gov.get("last_forward_at")
-            if isinstance(last_fwd, (int, float)) and last_fwd > 0:
-                hold = 13.0 if gov.get("embedded_app") else 3.0
-                if time.monotonic() - last_fwd < hold:
-                    return False
-            if gov.get("floor") == "agent" or gov.get("model_generating"):
-                return False
+    if not is_papua_dialect(dialect):
+        text = (transcript or gov.get("partial_text") or gov.get("last_user_transcript") or "").strip()
+        if not text or is_filler_only(text):
+            return client_rms
         return True
 
     text = (transcript or gov.get("partial_text") or gov.get("last_user_transcript") or "").strip()
@@ -109,14 +119,14 @@ def should_allow_barge_in(
         return True
 
     words = [w for w in re.split(r"[^\w']+", _normalize(text)) if w]
-    if text and len(words) >= 3 and not is_filler_only(text):
-        if duration >= 0.55 or len(words) >= 5:
+    if text and len(words) >= MIN_SPEECH_BARGE_WORDS and not is_filler_only(text):
+        if duration >= MIN_SPEECH_BARGE_DURATION_S or len(words) >= 3:
             return True
 
     if duration >= MIN_CHALLENGE_DURATION_S and text and not is_filler_only(text):
         return is_challenge_interrupt(text)
 
-    return False
+    return client_rms
 
 
 def barge_ack_steer_text(dialect: str | None) -> str:

@@ -174,6 +174,7 @@ class FlowDecision:
     allow_question: bool = False
     allow_silence: bool = True
     reason: str = ""
+    needs_pre_turn_steer: bool = False
 
 
 def classify_response(text: str) -> ResponseType:
@@ -310,6 +311,7 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=False,
             reason="deliver_mop",
+            needs_pre_turn_steer=True,
         )
 
     if user.intent == "santai":
@@ -319,6 +321,7 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=True,
             reason="user_santai",
+            needs_pre_turn_steer=True,
         )
 
     if user.intent == "capek":
@@ -328,6 +331,7 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=True,
             reason="user_capek",
+            needs_pre_turn_steer=True,
         )
 
     if user.intent == "closure":
@@ -337,6 +341,7 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=True,
             reason="user_closure",
+            needs_pre_turn_steer=True,
         )
 
     # Short answer → follow topic, do not interview
@@ -347,9 +352,10 @@ def decide_next_turn(
             allow_question=False,
             allow_silence=True,
             reason="short_answer_follow",
+            needs_pre_turn_steer=True,
         )
 
-    # Anti-question streak
+    # Anti-question streak — track state only; steer via sidecar if slip repeats
     if state.must_not_question or state.question_streak >= 1:
         return FlowDecision(
             directive=FlowDirective.NO_QUESTION,
@@ -387,7 +393,9 @@ def _format_steer(decision: FlowDecision, *, lines: list[str]) -> str:
 
 
 def build_pre_turn_steer(decision: FlowDecision) -> str:
-    """Micro-steer before agent generates — shapes this turn only."""
+    """Micro-steer before agent generates — only for turns that need shaping."""
+    if not decision.needs_pre_turn_steer:
+        return ""
     lines: list[str] = []
 
     if decision.directive == FlowDirective.DELIVER_MOP:
@@ -449,13 +457,11 @@ def build_correction_steer(
             "Don't use helper language ('sa siap dengar/membantu', 'sa kasih masukan'). "
             "Stay a hangout friend."
         )
-    if analysis.closing_question and (
-        state.must_not_question or state.question_streak >= 1
-    ):
+    if analysis.closing_question and state.question_streak >= 2:
         lines.append(
             "Don't interview the user — follow the conversation that's already flowing."
         )
-    if analysis.closing_question and state.questions_in_window >= QUESTION_LIMIT:
+    if analysis.closing_question and state.questions_in_window > QUESTION_LIMIT:
         lines.append(
             "Too many questions recently — comment or react only, no question mark."
         )
@@ -512,6 +518,8 @@ class ConversationFlowController:
 
         decision = decide_next_turn(self.state, signal)
         self.last_decision = decision
+        if not decision.needs_pre_turn_steer:
+            return None
         steer = build_pre_turn_steer(decision)
         if steer:
             self.pending_pre_turn_steer = steer
@@ -545,15 +553,8 @@ class ConversationFlowController:
         ):
             self.state.user_wants_mop = False
 
-        correction = build_correction_steer(analysis, self.state)
-        if correction:
-            self.pending_correction_steer = correction
-        elif analysis.is_menu_slip or (
-            analysis.closing_question and self.state.question_streak >= 2
-        ):
-            self.pending_correction_steer = build_correction_steer(
-                analysis, self.state
-            )
+        # Flow correction steers disabled — ConversationController sidecar handles slips
+        # without blocking the next user turn (latency).
 
     def take_pre_turn_steer(self) -> str | None:
         steer = self.pending_pre_turn_steer
