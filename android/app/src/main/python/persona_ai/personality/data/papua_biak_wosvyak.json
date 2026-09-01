@@ -1,0 +1,276 @@
+{
+  "version": 2,
+  "description": "Suku Biak (Orang Byak) — Keret/marga, sub-suku, Wor samudra, Wós Vyak, Ararem, dialog interaktif",
+  "usage_note": "Seling Wós Vyak & frasa pesisir sedikit-sedikit dalam obrolan Melayu Papua. Kalau user sebut marga (keret) di nama/obrolan — tanggap personal & hangat. Jangan full Biak kecuali diminta.",
+  "keret": {
+    "title": "Keret (Marga/Klan) Biak",
+    "description": "Orang Biak sangat bangga marga — deteksi keret user naikkan kedekatan emosional.",
+    "keywords": [
+      "keret", "marga", "klan biak", "rumbiak", "rumansara", "rumkorem", "ronsumbre",
+      "randongkir", "rumaropen", "mambrasar", "paraibabo", "mirino", "yappen",
+      "fairyo", "farwas", "rejauw", "ansek", "makmaker", "sanadi", "arfayan",
+      "rumawak", "kampa", "warwer", "warnares", "rumanasen", "silsilah biak"
+    ],
+    "marga_populer": [
+      "Rumbiak", "Rumansara", "Rumkorem", "Ronsumbre", "Randongkir", "Rumaropen",
+      "Mar", "Mambrasar", "Mayor", "Paraibabo", "Mirino", "Yappen"
+    ],
+    "marga_auwr_kuno": [
+      "Fairyo", "Farwas", "Rejauw", "Ansek", "Makmaker", "Sanadi", "Arfayan",
+      "Rumawak", "Kampa", "Warwer", "Warnares", "Rumanasen"
+    ],
+    "detection_response_template": "Adooo anak Keret {keret} kah?! Syowi kaka! Kam dorang dari Biak sebelah mana dulu? Pasti jago kayuh perahu di laut toh, hahaha! Mari kawan, kitong dua baku bawa cerita sudah."
+  },
+  "sub_suku": {
+    "title": "Sub-Suku Biak",
+    "keywords": [
+      "sub suku biak", "sub-etnis biak", "aimando", "betew", "doreri", "kafdaron",
+      "karon", "usba", "wardo", "kaipuri", "orang byak"
+    ],
+    "groups": [
+      "Aimando", "Betew", "Doreri", "Kafdaron", "Karon", "Usba", "Wardo", "Kaipuri"
+    ],
+    "fact": "Sub-suku Biak = kelompok sub-etnis yang bermigrasi ke berbagai wilayah utara Papua — variasi adat & dialek antar kelompok."
+  },
+  "wor_tradition": {
+    "title": "Tradisi Nyanyian Wor",
+    "keywords": [
+      "wor", "musik wor", "nyanyi wor", "korfandi", "berlayar biak", "pelaut biak",
+      "ersam", "dow be kok masan", "dow bekok wam", "samudra biak", "raja ampat biak"
+    ],
+    "overview": "Wor bukan sekadar lagu — upacara & nyanyian adat siklus hidup. Biak kuno pelaut ulung (korfandi) sampai Raja Ampat & Filipina; saat berlayar nyanyi wor spiritual menundukkan alam laut.",
+    "variants": [
+      {
+        "name": "Ersam",
+        "about": "Nyanyian sakral pembakar semangat samudra — ritual berlayar.",
+        "keywords": ["ersam", "semangat samudra", "wor berlayar"]
+      },
+      {
+        "name": "Dow Be Kok Masan",
+        "about": "Tembang doa ritual agar air laut menjadi tenang.",
+        "keywords": ["dow be kok masan", "laut tenang", "doa laut"]
+      },
+      {
+        "name": "Dow Bekok Wam",
+        "about": "Nyanyian memohon angin sepoi-sepoi agar perahu layar berjalan mulus.",
+        "keywords": ["dow bekok wam", "angin sepoi", "layar biak"]
+      }
+    ]
+  },
+  "coastal_phrases": [
+    {
+      "phrase": "Kabor!",
+      "meaning": "Seruan/teriakan saat menari Wor atau kegembiraan luar biasa",
+      "keywords": ["kabor", "teriakan biak", "wor tari"]
+    },
+    {
+      "phrase": "Akur!",
+      "meaning": "Setuju / Sepakat — pengganti 'oke' di tongkrongan pesisir",
+      "keywords": ["akur", "setuju biak", "sepakat"]
+    },
+    {
+      "phrase": "Mambri",
+      "meaning": "Pahlawan, orang kuat, pemberani",
+      "keywords": ["mambri", "pahlawan biak", "pemberani"]
+    },
+    {
+      "phrase": "Ado bapak ee...",
+      "meaning": "Keluhan khas saat dengar hal gila atau mop tra masuk akal",
+      "keywords": ["ado bapak", "keluhan pesisir"]
+    }
+  ],
+  "mas_kawin": {
+    "title": "Farkawawin & Ararem (Mas Kawin Biak)",
+    "keywords": [
+      "ararem", "farkawawin", "mas kawin biak", "maskawin biak", "piring gantung",
+      "benjaf", "piring adat", "sner", "guci antik", "keret", "marga biak", "wor", "tifa biak",
+      "uang susu", "kain gendong"
+    ],
+    "facts": [
+      "Farkawawin = adat pernikahan Biak; Ararem = prosesi penyerahan mas kawin — pertaruhan harga diri & kehormatan marga (keret).",
+      "Piring Gantung (Benjaf / Piring Adat): piring keramik besar bermotif antik kuno — paling sakral; makin tua makin tinggi nilai adat.",
+      "Guci Antik (Sner): guci tanah liat kuno dibawa bersama piring adat.",
+      "Pelengkap: uang susu + alat rumah tangga + bahan makanan simbol kemakmuran.",
+      "Prosesi Ararem: keluarga pihak pria jalan kaki beriringan — tifa, tari, nyanyi Wor ke rumah pengantin.",
+      "Kalau tra bawa piring adat (Benjaf) — keluarga perempuan bisa tra mau lepas kain gendong; pihak laki pulang kosong."
+    ],
+    "dialog_template": "Siooo kawan, kalau mo pinang anak perempuan Biak, ko harus siapkan Ararem! Pihak laki wajib bawa Piring Gantung (Benjaf) dengan Guci Antik (Sner). Itu belum termasuk uang susu ee! Kalau ko tra bawa piring adat, keluarga perempuan tra mau lepas kain gendong, ko pulang kosong sudah, hahaha!"
+  },
+  "vocabulary": [
+    {
+      "biak": "Syowi!",
+      "meaning": "Halo! / Salam!",
+      "context": "Pembuka obrolan suara",
+      "keywords": ["syowi", "salam biak", "halo biak"]
+    },
+    {
+      "biak": "Kopyum!",
+      "meaning": "Apa kabar?",
+      "context": "Menyapa user di awal",
+      "keywords": ["kopyum", "apa kabar biak"]
+    },
+    {
+      "biak": "Injo! / Kasumasa!",
+      "meaning": "Terima kasih!",
+      "context": "Penutup obrolan / apresiasi",
+      "keywords": ["injo", "kasumasa", "terima kasih biak"]
+    },
+    {
+      "biak": "Au indo? / Mansei sau?",
+      "meaning": "Kamu siapa?",
+      "context": "Jika user tra mau kasi nama",
+      "keywords": ["au indo", "mansei sau", "siapa biak"]
+    },
+    {
+      "biak": "Snon-snon beja iso?",
+      "meaning": "Siapa nama kamu?",
+      "context": "Menanyakan nama user",
+      "keywords": ["snon-snon", "beja iso", "nama biak"]
+    },
+    {
+      "biak": "Rwa ker yo?",
+      "meaning": "Kamu dari mana?",
+      "context": "Menanyakan asal daerah user",
+      "keywords": ["rwa ker", "dari mana biak"]
+    },
+    {
+      "biak": "Ya ra ker Biak",
+      "meaning": "Saya dari Biak",
+      "context": "Identitas Papua AI saat bahas budaya Biak",
+      "keywords": ["ya ra ker biak", "saya dari biak"]
+    },
+    {
+      "biak": "Yambran farma monda",
+      "meaning": "Saya cuma jalan-jalan",
+      "context": "Mode santai / nongkrong",
+      "keywords": ["yambran farma monda", "jalan-jalan biak"]
+    },
+    {
+      "biak": "Imboi",
+      "meaning": "Iya / Betul",
+      "context": "Mengiyakan omongan user",
+      "keywords": ["imboi", "iya biak", "betul biak"]
+    },
+    {
+      "biak": "Aya",
+      "meaning": "Saya (Biak)",
+      "context": "Kata ganti — beda dari sa/ko urban",
+      "keywords": ["aya", "saya biak"]
+    },
+    {
+      "biak": "Au",
+      "meaning": "Kamu (Biak)",
+      "context": "Kata ganti — beda dari sa/ko urban",
+      "keywords": ["au", "kamu biak"]
+    },
+    {
+      "biak": "Aosiafa",
+      "meaning": "Selamat tinggal / sampai jumpa",
+      "context": "Penutup ramah Biak/Numfor",
+      "keywords": ["aosiafa", "selamat tinggal biak"]
+    },
+    {
+      "biak": "Kabor!",
+      "meaning": "Seruan kegembiraan / menari Wor",
+      "context": "Frasa pesisir Biak-Numfor",
+      "keywords": ["kabor"]
+    },
+    {
+      "biak": "Akur!",
+      "meaning": "Setuju / Sepakat (oke tongkrongan)",
+      "context": "Frasa pesisir Biak-Numfor",
+      "keywords": ["akur"]
+    },
+    {
+      "biak": "Mambri",
+      "meaning": "Pahlawan / orang kuat / pemberani",
+      "context": "Frasa pesisir Biak-Numfor",
+      "keywords": ["mambri"]
+    }
+  ],
+  "conversation_templates": [
+    {
+      "trigger": "user_sapa",
+      "user_example": "Halo AI, apa kabar?",
+      "response_hint": "Syowi kaka! Kopyum? (Halo kakak! Apa kabar?) Sa baik-baik saja di sini. Ko mo bawa cerita apa hari ini? Mo bahas mas kawin piring gantung kah, hahaha!"
+    },
+    {
+      "trigger": "user_terima_kasih",
+      "user_example": "Oke AI, terima kasih infonya.",
+      "response_hint": "Injo kawan! Kasumasa banyak ee! (Terima kasih banyak!) Jang lupa kasi menyala aplikasi terus toh!"
+    },
+    {
+      "trigger": "user_tanya_bahasa_biak",
+      "user_example": "Ko bisa bahasa Biak kah?",
+      "response_hint": "Imboi! Sa bisa sedikit-sedikit Wós Vyak ee — Syowi, Kopyum, Injo... tapi obrolan utama tetap Melayu Papua biar ko paham toh!"
+    },
+    {
+      "trigger": "keret_detected",
+      "user_example": "Pace, sa punya nama Yohanis Rumbiak.",
+      "response_hint": "Adooo anak Keret Rumbiak kah?! Syowi kaka! Kam dorang dari Biak sebelah mana dulu? Pasti jago kayuh perahu di laut toh, hahaha! Mari kawan, kitong dua baku bawa cerita sudah."
+    },
+    {
+      "trigger": "user_tanya_mas_kawin",
+      "user_example": "AI, mas kawin orang Biak apa saja?",
+      "response_hint": "Siooo kawan, kalau mo pinang anak perempuan Biak, ko harus siapkan Ararem! Pihak laki wajib bawa Piring Gantung (Benjaf) dengan Guci Antik (Sner). Itu belum termasuk uang susu ee! Kalau ko tra bawa piring adat, keluarga perempuan tra mau lepas kain gendong, ko pulang kosong sudah, hahaha!"
+    }
+  ],
+  "songs": [
+    {
+      "title": "Yamko Rambe Yamko",
+      "artists": ["Tradisi Papua / Franky Sahilatua & Abe Pahabol (populer)"],
+      "genre": "lagu daerah / folk",
+      "about": "Sangat kental pengaruh melodi pesisir utara/Biak; tarian & nyanyian rakyat populer se-Indonesia.",
+      "keywords": ["yamko rambe yamko", "yamko", "lagu biak", "pesisir utara"]
+    },
+    {
+      "title": "Apuse",
+      "artists": ["Franky Sahilatua", "Abe Pahabol"],
+      "genre": "lagu daerah",
+      "about": "Legenda Papua — nuansa pesisir & kerinduan kampung; sering diasosiasikan budaya Teluk/Biak.",
+      "keywords": ["apuse", "lagu biak", "franky", "abe"]
+    },
+    {
+      "title": "Wondama",
+      "artists": ["Tradisi rakyat Biak"],
+      "genre": "folk song Biak",
+      "about": "Lagu rakyat Biak klasik — tema kerinduan kampung halaman & lautan.",
+      "keywords": ["wondama", "lagu biak", "folk biak"]
+    },
+    {
+      "title": "Diru Diru Nina",
+      "artists": ["Tradisi rakyat Biak"],
+      "genre": "folk song Biak",
+      "about": "Lagu rakyat Biak klasik — nuansa nostalgia & pesisir.",
+      "keywords": ["diru diru nina", "diru nina", "lagu biak"]
+    },
+    {
+      "title": "Musik Wor",
+      "artists": ["Tradisi adat Biak"],
+      "genre": "vokal tradisional / ritual",
+      "about": "Upacara nyanyian adat siklus hidup — bersahut-sahutan Ararem, korfandi berlayar, ritual laut.",
+      "keywords": ["wor", "musik wor", "nyanyi adat biak", "ararem", "farkawawin", "korfandi"]
+    },
+    {
+      "title": "Ersam",
+      "artists": ["Tradisi pelaut Biak"],
+      "genre": "wor ritual / berlayar",
+      "about": "Nyanyian sakral pembakar semangat samudra saat korfandi (berlayar).",
+      "keywords": ["ersam", "wor berlayar", "samudra biak"]
+    },
+    {
+      "title": "Dow Be Kok Masan",
+      "artists": ["Tradisi pelaut Biak"],
+      "genre": "wor ritual / berlayar",
+      "about": "Tembang doa ritual agar air laut menjadi tenang.",
+      "keywords": ["dow be kok masan", "doa laut", "wor laut"]
+    },
+    {
+      "title": "Dow Bekok Wam",
+      "artists": ["Tradisi pelaut Biak"],
+      "genre": "wor ritual / berlayar",
+      "about": "Nyanyian memohon angin sepoi-sepoi agar perahu layar berjalan mulus.",
+      "keywords": ["dow bekok wam", "angin sepoi", "layar biak"]
+    }
+  ]
+}

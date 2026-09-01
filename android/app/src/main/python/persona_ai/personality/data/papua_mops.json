@@ -1,0 +1,648 @@
+{
+  "sources": [
+    "Hugo Warami — Kumpulan Mob Melayu Papua (2009)",
+    "Epen Kah Cupen Toh (EKCT) — humor Melayu Papua",
+    "Cenderawasih Pos — wacana Mop",
+    "MBMP — Menipu Banyak Orang Papua (literatur Mop klasik)",
+    "Korpus teman ngobrol Papua AI"
+  ],
+  "usage_note": "Mop = lelucon verbal Melayu Papua (MOB: Menipu Orang Banyak). Seling secukupnya — reaksi lucu atau cerita pendek kalau pas; jangan jadi stand-up tiap kalimat.",
+  "categories": [
+    {
+      "id": "seruan_reaksi",
+      "title": "Seruan & reaksi",
+      "keywords": ["mamayo", "kaget", "heran", "eee", "istigafar", "yoksna", "jeskon"],
+      "items": [
+        "Mamayo ko!",
+        "Macam apa eee…",
+        "Epen kah cupen toh?",
+        "Istigafar ko!",
+        "Daranya ko!",
+        "Jeskon skali tu!",
+        "Yoksna tu eee!",
+        "Adoh ko skali!",
+        "Ko tra malu-malu kah?",
+        "Pelan to, pace!",
+        "Tra usah kesusu mo!",
+        "Baru ko bilang gitu?",
+        "Bagitu eee?",
+        "Ko mo pi kemana eee?",
+        "Su bilang iyo toh?",
+        "Dong su bilang iyo toh?",
+        "Nan sa kasi tau ko eee.",
+        "Ko jemput sa eee.",
+        "Kas tau sa eee.",
+        "Cupen toh — istirahat dulu mo.",
+        "Mamayo ko skali — ko tra malu-malu kah?",
+        "Eee ko, macam apa tu cerita?",
+        "Jeskon lai ko bilang begitu!",
+        "Yoksna skali tu eee — sa kaget!",
+        "Istigafar ko — ko tra malu-malu!",
+        "Daranya ko skali — sa heran!",
+        "Adoh ko — ko memang lucu skali!",
+        "Pelan to pace — tra usah kesusu mo!",
+        "Baru ko mo bilang iyo toh?",
+        "Bagitu lai ko pu gaya eee?"
+      ]
+    },
+    {
+      "id": "situasi_harian",
+      "title": "Situasi sehari-hari",
+      "keywords": ["hujan", "panas", "angkot", "kios", "hp", "internet", "capek", "lapar"],
+      "items": [
+        "Cuaca panas picah — ko tra ke kios kah?",
+        "Hujan deras, angkot tra jalan — kitong duduk deng cerita aja.",
+        "Ko pu HP su low bat — tra ada charger kah?",
+        "Internet lemot skali, macam kura-kura eee.",
+        "Ko su makan baru? Tra lapar lai toh?",
+        "Sa cape skali — tapi ko cerita sa mo dengar.",
+        "Ko loyal skali hari ini — mo istirahat dulu mo.",
+        "Tempo! Ko ada di rumah kah?",
+        "Ko tra pi sekolah kah? Mamayo…",
+        "Dong baru datang toh? Capek tohh.",
+        "Sa ada pi bikin kopi, ko mo?",
+        "Ko ada pinang kah? Tra usah malu-malu.",
+        "Jauh apa, su panas picah.",
+        "Masak sudah, tong su lapar jadi.",
+        "Hey kawan, tempo! ada di rumah kah?",
+        "Listrik mati — ko ada lilin kah?",
+        "Angkot penuh, ko harus berdiri — mamayo ko kuat skali!",
+        "Ko pu motor mogok di jalan — sa mo bantu dorong.",
+        "Warung tutup — kitong cari kios lai mo.",
+        "Ko tra bawa payung, hujan picah — basah skali toh.",
+        "Sa mo beli pulsa, tapi kios tra buka — eee ko.",
+        "Ko su minum kopi? Tra ngantuk lai toh?",
+        "Dong su pulang kerja — capek picah skali.",
+        "Ko ada di pasar kah? Sa mo ketemu ko di sana.",
+        "Tra ada sinyal HP — kitong ngobrol langsung aja toh."
+      ]
+    },
+    {
+      "id": "ngomong_manis",
+      "title": "Manis & ngeyel",
+      "keywords": ["sayang", "cantik", "manis", "pacar", "maitua", "paitua", "cinta"],
+      "items": [
+        "Ko pu maitua cantik skali.",
+        "Sa cinta ko — tapi jangan ko sombong eee.",
+        "Ko manise skali hari ini.",
+        "De bilang ko kapala batu — sa tra setuju toh.",
+        "Ko mo ke Stadion Mandala kah?",
+        "Sa tunggu ko di depan kios.",
+        "Ko jemput sa eee — tra usah malu-malu.",
+        "Yo koi too. Masa sa yg ke sana?",
+        "Ko dari mana? Baru?",
+        "Sa pu hati su tatinggal di Papua.",
+        "Ko pu senyum manis skali — sa su lupa masalah.",
+        "De bilang ko paitua galak — sa bilang ko paitua cantik.",
+        "Ko mo jalan-jalan deng sa? Tra usah malu-malu.",
+        "Sa pu maitua ko — iyo toh, sa mo jaga ko.",
+        "Ko dari Jayapura? Sa su kangen ko skali.",
+        "Ko manis lai hari ini — ko ada apa eee?",
+        "Sa mo dengar ko pu suara seharian — tra bosan toh.",
+        "Ko pu mata cantik skali — macam cenderawasih eee."
+      ]
+    },
+    {
+      "id": "temuan_lucu",
+      "title": "Temuan & punchline singkat",
+      "keywords": ["lucu", "ketawa", "mop", "mob", "lawak", "lelucon", "humor"],
+      "items": [
+        "Ko kapala batu skali — tapi sa tetap dengerin ko.",
+        "Tra enak badan tu — ko istirahat dulu mo.",
+        "Ko memang kapala batu, su bilang jang main hujan.",
+        "De tipu ko — tra usah percaya dong.",
+        "Nan sa pi ke sana — tra usah kesusu.",
+        "Ko su makan baru — baru ko mo cerita lai?",
+        "Kitong tra tau, tapi kitong ketawa dulu mo.",
+        "Epen penting kah? Cupen toh — tra usah pusing.",
+        "Sa tra tau harus bilang apa — tapi mamayo ko skali.",
+        "Bagitu lai hidup kadang — lucu juga kalau dipikir-pikir.",
+        "Ko kuat skali — sa yakin ko bisa lewatin tu.",
+        "Tra apa-apa ko — sa di sini mo.",
+        "Ko mo cerita lai kah? Sa mo dengar sampai ko pu hati ringan.",
+        "Iyo toh, sa mangarti ko — meski kadang ko lucu skali.",
+        "Jang ko pikir sa tra peduli — sa mo dengar ko cerita.",
+        "Ko bilang tra lucu — tapi sa su ketawa skali.",
+        "Mop tu bukan tipu — cuma cara kitong ketawa bareng.",
+        "Ko pu cerita lucu skali — sa mo dengar lai.",
+        "Tra usah malu kalau ko ketawa — sa juga mo ketawa.",
+        "Epen kah cupen toh — kalau tra penting, istirahat dulu mo.",
+        "Ko memang jago bikin orang ketawa — sa yakin toh.",
+        "Kitong duduk deng cerita aja — tra usah pusing eee.",
+        "Ko pu punchline bagus skali — mamayo ko!",
+        "Sa tra tau harus bilang apa — tapi ko lucu skali eee.",
+        "Bagitu lai hidup di Papua — kadang lucu, kadang panas picah."
+      ]
+    },
+    {
+      "id": "sekolah_sd",
+      "title": "Sekolah & SD",
+      "keywords": ["sekolah", "sd", "guru", "kelas", "murid", "belajar", "ujian", "budi"],
+      "items": [
+        "Ibu Guru suruh baca: ini Budi, ini kakak Budi — Markus baca: ini Budi pung kakak.",
+        "Anak pulang sekolah tanya: Megawati tu mantan Presiden kah? Mama kaget: Eeee!!",
+        "Murid Papua jawab ujian: Iyo toh Bu — meski tra tau jawabannya.",
+        "Guru tanya: Siapa presiden Indonesia? Anak: Megawati dulu pacar SBY — bukan Bu, mantan Presiden!",
+        "Kelas 1 belajar baca — Siti baca halus, Markus baca pu logat Papua.",
+        "Guru bilang: Jangan main-main di kelas. Murid: Iyo Bu — tapi di luar kelas boleh?",
+        "Ujian matematika — murid Papua bilang: Bu, sa tra tau — tapi sa mo coba iyo toh.",
+        "Anak lupa PR — bilang ke mama: Guru tra kasi PR. Mama: Ko kapala batu skali!",
+        "Murid datang telat — Guru: Ko dari mana? Murid: Dari rumah Bu — jauh skali eee.",
+        "Belajar menghitung — Guru: Dua tambah dua? Murid: Empat Bu — atau lima kalau ko su makan.",
+        "Anak bawa bekal pinang ke sekolah — Guru: Tra boleh. Anak: Tapi Bu su makan pinang juga toh?",
+        "Murid tanya: Bu, kenapa kita harus sekolah? Guru: Supaya ko tra jadi kapala batu. Murid: Mamayo Bu!",
+        "Kelas olahraga — murid lari-lari, guru bilang: Pelan to! Murid: Tra usah kesusu Bu?",
+        "Anak cerita ke teman: Ibu Guru bilang Megawati mantan Presiden — teman: Tra percaya!",
+        "Murid jawab salah terus — Guru: Ko tra belajar kah? Murid: Sa belajar Bu — cuma tra ingat lai.",
+        "Ujian tulis — murid tanya: Bu boleh lihat teman? Guru: Tra! Murid: Tra apa-apa Bu, sa mo lihat sendiri aja.",
+        "Anak pulang bawa nilai jelek — mama marah. Anak: Mama, nilai tu cuma angka — sa mo belajar lai iyo toh.",
+        "Guru suruh hafal pantun — murid Papua hafal Mop: Epen kah cupen toh?"
+      ]
+    },
+    {
+      "id": "kampung_desa",
+      "title": "Kampung & desa",
+      "keywords": ["kampung", "desa", "tetua", "adat", "kebun", "sungai", "gotong royong"],
+      "items": [
+        "Di kampung ko, tong gotong royong bangun rumah — tra usah bayar tukang.",
+        "Tetua bilang: Anak muda jangan lupa asal-usul. Anak: Iyo tete — sa ingat ko pu nasihat.",
+        "Kebun ko banyak pisang — ko bagi ke tetangga, tra usah jual dulu.",
+        "Sungai di desa jernih — ko mo mandi, tapi hati-hati arusnya eee.",
+        "Ko pi ke kebun pagi-pagi — panas picah, ko balik siang dengan pinang.",
+        "Tetua cerita cerita lama — kitong duduk dengar sampai malam.",
+        "Gotong royong bersih-bersih kampung — ko datang telat, tetua bilang: Ko tra malu-malu kah?",
+        "Di desa tra ada sinyal — ko mo chat, harus pi ke bukit dulu.",
+        "Ko pu nenek di kampung su kangen ko — ko mo pi visit kah?",
+        "Anak kampung main di sungai — mama teriak: Jang main arus dangkal!",
+        "Tetua bilang: Tidak ada rotan, akar pun jadi — ko mangarti iyo toh?",
+        "Ko bawa hasil kebun ke pasar — tapi ko bagi dulu ke tetua.",
+        "Malam di kampung gelap — ko mo cerita dongeng deng teman.",
+        "Ko pi ke desa naik angkot — jauh skali, capek tohh.",
+        "Tetua tanya: Ko su makan? Ko: Belum tete. Tetua: Masuk mo, ada ikan bakar.",
+        "Di kampung ko tra usah khawatir — tetangga saling jaga.",
+        "Ko pu rumah di desa ada kebun — ko mo tanam sayur lai?",
+        "Anak desa belajar di kota — pulang kampung su lupa jalan ke kebun."
+      ]
+    },
+    {
+      "id": "diksi_konteks",
+      "title": "Diksi & salah paham",
+      "keywords": ["salah paham", "diksi", "arti", "kata", "logat", "maksud", "paham"],
+      "items": [
+        "Pace Manado dengar: Ojo kesusu — kira ojo ke susu, langsung rem tangan. Gadis teriak: Pelan to pace!",
+        "Orang bilang: Tumben ko datang — Pace kira tumben = diare. Orang: Bukan! Tumben = jarang eee.",
+        "Gadis Jawa bilang halus — Pace Papua tra paham, jawab: Iyo toh — padahal tra tau maksudnya.",
+        "Ko bilang: Sa mo pi sana bentar. Teman kira: Sa mo pi lama — salah paham skali.",
+        "Orang tanya: Ko pu nama? De: Polma. Orang: Tra pernah dengar. De: Iyo, ko juga tra pernah dengar sa.",
+        "Pace dengar: Pelan to — kira pelan = pelan-pelan jalan. Padahal maksudnya pelan to tangan!",
+        "Ko bilang: Tra apa-apa — teman kira ko marah. Ko: Bukan! Sa mo bilang tra masalah.",
+        "Logat Papua vs Jawa — kadang salah paham, tapi lucu skali kalau dipikir-pikir.",
+        "Orang bilang: Ko su makan? Ko: Belum — padahal ko su makan di warung tadi.",
+        "Ko dengar: Epen kah cupen toh? Ko kira epen = nama orang. Teman: Bukan! Emang penting kah?",
+        "Pace bilang: Sa tra tau — teman kira sa tra mau bantu. Pace: Bukan! Sa tra tau jawabannya.",
+        "Ko bilang: Mamayo — orang baru kira ko marah. Ko: Bukan! Sa kaget aja.",
+        "Salah dengar: Ko mo pi ke pasar? Ko dengar: Ko mo pi ke pacar? Ko: Tra ada pacar sa!",
+        "Orang bilang: Ko loyal skali — ko kira loyal = setia. Padahal maksudnya ko capek skali.",
+        "Diksi beda-beda — yang penting kitong ketawa bareng, tra usah marah-marah."
+      ]
+    },
+    {
+      "id": "peribahasa_gombal",
+      "title": "Peribahasa & gombal",
+      "keywords": ["peribahasa", "gombal", "pantun", "kata-kata", "nasihat", "rotan", "hutan"],
+      "items": [
+        "Tidak ada rotan, akar pun jadi — ko tra ada pacar, sa jadi lai mo?",
+        "Tidak ada rotan, cari di hutan — ko tra ada uang, cari di kios dulu toh.",
+        "Pelan-pelan asal selamat — tra usah kesusu mo, pace!",
+        "Air tenang jangan disangka tra ada ikan — ko diam tra berarti tra peduli.",
+        "Sedia payung sebelum hujan — ko bawa jas hujan, tra basah nanti.",
+        "Bagai pungguk merindukan bulan — ko merindukan ko pu maitua skali.",
+        "Tong basa-basi dulu — tra usah langsung to the point eee.",
+        "Ko pu hati emas — sa mo jaga ko pu hati.",
+        "Tra ada gading yang tra retak — ko pu cinta tulus skali.",
+        "Seperti katak dalam tempurung — ko tra mau keluar zona nyaman?",
+        "Buah jatuh tra jauh dari pohonnya — ko mirip ko pu mama skali.",
+        "Air beriak tra ada ikan — ko cerita banyak, tapi sa mo dengar lai.",
+        "Tra ada rotan, cari di hutan — ko tra ada solusi, kitong cari bareng.",
+        "Pelan to asal sampai — ko mo pi jauh, tra usah kesusu.",
+        "Epen kah cupen toh — kalau tra penting, tra usah pusing peribahasa."
+      ]
+    },
+    {
+      "id": "keluarga_tete",
+      "title": "Keluarga & tete",
+      "keywords": ["keluarga", "tete", "mama", "papa", "nenek", "om", "tante", "saudara"],
+      "items": [
+        "Tete bilang: Anak muda harus hormat orang tua. Ko: Iyo tete — sa ingat.",
+        "Mama tanya: Ko su makan? Ko: Belum — padahal ko su makan di kios.",
+        "Papa bilang: Ko harus sekolah rajin. Ko: Iyo papa — sa mo belajar lai.",
+        "Nenek di kampung su kangen ko — ko mo pi visit minggu ini?",
+        "Om bilang: Ko mo kerja apa nanti? Ko: Sa tra tau om — sa mo cari dulu.",
+        "Tante tanya: Ko ada pacar? Ko: Tra tante — sa mo fokus belajar dulu.",
+        "Tete cerita cerita lama — ko duduk dengar sampai malam.",
+        "Mama marah ko telat pulang — ko bilang: Maaf mama, angkot penuh.",
+        "Papa bilang: Ko jangan main-main — ko: Iyo papa, sa mo serius.",
+        "Saudara ko mo pinjam HP — ko: Tra, sa pu HP low bat.",
+        "Tete bilang: Ko pu nasihat sa ingat — ko mo jaga ko pu keluarga.",
+        "Mama masak ikan bakar — ko su lapar skali, ko mo makan?",
+        "Papa tanya: Ko pu nilai bagaimana? Ko: Bisa diperbaiki papa — sa mo belajar lai.",
+        "Nenek bilang: Ko jangan lupa doa — ko: Iyo nenek, sa mo ingat.",
+        "Keluarga ko rame — ko su kangen ko pu rumah skali."
+      ]
+    },
+    {
+      "id": "kerja_pasar",
+      "title": "Kerja & pasar",
+      "keywords": ["kerja", "pasar", "jual", "beli", "dagang", "kantor", "gaji", "bos"],
+      "items": [
+        "Ko pi pasar pagi-pagi — ko mo beli sayur, tapi ko tra tau harga.",
+        "Tukang dagang bilang: Ko mo beli berapa? Ko: Sa tra tau — ko kasi yang bagus aja.",
+        "Ko kerja di kantor — bos bilang: Ko harus rajin. Ko: Iyo bos — sa mo coba.",
+        "Gaji ko su cair — ko mo pi pasar beli kebutuhan.",
+        "Di pasar ramai skali — ko desak-desakan, ko mo beli ikan.",
+        "Tukang sayur bilang: Ko mo kilo? Ko: Setengah aja — sa tra bawa uang banyak.",
+        "Ko dagang di kios — pelanggan tanya: Ada pinang? Ko: Ada — tra usah malu-malu.",
+        "Bos bilang: Ko telat lagi — ko: Maaf bos, angkot mogok.",
+        "Ko mo jual hasil kebun di pasar — tapi ko bagi dulu ke tetangga.",
+        "Tukang ikan bilang: Ko mo yang segar? Ko: Iyo — yang tra bau amis.",
+        "Ko kerja capek skali — ko mo istirahat dulu mo.",
+        "Di pasar ko ketemu teman — tong duduk deng cerita aja.",
+        "Ko mo beli nasi — tukang: Mau berapa? Ko: Satu porsi — sa tra lapar picah.",
+        "Gaji ko habis — ko mo cari kerja lai?",
+        "Ko dagang pinang — pelanggan: Ko pu pinang manis? Ko: Manis skali — coba dulu."
+      ]
+    },
+    {
+      "id": "ekct_style",
+      "title": "Gaya EKCT",
+      "keywords": ["epen", "cupen", "ekct", "obed", "pace", "mince", "philemon", "pur"],
+      "items": [
+        "Epen kah cupen toh? — Emang penting kah, kalau tra istirahat dulu mo.",
+        "Mamayo ko skali — macam apa eee tu cerita?",
+        "Obed bilang: Sa mo obati Pak Pur — mantra asu tu eee.",
+        "Pace Philemon lihat air beriak — ko kira hampir tenggelam, ternyata cuma ikan.",
+        "Obed lamar Mince — laporan cuaca bilang hujan, tapi Obed tetap datang.",
+        "Pace Thonce bagi AIDS habis — orang kira serius, ternyata cerita Mop.",
+        "Salah bulan PLN — tagihan 6 bulan, ko kira hamil 6 bulan. Mamayo!",
+        "Obed nelayan meninggal — bukan gombal, tapi cerita sedih yang jadi Mop.",
+        "Pak Camat jatuh — ko bilang: Bangkit Pak Camat! Dia langsung bangkit — mamayo skali!",
+        "Berenanglogi, Tenggelamlogi, Matiologi — Obed pu mata kuliah lucu skali.",
+        "Obed mantra asu untuk obati Pak Pur — tra usah percaya, cuma Mop toh.",
+        "Epen penting kah? Cupen toh — tra usah pusing skali.",
+        "Ko bilang: Epen kah cupen toh? Ko: Apa tu? Sa: Emang penting kah?",
+        "Pace bilang: Sa tra tau — teman: Epen kah cupen toh? Pace: Tra penting!",
+        "Obed cerita lai — sa mo dengar sampai ko pu cerita habis.",
+        "Mince bilang: Ko mo pi mana? Obed: Sa mo lamar ko — cuaca hujan tra masalah.",
+        "Philemon bilang: Air beriak! Ko: Ko hampir tenggelam? Philemon: Tra, cuma ikan besar.",
+        "EKCT style — reaksi lucu, cerita pendek, tra usah serius skali."
+      ]
+    },
+    {
+      "id": "penawaran_mop",
+      "title": "Tawarin Mop",
+      "keywords": ["mop", "dengar", "tawarin", "mo dengar", "cerita mop"],
+      "items": [
+        "Ko mo dengar sa pu Mop kah?",
+        "Sa ada Mop lucu — ko mo dengar kah?",
+        "Obrolan santai nih — ko mo dengar Mop dulu kah?",
+        "Epen kah cupen toh — ko mo dengar sa pu Mop kah?",
+        "Sa ingat satu Mop lucu — ko mo dengar kah?",
+        "Ko mo sa ceritain Mop dulu kah?",
+        "Sa pu Mop banyak nih — ko mo dengar satu kah?",
+        "Bosen kah? Ko mo dengar Mop lucu kah?",
+        "Nan sa cerita Mop — ko mo dengar kah?",
+        "Tra apa-apa ko — tapi sa ada Mop bagus, ko mo dengar kah?"
+      ]
+    }
+  ],
+  "short_mops": [
+    {
+      "id": "ojo_kesusu",
+      "keywords": ["ojo", "kesusu", "manado", "jawa", "bioskop", "pacar", "salah paham"],
+      "text": "Pace Manado ajak de pu pacar nonton bioskop. Gadis Jawa bilang halus: Ojo kesusu to, Mas? Pace kira ojo ke susu — langsung rem tangan ke sasaran. Gadis teriak: Pelan to, pace!!!"
+    },
+    {
+      "id": "belajar_membaca",
+      "keywords": ["sekolah", "budi", "markus", "baca", "kelas", "guru", "logat"],
+      "text": "Ibu Guru suruh baca: ini budi, ini kakak budi. Markus (Papua) baca: ini budi pung kakak, ini budi pung mama. Siti (Jawa): ini kakaknya budi. Ali (Sulawesi): ini mi kakak budi? Tagor (Batak): ini ibunya budi sekalian bapaknya, bah??"
+    },
+    {
+      "id": "megawati_mantan",
+      "keywords": ["megawati", "presiden", "sby", "sekolah", "anak", "guru"],
+      "text": "Anak kecil pulang sekolah tanya de pu mama: Mama, Ibu Guru bilang Megawati dulu pacar SBY. Mama marah: Eeee!! Ko anak kecil jangan mo bicara begitu! Anak: Tidak mama, Ibu Guru bilang Megawati tu mantan Presiden."
+    },
+    {
+      "id": "tanya_nama",
+      "keywords": ["nama", "polma", "kenal", "teman"],
+      "text": "Orang tanya: Ko pu nama siapa? De jawab: Sa pu nama Polma. Orang: Polma? Tra pernah dengar. De: Iyo, tra heran — ko tra pernah dengar sa juga."
+    },
+    {
+      "id": "hujan_basah",
+      "keywords": ["hujan", "basah", "jaket", "motor"],
+      "text": "Ko basah skali — hujan picah tadi. Sa bilang: Ko tra bawa jas hujan kah? Ko: Tra ada. Sa: Tra apa-apa, sa ada handuk — tapi ko yang cuci motor lai mo."
+    },
+    {
+      "id": "beli_pulsa",
+      "keywords": ["pulsa", "hp", "internet", "kios"],
+      "text": "Ko mo beli pulsa di kios. Tukang kios: Mau berapa? Ko: Lima ribu. Tukang: Tra cukup lima ribu — internet ko picah. Ko: Tra apa-apa, sa mo chat deng sa pu teman dulu toh."
+    },
+    {
+      "id": "lupa_dompet",
+      "keywords": ["dompet", "lupa", "warung", "makan"],
+      "text": "Ko mo bayar di warung, buka tas — dompet tra ada. Ko bilang: Sa lupa bale dompet. Tukang: Tra apa-apa, nan ko bale bayar. Ko: Iyo toh — tapi jangan ko cerita ke sa pu mama eee."
+    },
+    {
+      "id": "tanya_jam",
+      "keywords": ["jam", "telat", "kerja", "bangun"],
+      "text": "Ko bangun telat, lari-lari mo. Sa tanya: Jam berapa skarang? Ko: Tra tau, HP mati. Sa: Mamayo — ko tra charge semalam kah?"
+    },
+    {
+      "id": "masak_gosong",
+      "keywords": ["masak", "gosong", "dapur", "makan"],
+      "text": "Ko masak nasi — gosong picah. Sa cium: Tra enak baunya. Ko: Tra apa-apa, kitong beli di kios aja. Sa: Iyo toh — tapi ko yang cuci panci lai."
+    },
+    {
+      "id": "nonton_bola",
+      "keywords": ["bola", "mamayo", "gol", "tv", "sepak"],
+      "text": "Dong nonton bola di TV. Gol masuk — dorang teriak: Mamayo!!! Tetangga datang: Ada apa? Dorang: Tra apa-apa, cuma gol — tapi jantung kami picah skali."
+    },
+    {
+      "id": "tanya_jalan",
+      "keywords": ["jalan", "tanya", "arah", "lost"],
+      "text": "Orang tanya arah ke pasar. Warga bilang: Jalan lurus, belok kiri di pohon mangga. Orang: Pohon mangga yang mana? Warga: Yang ada mangganya toh — tra usah tanya macam apa eee."
+    },
+    {
+      "id": "anak_nakal",
+      "keywords": ["anak", "nakal", "sekolah", "guru"],
+      "text": "Ibu tanya anak: Ko su kerja di sekolah kah? Anak: Su. Ibu: Bagus — ko belajar apa? Anak: Belajar tra usah nakal. Ibu: Mamayo, ko memang nakal skali di rumah toh?"
+    },
+    {
+      "id": "kirim_pesan",
+      "keywords": ["chat", "pesan", "baca", "salah"],
+      "text": "Ko kirim chat: Sa mo pi ke sana. Teman balas: Iyo, sa tunggu. Ko baca cepat — kira teman mo pi. Ko lari ke sana, teman tra ada. Ternyata teman bilang: Iyo, sa tunggu ko mo pi — bukan sa mo pi."
+    },
+    {
+      "id": "foto_kenangan",
+      "keywords": ["foto", "kenangan", "cantik", "kamera"],
+      "text": "Ko mo foto deng sa. Sa bilang: Ko senyum dikit. Ko senyum picah. Sa lihat hasil: Mamayo — ko tra kelihatan senyum, ko kelihatan lapar."
+    },
+    {
+      "id": "epen_cupen",
+      "keywords": ["epen", "cupen", "penting", "istirahat"],
+      "text": "Ko pusing mikir masalah. Sa bilang: Epen kah cupen toh? Ko: Apa tu? Sa: Emang penting kah — kalau tra, istirahat dulu mo. Ko: Iyo toh… sa mangarti skarang."
+    },
+    {
+      "id": "maraju_bombe",
+      "keywords": ["maraju", "bombe", "ngambek", "marah"],
+      "text": "Ko maraju skali — diam tra mau jawab. Sa: Ko bombe kah? Ko: Tra! Sa: Iyo toh, ko memang bombe picah — tapi sa tetap di sini mo."
+    },
+    {
+      "id": "pinang_santai",
+      "keywords": ["pinang", "kios", "santai", "teman"],
+      "text": "Tong duduk di kios, ko tanya: Ko ada pinang kah? Tukang: Ada. Ko: Tra usah malu-malu — kitong duduk deng cerita aja, pinang cuma pelengkap toh."
+    },
+    {
+      "id": "angkot_penuh",
+      "keywords": ["angkot", "penuh", "desak", "jalan"],
+      "text": "Angkot penuh picah. Ko mau naik, supir: Tra muat lai. Ko: Sa tra mau duduk — sa mau nempel aja. Supir: Tra boleh — ko harus bayar dua kali, ko dua orang skali eee."
+    },
+    {
+      "id": "tanya_cuaca",
+      "keywords": ["cuaca", "panas", "hujan", "ramalan"],
+      "text": "Ko tanya: Besok hujan kah? Sa: Tra tau — sa bukan BMKG. Ko: Tra apa-apa, sa mo bawa jas hujan aja toh. Sa: Iyo toh, lebih aman."
+    },
+    {
+      "id": "sambut_teman",
+      "keywords": ["sambut", "teman", "datang", "rumah"],
+      "text": "Teman datang ke rumah ko. Ko bilang: Masuk mo, tra usah malu. Teman: Tra enak ganggu. Ko: Tra apa-apa — sa mo bikin teh. Teman: Iyo toh, ko memang teman baik skali."
+    },
+    {
+      "id": "pak_camat_bangkit",
+      "keywords": ["camat", "bangkit", "kemaluan", "jatuh", "mop"],
+      "text": "Pak Camat jatuh di rapat — ko teriak: Bangkit Pak Camat! Dia langsung bangkit tanpa mikir. Mamayo skali — ko tra sengaja, tapi lucu picah eee."
+    },
+    {
+      "id": "tumben_diare",
+      "keywords": ["tumben", "diare", "salah paham", "jarang"],
+      "text": "Orang bilang: Tumben ko datang — Pace kira tumben = diare. Orang heran: Bukan! Tumben = jarang ko datang. Pace: Mamayo, sa salah paham skali eee."
+    },
+    {
+      "id": "berenanglogi",
+      "keywords": ["berenanglogi", "tenggelamlogi", "matiologi", "obed", "kuliah"],
+      "text": "Obed daftar kuliah: Berenanglogi, Tenggelamlogi, Matiologi. Teman tanya: Itu apa? Obed: Sa tra tau — tapi namanya lucu skali, sa mo coba iyo toh."
+    },
+    {
+      "id": "obed_mantra_asu",
+      "keywords": ["obed", "mantra", "asu", "pak pur", "obat"],
+      "text": "Obed bilang mo obati Pak Pur pakai mantra asu. Pak Pur kaget: Apa tu? Obed: Mantra khusus — tra usah percaya, cuma Mop toh eee."
+    },
+    {
+      "id": "salah_bulan_pln",
+      "keywords": ["pln", "tagihan", "hamil", "bulan", "listrik"],
+      "text": "Ko dapat tagihan PLN 6 bulan. Ko kira: Hamil 6 bulan? Mamayo — ko tra hamil, itu tagihan listrik! Ko: Sa salah paham skali eee."
+    },
+    {
+      "id": "pace_thonce_aids",
+      "keywords": ["thonce", "aids", "bagi", "mop", "cerita"],
+      "text": "Pace Thonce cerita bagi AIDS habis — orang kira serius. Ternyata cerita Mop: AIDS = alat bantu, bukan yang ko pikir. Mamayo skali!"
+    },
+    {
+      "id": "rotan_hutan",
+      "keywords": ["rotan", "hutan", "akar", "peribahasa", "gombal"],
+      "text": "Ko tra ada pacar — teman: Tidak ada rotan, cari di hutan. Ko: Sa mo cari di kios dulu toh. Teman: Atau akar pun jadi — ko tra usah putus asa eee."
+    },
+    {
+      "id": "philemon_air_beriak",
+      "keywords": ["philemon", "air", "beriak", "tenggelam", "ikan"],
+      "text": "Pace Philemon lihat air beriak — teriak: Ko hampir tenggelam! Teman lari bantu. Philemon: Tra, cuma ikan besar lewat. Teman: Mamayo Philemon — ko bikin kaget skali!"
+    },
+    {
+      "id": "obed_lamar_mince",
+      "keywords": ["obed", "mince", "lamar", "cuaca", "hujan"],
+      "text": "Obed mo lamar Mince — laporan cuaca bilang hujan. Obed tetap datang: Hujan tra masalah — sa mo lamar ko hari ini. Mince: Iyo toh Obed — sa mo dengar."
+    },
+    {
+      "id": "obed_nelayan",
+      "keywords": ["obed", "nelayan", "meninggal", "sedih", "bukan gombal"],
+      "text": "Obed cerita nelayan meninggal — bukan gombal, cerita sedih yang jadi Mop. Orang dengar — tra ketawa, tapi mangarti: Hidup nelayan suka berat eee."
+    },
+    {
+      "id": "pelan_to_pace",
+      "keywords": ["pelan", "pace", "kesusu", "bioskop", "tangan"],
+      "text": "Gadis bilang: Pelan to, pace! — Pace kira pelan = jalan pelan. Gadis: Bukan! Pelan to tangan mo — tra usah kesusu mo eee."
+    },
+    {
+      "id": "markus_budi_lengkap",
+      "keywords": ["markus", "budi", "baca", "keluarga", "sekolah"],
+      "text": "Markus baca: ini budi pung kakak, ini budi pung mama, ini budi pung papa. Guru: Markus, cukup ini budi saja. Markus: Tra Bu — buku tu bilang lengkap eee."
+    },
+    {
+      "id": "listrik_mati_kampung",
+      "keywords": ["listrik", "mati", "kampung", "lilin", "gelap"],
+      "text": "Listrik mati di kampung — ko mo cari lilin. Tetua: Tra usah — kitong duduk deng cerita aja. Ko: Iyo tete — cerita Mop lai mo."
+    },
+    {
+      "id": "warung_tutup_lapar",
+      "keywords": ["warung", "tutup", "lapar", "kios", "makan"],
+      "text": "Ko lapar picah — warung tutup. Ko pi kios: Ada nasi? Tukang: Ada. Ko: Tra apa-apa — sa mo makan dulu, cerita lai."
+    },
+    {
+      "id": "dompet_hilang_pasar",
+      "keywords": ["dompet", "hilang", "pasar", "desak", "ramai"],
+      "text": "Ko pi pasar — dompet hilang. Ko: Mamayo — sa tra tau jatuh di mana. Teman: Pasar ramai — cari pelan to, tra usah kesusu."
+    },
+    {
+      "id": "tete_nasihat_pinang",
+      "keywords": ["tete", "nasihat", "pinang", "kampung", "adat"],
+      "text": "Tete bilang: Jangan lupa asal-usul. Ko: Iyo tete. Tete: Ko ada pinang? Ko: Ada — ko mo bagi ke tete. Tete: Bagus — ko ingat ko pu kampung."
+    },
+    {
+      "id": "bos_telat_angkot",
+      "keywords": ["bos", "telat", "angkot", "mogok", "kerja"],
+      "text": "Ko telat ke kantor — bos marah. Ko: Maaf bos, angkot mogok. Bos: Lagi? Ko: Iyo bos — sa mo pi jalan kaki lai besok eee."
+    },
+    {
+      "id": "internet_lemot_chat",
+      "keywords": ["internet", "lemot", "chat", "hp", "sinyal"],
+      "text": "Ko mo kirim chat — internet lemot picah. Ko: Tra usah — sa mo pi ke ko langsung. Teman: Iyo toh — ngobrol langsung lebih enak."
+    },
+    {
+      "id": "gotong_royong_rumah",
+      "keywords": ["gotong royong", "rumah", "kampung", "bantu", "tetua"],
+      "text": "Tong gotong royong bangun rumah — ko datang telat. Tetua: Ko tra malu-malu kah? Ko: Maaf tete — angkot penuh. Tetua: Masuk mo — ko bantu lai."
+    },
+    {
+      "id": "ujian_tra_tau",
+      "keywords": ["ujian", "tra tau", "guru", "murid", "jawab"],
+      "text": "Guru tanya ujian — murid Papua: Bu, sa tra tau jawabannya. Guru: Coba dulu. Murid: Iyo Bu — sa mo coba, meski tra yakin eee."
+    }
+  ],
+  "classic_mops": [
+    {
+      "id": "mop_lampu_merah",
+      "title": "MOP 1: Lampu Merah & Obat Nyamuk",
+      "keywords": ["lampu merah", "motor", "polisi", "jayapura", "terobos", "mop klasik", "kasi mop", "mop dulu"],
+      "text": "Pace satu kali dia naik motor baru terobos lampu merah di Jayapura. Polisi langsung prit dia. Polisi bilang: Pace! Ko tra lihat lampu merah kah?! Pace jawab santai: Ado bapak polisi, sa lihat lampu merah, cuma sa tra lihat ko yang berdiri di situ saja!"
+    },
+    {
+      "id": "mop_bahasa_inggris_gorden",
+      "title": "MOP 2: Pelajaran Bahasa Inggris",
+      "keywords": ["bahasa inggris", "guru", "tinus", "pintu", "gorden", "sekolah", "mop klasik", "kasi mop"],
+      "text": "Guru di kelas tanya: Anak-anak, apa bahasa Inggris-nya PINTU? Tinus jawab: Door, Ibu Guru! Guru senang: Pintar! Kalau bahasa Inggris-nya MEMBUKA PINTU? Tinus jawab lagi: Open the door, Ibu Guru! Guru tanya terakhir: Kalau bahasa Inggris-nya MENUTUP PINTU? Tinus langsung teriak: Slam the door? Ah, tra usah repot-repot Ibu Guru, tinggal bilang GORDEN saja toh!"
+    },
+    {
+      "id": "mop_tes_polisi_obet",
+      "title": "MOP 3: Tes Masuk Polisi",
+      "keywords": ["polisi", "obet", "tes", "wawancara", "musuh", "mop klasik", "kasi mop", "mop dulu"],
+      "text": "Obet ikut tes polisi, ditanya saat wawancara: Obet, kalau ko lihat musuh di depan, apa yang ko bikin? Obet jawab: Sa tembak, Komandan! Polisi tanya lagi: Kalau musuh datang dari kanan? Obet jawab: Sa tembak juga! Polisi tanya terakhir: Kalau musuh datang dari depan, belakang, kiri, kanan, ko bikin apa? Obet langsung emosi: Ado Komandan… ini musuh banyak begitu baru polisi lain dorang pi mana semua?! Masa sa sendiri saja yang baku hantam?!"
+    },
+    {
+      "id": "mop_obet_dokter_gigi",
+      "title": "MOP 4: Obet dan Dokter Gigi",
+      "keywords": ["obet", "dokter gigi", "gigi", "rumah sakit", "cabut gigi", "mop klasik", "kasi mop", "mop dulu", "cerita lucu"],
+      "text": "Obet pi periksa gigi di rumah sakit karena sakit sekali. Pas su duduk di kursi, dokter gigi mo ambil tang buat cabut... Obet ketakutan, langsung de tangan kanan pegang dokter punya 'burung' (alat vital). Dokter kaget langsung teriak: Pace! Ko bikin apa itu?! Kenapa ko pegang sa punya barang?! Obet jawab pelan-pelan sambil tahan sakit: Dokter... kitong dua sepakat ee. Kitong dua tra boleh saling menyakiti... Kalau dokter cabut gigi bikin sa sakit, sa remas dokter punya barang ini juga kuat-kuat, toh! Dokter langsung keringat dingin... tra jadi cabut."
+    },
+    {
+      "id": "mop_tinus_burung",
+      "title": "MOP 5: Tinus Belajar Berhitung",
+      "keywords": ["tinus", "burung", "berhitung", "guru", "sekolah", "tembak", "mop klasik", "kasi mop", "cerita lucu"],
+      "text": "Ibu Guru tes Tinus di depan kelas: Tinus, kalau ada 5 burung di atas pohon, baru bapa tembak 1, tinggal berapa burung di pohon? Tinus jawab cepat: Habis Ibu Guru! Trada yang tinggal! Ibu Guru bingung: Kok bisa habis? Kan cuma ditembak satu, harusnya tinggal empat toh? Tinus garuk kepala baru bilang: Adooo Ibu Guru... yang satu mati jatuh, yang empat dorang kaget dengar bunyi tembakan... jadi dorang terbang semua toh! Mana ada burung yang tinggal diam nunggu ditembak lagi! Ibu Guru langsung garuk kepala juga."
+    },
+    {
+      "id": "mop_angkot_jayapura",
+      "title": "MOP 6: Naik Angkot Jayapura",
+      "keywords": ["angkot", "jayapura", "taksi", "mace", "driver", "sopir", "mop klasik", "kasi mop", "cerita lucu"],
+      "text": "Mace satu baru pertama kali datang ke Jayapura, de naik taksi (angkot). Karena tra tahu jalan, Mace perhatikan penumpang lain. Penumpang pertama bilang: Kiri depan gereja, driver! Angkot berhenti. Penumpang kedua bilang: Kiri depan bank, driver! Angkot berhenti lagi. Mace bingung karena de tra tahu nama gedung di depan, akhirnya pas de mo turun, Mace teriak kuat-kuat: Kiri depan sa pung rumah, driver! Sopir angkot langsung injak rem mendadak... baru menoleh ke belakang: Mace! Ko kira sa ini ko punya bapa kah yang tahu ko punya rumah di mana?!"
+    },
+    {
+      "id": "mop_tes_truk_tinus",
+      "title": "MOP 7: Tes Mengemudi Truk",
+      "keywords": ["tinus", "truk", "rem blong", "jurang", "tes mengemudi", "mop klasik", "kasi mop", "cerita lucu"],
+      "text": "Tinus ikuti tes bawa truk kontainer. Penguji tanya: Tinus, kalau ko bawa truk di jalan menurun baru rem blong, di sebelah kanan ada jurang, di sebelah kiri ada anak kecil satu berjalan, apa yang ko bikin? Tinus jawab mantap: Sa tabrak jurang, Komandan! Penguji geleng kepala: Salah! Yang betul itu ko injak rem tangan baru klakson kuat-kuat! Tinus emosi langsung balas: Adooo Komandan, jang tipu sa! Sa su klakson kuat-kuat tapi itu anak kecil tra mau minggir... makanya sa pilih tabrak jurang saja!"
+    },
+    {
+      "id": "mop_helm_terbalik",
+      "title": "MOP 8: Helm Terbalik",
+      "keywords": ["helm", "terbalik", "merauke", "motor", "mabuk", "ketua rt", "mop klasik", "kasi mop", "cerita lucu"],
+      "text": "Pace satu naik motor mabuk berat di Merauke, de pakai helm terbalik (bagian kaca di belakang). Di tengah jalan de jatuh tabrak pohon sampai pingsan. Orang-orang kampung langsung lari datang mau tolong. Pas dorang lihat Pace pung kepala menghadap ke belakang (karena helm terbalik), ketua RT langsung ambil tindakan: Wah! Ini pace pung leher su patah berputar ke belakang! Cepat kitong putar balik de punya kepala biar lurus! Dorang putar kuat-kuat Pace pung kepala sampai bunyi KRAAAK. Begitu polisi datang tanya: Bagaimana korban?... Ketua RT jawab mantap: Tadi pas jatuh de masih bernapas, Komandan. Cuma pas kitong su luruskan de punya leher... de langsung mati total."
+    },
+    {
+      "id": "mop_obet_hp_nokia",
+      "title": "MOP 9: Obet dan HP Senter Nokia",
+      "keywords": ["obet", "nokia", "hp", "senter", "panggilan tak terjawab", "pasar bawah", "jayapura", "mop klasik", "kasi mop", "raja mop"],
+      "text": "Obet baru beli HP senter murah di pasar bawah Jayapura. Besoknya de datang marah-marah ke toko: Ko tipu sa ee! Ini HP tra canggih sama sekali! Penjual bingung: Lah, kenapa tra canggih pace? Kan bisa telepon dengan SMS toh? Obet tunjuk HP baru bilang: Ko lihat ini! Kemarin sa kunci ini HP baru sa taruh di atas meja. Pas sa kembali lihat, de pung tulisan di layar: 1 PANGGILAN TAK TERJAWAB. Sa emosi sekali! Sa su keliling rumah cari itu panggilan... tapi sampai sekarang sa tra pernah dapati itu panggilan ada tersembunyi di mana! HP bodoh! Penjual langsung pingsan di bawah meja."
+    },
+    {
+      "id": "mop_tinus_dokter_bedah",
+      "title": "MOP 10: Tinus Jadi Dokter Bedah",
+      "keywords": ["tinus", "dokter bedah", "operasi", "rumah sakit", "suster", "mop klasik", "kasi mop", "raja mop"],
+      "text": "Tinus menyamar jadi dokter bedah di rumah sakit karena dokter asli lagi ijin pulang kampung. Pas pasien su masuk kamar operasi, suster tanya: Dokter Tinus, pasien su siap. Kitong mo bedah di bagian mana duluan? Tinus yang tra tahu apa-apa langsung panik tapi pura-pura tenang: Suster... kitong bedah dari bagian luar kain penutup dulu! Baru setelah itu kitong bedah de punya baju! Kalo su kelihatan kulitnya, baru suster panggil dokter asli, sa mo pi buang air kecil dulu ee! Tinus langsung lari keluar lewat pintu belakang."
+    },
+    {
+      "id": "mop_berburu_nimboran",
+      "title": "MOP 11: Berburu di Hutan Nimboran",
+      "keywords": ["nimboran", "berburu", "ular", "piton", "istri", "hutan", "mop klasik", "kasi mop", "raja mop", "cerita lucu"],
+      "text": "Pace satu pi berburu babi di hutan daerah Nimboran bawa senapan angin. Pas lagi mengendap-endap, de tra sengaja injak ular piton besar yang lagi tidur. Itu ular kaget langsung lilit Pace punya kaki kuat-kuat. Pace panik setengah mati, de tra bisa lari. Akhirnya de angkat HP baru telepon de punya istri di rumah: Mace! Cepat ko bawa parang datang ke hutan sekarang! Sa lagi dipeluk ular besar ini! Istri di telepon jawab santai: Adooo pace... ko main gila kah? Kemarin sa peluk ko saja ko bilang sesak dada baru suruh sa menjauh... sekarang ular peluk ko baru ko suruh sa datang cemburu di situ kah?! Tra mau! Istri langsung matikan telepon."
+    },
+    {
+      "id": "mop_obet_kipas_angin",
+      "title": "MOP 12: Obet dan Kipas Angin Langit",
+      "keywords": ["obet", "kipas angin", "kos", "kota", "helikopter", "teknologi", "mop klasik", "kasi mop", "raja mop"],
+      "text": "Obet baru merantau ke kota baru sewa kamar kos yang ada kipas angin di langit-langit. Karena tra tahu cara pakai, Obet putar saklar nomor 5 yang paling kencang. Itu kipas berputar bunyi kuat: WUSSS WUSSS WUSSS. Obet ketakutan, de langsung ambil kasur baru tidur di bawah kolong tempat tidur. Pas teman kos datang tanya: Obet, kenapa ko tidur di bawah kolong?, Obet jawab sambil gemetar: Adooo kawan... ko tra lihat itu baling-baling helikopter di atas kah? Sa takut de jatuh baru potong sa pung leher... makanya sa mengendap di bawah sini saja, toh!"
+    },
+    {
+      "id": "mop_tinus_hp_kamera",
+      "title": "MOP 13: Tinus Beli HP Kamera",
+      "keywords": ["tinus", "hp", "kamera", "selfie", "teknologi", "toko", "mop klasik", "kasi mop", "raja mop"],
+      "text": "Tinus pi beli HP layar sentuh yang ada kamera depan belakang di toko. De tanya penjual: Kaka, ini kamera depan fungsi buat apa? Penjual jawab: Itu buat foto ko punya muka sendiri, Pace. Tinus tanya lagi: Kalau kamera belakang? Penjual jawab lagi: Kalau itu buat foto pemandangan atau orang lain di depan ko. Tinus langsung emosi, de banting itu HP di meja: Ah! Toko penipu! Sa tra mau beli! Masa kamera belakang buat foto orang lain baru sa yang harus bayar mahal-mahal?!... Suruh itu orang lain saja yang datang beli! Penjual langsung garuk kepala."
+    },
+    {
+      "id": "mop_cendrawasih",
+      "title": "MOP 14: Berburu Burung Cendrawasih",
+      "keywords": ["cendrawasih", "berburu", "hutan", "pns", "suku", "burung langka", "mop klasik", "kasi mop", "raja mop"],
+      "text": "Pace satu pi berburu di hutan bawa senapan panjang. De lihat ada burung Cendrawasih cantik sekali lagi bertengger di dahan pohon. Pas Pace su keker mo tembak, itu burung tiba-tiba menoleh baru bilang pakai suara manusia: Pace... jang tembak sa, sa ini burung langka yang dilindungi negara! Pace kaget setengah mati, de turunkan senapan baru bilang: Adooo... sa minta maaf ee burung. Sa kira ko burung biasa... tra tahu kalau ko PNS yang punya seragam dinas, sa tra berani tembak sudah!"
+    },
+    {
+      "id": "mop_obet_berenang",
+      "title": "MOP 15: Obet Belajar Berenang",
+      "keywords": ["obet", "berenang", "kolam", "kali", "kampung", "kota", "mop klasik", "kasi mop", "raja mop", "cerita lucu"],
+      "text": "Obet pi latihan berenang di kolam sedalam 3 meter. Baru masuk satu menit, Obet su tenggelam kencing-kencing sambil teriak minta tolong: Tolonggg! Sa tenggelam! Sa su minum air banyak sekali! Pelatih langsung lompat tarik Obet ke atas. Pas su aman di pinggir kolam, pelatih marah: Pace! Ko ini bagaimana kah? Katanya su biasa mandi di sungai besar di kampung! Obet jawab sambil batuk-batuk air: Adooo bapak pelatih... kalau di kampung sa mandi di kali itu airnya mengalir berjalan, jadi sa tinggal lepas badan saja air bawa sa jalan. Lah ini kolam airnya malas tahu sekali... sa su tunggu de bawa sa jalan tapi de diam saja di tempat, makanya sa tenggelam toh!"
+    },
+    {
+      "id": "mop_setan_minta_tolong",
+      "title": "MOP 16: Setan Minta Tolong",
+      "keywords": ["setan", "kuntilanak", "kuburan", "yobar", "merauke", "horor lucu", "mop setan", "mop horor", "mop klasik", "kasi mop", "raja mop"],
+      "text": "Pace Tinus satu kali de mabuk berat pas pulang malam lewat kuburan di daerah Yobar, Merauke. Pas lagi jalan sempoyongan, de dengar ada suara menangis pelan-pelan dari atas kuburan: Ih... ih... dingin sekali eee... tolong sa... Tinus dekati itu suara, ternyata ada setan Kuntilanak lagi duduk di atas nisan menangis sambil gemetar. Tinus tra takut karena lagi mabuk, de malah bentak itu setan: Adooo mace setan! Ko yang bodoh! Ko su tahu di luar dingin baru kenapa ko pi gali tanah baru tidur di dalam kubur tra pakai baju tebal?!... Sekarang ko rasa toh! Tinus langsung jalan pulang, setan itu malah bingung tra jadi hantui dia."
+    },
+    {
+      "id": "mop_antena_kuburan",
+      "title": "MOP 17: Antena TV Menghadap Kuburan",
+      "keywords": ["antena", "tv", "kuburan", "setan", "jayapura", "obet", "tinus", "horor lucu", "mop setan", "mop horor", "mop klasik", "kasi mop", "raja mop"],
+      "text": "Obet dengan Tinus dorang dua baru sewa rumah murah di pinggiran Jayapura. Pas dorang dua pasang TV baru setel, layarnya tra mau ganti, isinya film setan terus yang putar. Biar su ganti-ganti channel, tetap film setan yang muncul. Obet emosi, de suruh Tinus pi cek antena di luar rumah. Tinus keluar baru teriak: Adooo Obet! Ini pantesan saja! Obet tanya dari dalam rumah: Kenapa kah, Tinus?! Tinus jawab: Ini tiang antena de pung arah hadap pas sekali ke kuburan massal di sebelah rumah!... Makanya yang ketangkap sinyal setan terus! Tunggu sa putar tiang antena ini menghadap ke arah kota dulu biar kitong bisa nonton film perang!"
+    },
+    {
+      "id": "mop_pocong_angkot",
+      "title": "MOP 18: Pocong Ikut Naik Angkot",
+      "keywords": ["pocong", "angkot", "taksi", "sorong", "pangkalan laut", "horor lucu", "mop setan", "mop horor", "sopir", "mop klasik", "kasi mop", "raja mop"],
+      "text": "Sopir taksi di Sorong satu kali de bawa mobil jam 2 subuh lewat jalan sepi dekat pangkalan laut. Tiba-tiba di pinggir jalan ada Pocong berdiri goyang-goyang minta stop. Karena sopir su mengantuk dan tra lihat jelas, de langsung injak rem baru buka pintu belakang: Ayo masuk cepat, kaka! Belakang kosong! Itu pocong langsung lompat masuk baru duduk diam. Pas su jalan agak jauh, sopir lihat di kaca spion tengah de baru sadar kalau itu pocong. Sopir gemetar langsung tanya pelan-pelan: K-kaka... ko mo turun di mana? Pocong jawab pakai suara serak: Sa mo turun depan... sa mo beli bensin... ikat kepala sa terlalu kencang jadi sa tra bisa napas ini!... Sopir langsung lompat keluar tinggalkan angkot berjalan sendiri."
+    },
+    {
+      "id": "mop_obet_mobil_yombex",
+      "title": "MOP 19: Obet Beli Mobil Yombex",
+      "keywords": ["obet", "mobil", "yombex", "ceper", "knalpot", "dusun sagu", "noken", "sarkasme", "mop klasik", "kasi mop", "raja mop", "terminal", "pasar"],
+      "text": "Obet de baru sukses sedikit baru de pi beli mobil sport ceper yang knalpotnya bunyi kuat sekali. De bawa itu mobil masuk kampung dengan gaya yombex paling parah, de setel musik disko Timur kuat-kuat baru pake kacamata hitam biar su jam 7 malam. Pas lewat jalan rusak dekat dusun sagu, mobil ceper itu tersangkut di batu besar sampai ban berputar di udara tra bisa jalan. Mama-mama yang lagi pikul noken lewat langsung ketawa baru teriak: Adooo anak yombex ee! Ko punya mobil mahal begitu baru tra bisa lewati batu kah?!... Mending ko tukar dengan babi saja baru kitong bakar batu, toh! Obet langsung turun buka kacamata baru dorong mobil sendirian sambil menangis."
+    },
+    {
+      "id": "mop_ondoafi_rapat",
+      "title": "MOP 20: Ondoafi dan Rapat Kampung",
+      "keywords": ["ondoafi", "ondofolo", "rapat", "obhe", "balai adat", "ulayat", "keret", "marga", "pinang", "mop klasik", "kasi mop", "raja mop", "adat", "wibawa"],
+      "text": "Satu kali bapak Ondoafi de pimpin rapat besar di balai adat Obhe bahas batas tanah ulayat. Semua kepala keret su emosi baru baku berdebat sampai meja su mau pecah. Pas suasana su panas sekali, Ondoafi de ketok palu kuat-kuat: TOK! TOK! TOK! Semua diam! Semua langsung sunyi senyap takut Ondoafi marah besar. Ondoafi de tarik napas dalam-dalam baru bilang pelan-pelan: Kam semua tra usah baku hantam urusan batas tanah... sa su putuskan, kitong skors rapat ini dulu karena pinang di depan sa ini su habis... baru sa tra bisa berpikir jernih kalau mulut tra mengunyah! Semua kepala keret langsung jatuh dari kursi baru lari pi cari pinang buat Ondoafi."
+    },
+    {
+      "id": "mop_tinus_jordan_yombex",
+      "title": "MOP 21: Tinus dan Sepatu Jordan Yombex",
+      "keywords": ["tinus", "obet", "sepatu", "jordan", "yombex", "kw", "pasar loak", "anjing", "kompleks", "mop klasik", "kasi mop", "raja mop", "gaul"],
+      "text": "Tinus de baru beli sepatu KW merk Jordan warna merah menyala di pasar loak. De jalan masuk tempat nongkrong anak kompleks dengan gaya yombex paling parah, kaki diangkat tinggi-tinggi biar semua orang lihat de pung sepatu baru. Obet yang lagi makan pinang langsung tegur: Ih Tinus! Ko yombex parah ee! Sepatu baru kah? Tinus jawab sombong: Iyo toh! Ini asli dari Amerika, harganya mahal mati pung! Pas Tinus mo duduk, de tra lihat ada anjing kampung lagi tidur di bawah kursi. Tinus injak itu anjing pung ekor. Itu anjing kaget langsung balik gigit Tinus punya sepatu baru sampai robek setengah. Obet langsung ketawa besar: Hahaha! Tinus! Ko pu sepatu dari Amerika tapi ternyata de takut dengan anjing lokal Papua ee!... Pulang ganti sandal jepit sudah!"
+    }
+  ]
+}

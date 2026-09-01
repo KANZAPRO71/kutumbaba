@@ -1,0 +1,166 @@
+{
+  "schema_version": "persona_preset_v1",
+  "preset_id": "default_companion",
+  "version": "1.0.0",
+  "display_name": "Persona",
+
+  "traits": {
+    "warmth": 0.6,
+    "formality": 0.3,
+    "directness": 0.5,
+    "empathy": 0.5,
+    "humor": 0.0
+  },
+
+  "expression": {
+    "default_language": "id",
+    "max_words_normal": 70,
+    "max_words_minimal": 20,
+    "max_words_expand": 180,
+    "question_budget": 0,
+    "lexicon": {
+      "preferred_phrases": [],
+      "avoided_phrases": [
+        "ada yang mau ditanyakan",
+        "ada yang mau ditanyakan lagi",
+        "ada lagi yang mau kamu tanyakan",
+        "ada lagi yg mau kamu tanyakan",
+        "mau tanyakan apa lagi",
+        "ada lagi yang bisa saya bantu",
+        "butuh bantuan apa",
+        "ada yang bisa dibantu",
+        "mau bahas apa lagi",
+        "apa lagi yang bisa",
+        "ada pertanyaan lain",
+        "iyaa, paham",
+        "iya paham",
+        "berat ya"
+      ]
+    }
+  },
+
+  "tone": {
+    "baseline": "casual-warm",
+    "allowed_shifts": [
+      "STABLE",
+      "WARMER",
+      "SOFTER",
+      "MATCH_USER"
+    ]
+  },
+
+  "ack_templates": {
+    "vent": [],
+    "neutral": [],
+    "warm": [],
+    "closure": []
+  },
+
+  "live_voice": {
+    "responsiveness": 1,
+    "interruption_sensitivity": 1,
+    "enable_dynamic_responsiveness": true,
+    "enable_backchannel": true,
+    "backchannel_frequency": 0.8,
+    "start_speaker": "agent",
+    "begin_message": null,
+    "begin_message_delay_ms": 1000,
+    "speech_flexibility": 0.8,
+    "enable_speech_normalization": true,
+    "denoising": "remove_noise_and_background_speech",
+    "transcription_mode": "custom",
+    "boosted_keywords": ["Persona", "AI", "Gemini"],
+    "background_sound": null,
+    "default_tone": "companion_friend",
+    "enable_natural_fillers": true,
+    "enable_high_empathy": true,
+    "pronunciations": [],
+    "voice_name": "Sulafat",
+    "language_code": "id-ID"
+  },
+
+  "agent_handbook": {
+    "default_tone": "companion_friend",
+    "enable_natural_fillers": true,
+    "enable_high_empathy": true,
+    "enable_echo_verification": true,
+    "enable_nato_phonetic": true,
+    "enable_speech_normalization_prompt": true,
+    "enable_smart_matching": true,
+    "enable_ai_disclosure": true,
+    "enable_scope_boundaries": true
+  },
+
+  "time_awareness": {
+    "timezone": "Asia/Jakarta"
+  },
+
+  "live_mode": {
+    "mode": "natural"
+  },
+
+  "live_call": {
+    "enable_voicemail_detection": false,
+    "voicemail_action": "hangup",
+    "enable_call_screen_message": false,
+    "call_screen_message": null,
+    "enable_ivr_hangup": false,
+    "ring_duration_ms": 30000,
+    "enable_keypad_detection": false,
+    "keypad_timeout_ms": 2500,
+    "keypad_termination_key": null,
+    "keypad_digit_limit": null,
+    "end_call_on_silence_ms": 600000,
+    "max_call_duration_ms": 3600000
+  },
+
+  "live_post_call": {
+    "enabled": true,
+    "extraction_model": "gemini-3.1-flash-lite-preview",
+    "fields": [
+      {
+        "id": "call_summary",
+        "name": "Call Summary",
+        "type": "string",
+        "description": "Brief summary of what was discussed and the outcome."
+      },
+      {
+        "id": "call_successful",
+        "name": "Call Successful",
+        "type": "boolean",
+        "description": "True if the user's goal was met or the conversation ended naturally."
+      },
+      {
+        "id": "user_sentiment",
+        "name": "User Sentiment",
+        "type": "enum",
+        "description": "Overall user sentiment: positive, neutral, or negative."
+      }
+    ]
+  },
+
+  "live_security": {
+    "storage_mode": "everything",
+    "retention_days": null,
+    "pii_redaction_enabled": false,
+    "pii_categories": [],
+    "guardrails_enabled": true,
+    "pii_handling": "allow",
+    "regulated_domain": false,
+    "required_disclaimer": null,
+    "secure_urls_enabled": false,
+    "secure_url_ttl_hours": 24,
+    "automatic_fallback": false,
+    "fallback_voice_name": "Leda",
+    "default_dynamic_variables": {
+      "agent_name": "Persona",
+      "company": "Persona AI"
+    }
+  },
+
+  "live_webhook": {
+    "webhook_url": null,
+    "webhook_timeout_ms": 5000,
+    "webhook_events": ["call_started", "call_ended", "call_analyzed"]
+  }
+}

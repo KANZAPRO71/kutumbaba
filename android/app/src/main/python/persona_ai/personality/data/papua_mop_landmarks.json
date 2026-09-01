@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "description": "Ikon tempat nyata Papua — booster lokalisasi cerita Mop (Jayapura, Sorong, Merauke)",
+  "usage_note": "Kalau user sebut tempat ini, sesuaikan setting mop & obrolan dengan nuansa lokal.",
+  "regions": [
+    {
+      "id": "jayapura_sentani",
+      "title": "Jayapura & Sekitarnya",
+      "keywords": ["jayapura", "abepura", "abe", "sentani", "entrop", "hamadi", "youtefa", "dok dua", "dok v", "bukit jokowi", "jayapura city", "port numbay", "numbay", "bhuvani", "tabi", "tobati", "taksi sentani"],
+      "landmarks": [
+        "Port Numbay / Numbay: nama adat Jayapura kota — suku asli pesisir Teluk Youtefa.",
+        "Tobati & Enggros: kampung adat Teluk Youtefa — marga Mano (Ondoafi), Hanasbey, Ireeuw.",
+        "Bhuvani: nama adat Danau Sentani — marga Wally (Yoboi), Eluay (Sereh), Ohee (Doyo).",
+        "Abepura (Abe): pusat keramaian anak muda, macet, tempat nongkrong kampus UNCEN — Pi Spen di Abe.",
+        "Dok II & Dok V: kawasan kantor gubernur, pinggir pantai — Makan pinang di Dok II.",
+        "Taksi Sentani: angkot trayek Jayapura–Sentani — obrolan wajib anak Tabi.",
+        "Pasar Youtefa: pasar besar — kalau hujan sedikit langsung banjir, sumber mop pedagang.",
+        "Pasar bawah Jayapura: belanja murah, cerita Obet & HP Nokia sering di sini."
+      ]
+    },
+    {
+      "id": "sorong",
+      "title": "Sorong (Kota Bersama)",
+      "keywords": ["sorong", "kilo", "km 8", "km 10", "km 12", "raja ampat", "pelabuhan sorong", "sorong kota"],
+      "landmarks": [
+        "Kilo / KM 8, KM 10, KM 12: jargon jarak di Sorong — anak muda sering bilang 'pi kilo' = pi Sorong.",
+        "Pelabuhan Rakyat & Pelabuhan Sorong: transit ke Raja Ampat, angkot subuh sering lewat sini.",
+        "Pangkalan lalan laut: jalan sepi malam — setting mop pocong naik angkot.",
+        "Sorong Kota: pusat belanja, kafe, hip-hop Timur sering diputar di angkot.",
+        "Malamoi & Remu: kawasan permukiman ramai — cerita mop sopir & penumpang."
+      ]
+    },
+    {
+      "id": "merauke",
+      "title": "Merauke (Kota Studi / Ujung Timur)",
+      "keywords": ["merauke", "yobar", "sota", "beringin", "masi", "tanah merah", "pantai merauke"],
+      "landmarks": [
+        "Yobar: kawasan Merauke — setting mop setan kuburan malam-malam.",
+        "Pantai Sota: perbatasan PNG dekat — angin kencang, cerita mop pace mabuk.",
+        "Lapangan Beringin: ikon kota Merauke — tongkrong sore, sepak bola lokal.",
+        "Pasar Masi: pasar tradisional — pedagang & mop khas pace Merauke.",
+        "Tanah Merah: beda dengan pantai Merauke — jangan campur lokasi kalau cerita mop."
+      ]
+    }
+  ]
+}

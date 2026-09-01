@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "description": "STT tuning — kosakata & slang Melayu Papua untuk Gemini Live ASR",
+  "boosted_keywords": [
+    "sa", "ko", "tra", "tara", "su", "mo", "pu", "pung", "pi", "pigi",
+    "kitong", "kitorang", "torang", "tong", "kam", "kamong", "dorang", "dong",
+    "paitua", "maitua", "pace", "mace", "papeda", "mop", "papua",
+    "yombex", "yombeks", "kalkota", "kombas", "sakar", "epen", "akur", "akurrr", "gombal", "gombalan", "pantun", "maitua", "jedag", "disko",
+    "posman", "silaban", "posman silaban",
+    "persipura", "boaz", "solossa", "sentani", "jayapura", "wamena", "sorong",
+    "honai", "koteka", "barapen", "yospan", "tifa", "cendrawasih",
+    "amolongo", "aosiafa", "namo", "kano"
+  ],
+  "phonetic_entries": [
+    {"word": "tra", "meaning": "tidak", "avoid_as": ["tren", "truk", "trauma", "trader"]},
+    {"word": "tara", "meaning": "tidak", "avoid_as": ["tara", "taraf"]},
+    {"word": "su", "meaning": "sudah", "avoid_as": ["suara", "subuh"]},
+    {"word": "sa", "meaning": "saya/aku", "avoid_as": ["sah", "satu"]},
+    {"word": "ko", "meaning": "kamu", "avoid_as": ["ko", "kode"]},
+    {"word": "pu", "meaning": "punya (milik)", "avoid_as": ["puasa", "pukul"]},
+    {"word": "pi", "meaning": "pergi", "avoid_as": ["pi", "pizza"]},
+    {"word": "mo", "meaning": "mau / penegas", "avoid_as": ["mobil", "modal"]},
+    {"word": "toh", "meaning": "kan / penegas", "avoid_as": ["toh", "toilet"]},
+    {"word": "kah", "meaning": "kah / pelengkap tanya", "avoid_as": ["kah", "kak"]},
+    {"word": "kitong", "meaning": "kita/kami", "avoid_as": ["kitchen"]},
+    {"word": "paitua", "meaning": "suami/pacar lelaki", "avoid_as": ["paitua"]},
+    {"word": "maitua", "meaning": "istri/pacar wanita", "avoid_as": ["maitua"]},
+    {"word": "pace", "meaning": "laki-laki/bapak", "avoid_as": ["pace", "pas"]},
+    {"word": "mace", "meaning": "ibu/perempuan", "avoid_as": ["mace", "mas"]},
+    {"word": "dorang", "meaning": "mereka", "avoid_as": ["dorang", "orang"]},
+    {"word": "papeda", "meaning": "makanan sagu", "avoid_as": ["papaya"]},
+    {"word": "mop", "meaning": "lelucon/candaan Papua", "avoid_as": ["mop", "mob"]}
+  ],
+  "slang_aliases": [
+    {"alias": "drg", "word": "dorang", "meaning": "mereka"},
+    {"alias": "km", "word": "kam", "meaning": "kalian"},
+    {"alias": "ktg", "word": "kitong", "meaning": "kita/kami"},
+    {"alias": "tr", "word": "tra", "meaning": "tidak"},
+    {"alias": "pg", "word": "pi", "meaning": "pergi"},
+    {"alias": "mty", "word": "maitua", "meaning": "istri/pacar"},
+    {"alias": "ptu", "word": "paitua", "meaning": "suami/pacar"}
+  ],
+  "asr_context_hints": [
+    "User bicara Melayu Papua urban — tra/tara = tidak (BUKAN tren/truk).",
+    "su = sudah (terpisah, bukan awalan kata lain).",
+    "sa/ko/kitong/kam/dorang = pronomina, bukan typo.",
+    "pace/mace/paitua/maitua = sapaan/keluarga, bukan bahasa Inggris.",
+    "Singkatan chat: drg→dorang, km→kam — artikan sebagai kata Papua penuh.",
+    "baku dapa = bertemu; nongki/spen = nongkrong/jalan-jalan."
+  ],
+  "contextual_mappings": [
+    {
+      "correct": "pace",
+      "meaning": "bapak/laki-laki",
+      "stt_errors": ["fase", "pas", "phase"]
+    },
+    {
+      "correct": "mace",
+      "meaning": "ibu/perempuan",
+      "stt_errors": ["mase", "mas", "mass"]
+    },
+    {
+      "correct": "kaka",
+      "meaning": "kakak",
+      "stt_errors": ["gaga", "kaka"]
+    },
+    {
+      "correct": "kam",
+      "meaning": "kalian",
+      "stt_errors": ["kham"]
+    },
+    {
+      "correct": "kitong",
+      "meaning": "kita/kami",
+      "stt_errors": ["kintong", "kitchen"]
+    },
+    {
+      "correct": "dorang",
+      "meaning": "mereka",
+      "stt_errors": ["orang", "do rang"]
+    },
+    {
+      "correct": "tra",
+      "meaning": "tidak",
+      "stt_errors": ["tren", "truk", "trada", "berada"]
+    },
+    {
+      "correct": "su",
+      "meaning": "sudah",
+      "stt_errors": ["suhu", "so"]
+    },
+    {
+      "correct": "mo",
+      "meaning": "mau/penegas",
+      "stt_errors": ["mu"]
+    },
+    {
+      "correct": "baku dapa",
+      "meaning": "bertemu",
+      "stt_errors": ["baku dapat", "baku dapet"]
+    },
+    {
+      "correct": "nongki",
+      "meaning": "nongkrong",
+      "stt_errors": ["nongkrong"]
+    },
+    {
+      "correct": "spen",
+      "meaning": "jalan-jalan",
+      "stt_errors": ["spend", "spin"]
+    },
+    {
+      "correct": "paitua",
+      "meaning": "suami/pacar lelaki",
+      "stt_errors": ["pak tua", "pai tua"]
+    },
+    {
+      "correct": "maitua",
+      "meaning": "istri/pacar wanita",
+      "stt_errors": ["mak tua", "mai tua"]
+    }
+  ]
+}

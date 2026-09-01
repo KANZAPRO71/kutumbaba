@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "description": "Wilayah adat Tabi — Port Numbay (Jayapura) & Bhuvani (Sentani): marga, Ondofolo/Ondoafi, frasa lokal",
+  "usage_note": "Tabi = wilayah adat Jayapura-Sentani. Kalau user sebut marga/kampung — tanggap personal (Mano/Tobati, Wally/Yoboi, dll). Bedakan Port Numbay (Jayapura kota) vs Sentani (danau).",
+  "leadership": {
+    "title": "Kepemimpinan Adat Tabi",
+    "keywords": ["ondofolo", "ondoafi", "pemimpin adat", "tabi", "port numbay", "bhuvani", "sentani adat"],
+    "facts": [
+      "Wilayah adat Tabi: Jayapura (Port Numbay) & Sentani (Bhuvani) — struktur adat kuat.",
+      "Ondofolo / Ondoafi = pemimpin tertinggi adat — hormati saat user bahas marga besar (Mano, Ohee, Wally).",
+      "Port Numbay = suku asli pesisir Teluk Youtefa & pulau kecil; Sentani = daratan, pesisir & pulau Danau Sentani."
+    ]
+  },
+  "port_numbay": {
+    "title": "Port Numbay (Jayapura Kota)",
+    "keywords": [
+      "port numbay", "jayapura", "numbay", "tobati", "enggros", "youtefa", "kayobatu", "nafri", "skow mabo",
+      "mano", "hanasbey", "ireeuw", "hababuk", "merauje", "dawir", "hamadi", "sanyi", "soro", "sabi",
+      "puy", "makanuay", "youwe", "sibi", "chaay", "demetouw", "passer", "rumaropen",
+      "awi", "byu", "fakdawer", "tanjung", "mallo", "mutang", "rolo", "lalo", "weku", "palora",
+      "anak port numbay"
+    ],
+    "kampung": [
+      {
+        "name": "Tobati & Enggros (Teluk Youtefa)",
+        "area": "Jayapura — pesisir Teluk Youtefa",
+        "marga": ["Mano", "Hanasbey", "Ireeuw", "Hababuk", "Merauje", "Dawir", "Hamadi", "Sanyi", "Soro", "Sabi"],
+        "notes": "Mano = marga Ondoafi Tobati."
+      },
+      {
+        "name": "Kayobatu",
+        "area": "Jayapura Utara, Jayapura City",
+        "marga": ["Puy", "Makanuay", "Youwe", "Sibi", "Chaay", "Demetouw", "Passer", "Rumaropen"]
+      },
+      {
+        "name": "Nafri",
+        "area": "Abepura, Jayapura City",
+        "marga": ["Awi", "Byu", "Fakdawer", "Tanjung"]
+      },
+      {
+        "name": "Skow Mabo",
+        "area": "Muara Tami, Jayapura City",
+        "marga": ["Mallo", "Mutang", "Rolo", "Lalo", "Weku", "Palora"]
+      }
+    ],
+    "detection_response_template": "Adooo anak {marga} dari {kampung} kah?! Syowi kaka! Ko jangan berlagak tra tahu mendayung perahu di Teluk Youtefa sana ee, hahaha! Mari kawan, ko mau dengar mop tentang apa hari ini?"
+  },
+  "sentani": {
+    "title": "Bhuvani (Danau Sentani)",
+    "keywords": [
+      "sentani", "bhuvani", "danau sentani", "babrongko", "yoboi", "sereh", "doyo",
+      "wally", "tokoro", "yom", "sokoy", "depondoye", "eluay", "puhiri", "puraro", "pulalo", "kere",
+      "enoch", "marweri", "toam", "mebri", "yoku", "ohee", "awoitauw", "felle", "suebu", "sorontou",
+      "dusun sagu", "hak ulayat"
+    ],
+    "regions": [
+      {
+        "name": "Sentani Timur & Tengah",
+        "marga": ["Wally", "Tokoro", "Yom", "Sokoy", "Depondoye", "Eluay", "Puhiri", "Puraro", "Puy", "Pulalo", "Kere"],
+        "notes": "Wally besar di Babrongko/Yoboi; Eluay besar di Kampung Sereh."
+      },
+      {
+        "name": "Sentani Barat (Doyo & sekitar)",
+        "marga": ["Enoch", "Marweri", "Toam", "Mebri", "Yoku", "Ohee", "Awoitauw", "Felle", "Suebu", "Sorontou"],
+        "notes": "Ohee = marga Ondofolo besar Sentani Barat."
+      }
+    ],
+    "detection_response_template": "Iyo kah? Anak {marga} dari dusun sagu {lokasi} kah?! Siooo... salam hormat dulu buat Ondoafi! Pasti ko tiap hari makan papeda toh? Cocok sudah, mari kitong dua baku hantam dengan cerita mop di pinggir danau, gasss!"
+  },
+  "marga_locale_hints": {
+    "Mano": {"kampung": "Tobati", "lokasi": "Teluk Youtefa", "region": "port_numbay"},
+    "Wally": {"kampung": "Yoboi", "lokasi": "Babrongko", "region": "sentani"},
+    "Eluay": {"kampung": "Sereh", "lokasi": "Sentani Tengah", "region": "sentani"},
+    "Ohee": {"kampung": "Doyo", "lokasi": "Sentani Barat", "region": "sentani"}
+  },
+  "localization_phrases": [
+    {
+      "phrase": "Anak Port Numbay",
+      "meaning": "Panggilan bangga anak asli Kota Jayapura",
+      "keywords": ["anak port numbay", "port numbay"]
+    },
+    {
+      "phrase": "Pi Spen di Abe",
+      "meaning": "Jalan-jalan sore di Abepura yang macet",
+      "keywords": ["pi spen di abe", "spen abe", "abepura"]
+    },
+    {
+      "phrase": "Makan pinang di Dok II",
+      "meaning": "Nongkrong santai pinggir talud pantai kantor Gubernur Jayapura",
+      "keywords": ["makan pinang dok ii", "dok ii", "dok dua"]
+    },
+    {
+      "phrase": "Taksi Sentani",
+      "meaning": "Angkot trayek Jayapura–Sentani",
+      "keywords": ["taksi sentani", "angkot sentani", "jayapura sentani"]
+    },
+    {
+      "phrase": "Bhuvani",
+      "meaning": "Nama adat/lokal untuk Danau Sentani & sekitarnya",
+      "keywords": ["bhuvani", "danau sentani adat"]
+    }
+  ],
+  "conversation_templates": [
+    {
+      "trigger": "marga_mano_tobati",
+      "user_example": "Pace, sa dari marga Mano.",
+      "response_hint": "Adooo anak Mano dari Tobati kah?! Syowi kaka! Ko jangan berlagak tra tahu mendayung perahu di Teluk Youtefa sana ee, hahaha! Mari kawan, ko mau dengar mop tentang apa hari ini?"
+    },
+    {
+      "trigger": "marga_wally_sentani",
+      "user_example": "Sa marga Wally dari Sentani.",
+      "response_hint": "Iyo kah? Anak Wally dari dusun sagu Yoboi kah?! Siooo... salam hormat dulu buat Ondoafi! Pasti ko tiap hari makan papeda toh? Cocok sudah, mari kitong dua baku hantam dengan cerita mop di pinggir danau, gasss!"
+    }
+  ]
+}

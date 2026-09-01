@@ -1,0 +1,863 @@
+{
+  "session": "web-97421f04",
+  "source": "C:\\Users\\msi-u\\.cursor\\projects\\f-Persona-Ai\\terminals\\412739.txt",
+  "timeline_rows": 602,
+  "client_stats": {
+    "label": "client_logged",
+    "n": 424,
+    "mean": 0.056,
+    "median": 0.0429,
+    "min": 0.0009,
+    "max": 0.3034,
+    "p90": 0.1056,
+    "gt_0.08": 91,
+    "gt_0.10": 52
+  },
+  "gemini_stats": {
+    "label": "gemini_sent_logged",
+    "n": 43,
+    "mean": 0.0117,
+    "median": 0.0016,
+    "min": 0.0008,
+    "max": 0.3034,
+    "p90": 0.0068,
+    "gt_0.08": 1,
+    "gt_0.10": 1
+  },
+  "spikes": [
+    {
+      "line": 31,
+      "chunk": 26,
+      "rms": 0.0944
+    },
+    {
+      "line": 32,
+      "chunk": 27,
+      "rms": 0.0824
+    },
+    {
+      "line": 51,
+      "chunk": 107,
+      "rms": 0.1211
+    },
+    {
+      "line": 53,
+      "chunk": 109,
+      "rms": 0.0825
+    },
+    {
+      "line": 67,
+      "chunk": 175,
+      "rms": 0.1056
+    },
+    {
+      "line": 87,
+      "chunk": 231,
+      "rms": 0.0874
+    },
+    {
+      "line": 88,
+      "chunk": 232,
+      "rms": 0.1008
+    },
+    {
+      "line": 90,
+      "chunk": 234,
+      "rms": 0.0954
+    },
+    {
+      "line": 93,
+      "chunk": 237,
+      "rms": 0.1535
+    },
+    {
+      "line": 94,
+      "chunk": 238,
+      "rms": 0.0817
+    },
+    {
+      "line": 112,
+      "chunk": 305,
+      "rms": 0.0864
+    },
+    {
+      "line": 114,
+      "chunk": 307,
+      "rms": 0.0884
+    },
+    {
+      "line": 118,
+      "chunk": 311,
+      "rms": 0.0932
+    },
+    {
+      "line": 120,
+      "chunk": 313,
+      "rms": 0.0808
+    },
+    {
+      "line": 121,
+      "chunk": 314,
+      "rms": 0.1089
+    },
+    {
+      "line": 133,
+      "chunk": 363,
+      "rms": 0.0936
+    },
+    {
+      "line": 134,
+      "chunk": 364,
+      "rms": 0.0911
+    },
+    {
+      "line": 135,
+      "chunk": 365,
+      "rms": 0.1063
+    },
+    {
+      "line": 175,
+      "chunk": 534,
+      "rms": 0.0877
+    },
+    {
+      "line": 178,
+      "chunk": 537,
+      "rms": 0.1176
+    },
+    {
+      "line": 180,
+      "chunk": 539,
+      "rms": 0.0953
+    },
+    {
+      "line": 181,
+      "chunk": 540,
+      "rms": 0.0877
+    },
+    {
+      "line": 297,
+      "chunk": 1230,
+      "rms": 0.1108
+    },
+    {
+      "line": 298,
+      "chunk": 1231,
+      "rms": 0.0828
+    },
+    {
+      "line": 299,
+      "chunk": 1232,
+      "rms": 0.1014
+    },
+    {
+      "line": 300,
+      "chunk": 1233,
+      "rms": 0.1085
+    },
+    {
+      "line": 302,
+      "chunk": 1235,
+      "rms": 0.081
+    },
+    {
+      "line": 303,
+      "chunk": 1236,
+      "rms": 0.0855
+    },
+    {
+      "line": 374,
+      "chunk": 3348,
+      "rms": 0.0843
+    },
+    {
+      "line": 395,
+      "chunk": 3578,
+      "rms": 0.0868
+    },
+    {
+      "line": 400,
+      "chunk": 3605,
+      "rms": 0.0898
+    },
+    {
+      "line": 421,
+      "chunk": 3656,
+      "rms": 0.0852
+    },
+    {
+      "line": 423,
+      "chunk": 3658,
+      "rms": 0.0865
+    },
+    {
+      "line": 437,
+      "chunk": 3690,
+      "rms": 0.0855
+    },
+    {
+      "line": 438,
+      "chunk": 3691,
+      "rms": 0.1354
+    },
+    {
+      "line": 439,
+      "chunk": 3692,
+      "rms": 0.1321
+    },
+    {
+      "line": 440,
+      "chunk": 3693,
+      "rms": 0.1276
+    },
+    {
+      "line": 443,
+      "chunk": 3698,
+      "rms": 0.0854
+    },
+    {
+      "line": 459,
+      "chunk": 3732,
+      "rms": 0.0837
+    },
+    {
+      "line": 460,
+      "chunk": 3733,
+      "rms": 0.0957
+    },
+    {
+      "line": 463,
+      "chunk": 3742,
+      "rms": 0.129
+    },
+    {
+      "line": 464,
+      "chunk": 3743,
+      "rms": 0.1373
+    },
+    {
+      "line": 467,
+      "chunk": 3745,
+      "rms": 0.1358
+    },
+    {
+      "line": 484,
+      "chunk": 3775,
+      "rms": 0.1337
+    },
+    {
+      "line": 485,
+      "chunk": 3776,
+      "rms": 0.1412
+    },
+    {
+      "line": 486,
+      "chunk": 3777,
+      "rms": 0.0884
+    },
+    {
+      "line": 494,
+      "chunk": 3799,
+      "rms": 0.1101
+    },
+    {
+      "line": 495,
+      "chunk": 3800,
+      "rms": 0.3034
+    },
+    {
+      "line": 497,
+      "chunk": 3801,
+      "rms": 0.1117
+    },
+    {
+      "line": 503,
+      "chunk": 3854,
+      "rms": 0.1468
+    },
+    {
+      "line": 512,
+      "chunk": 3869,
+      "rms": 0.0896
+    },
+    {
+      "line": 513,
+      "chunk": 3870,
+      "rms": 0.106
+    },
+    {
+      "line": 515,
+      "chunk": 3872,
+      "rms": 0.1146
+    },
+    {
+      "line": 517,
+      "chunk": 3874,
+      "rms": 0.0827
+    },
+    {
+      "line": 518,
+      "chunk": 3875,
+      "rms": 0.1693
+    },
+    {
+      "line": 519,
+      "chunk": 3876,
+      "rms": 0.1852
+    },
+    {
+      "line": 520,
+      "chunk": 3877,
+      "rms": 0.1521
+    },
+    {
+      "line": 521,
+      "chunk": 3878,
+      "rms": 0.1631
+    },
+    {
+      "line": 522,
+      "chunk": 3879,
+      "rms": 0.1371
+    },
+    {
+      "line": 541,
+      "chunk": 3925,
+      "rms": 0.0924
+    },
+    {
+      "line": 543,
+      "chunk": 3927,
+      "rms": 0.113
+    },
+    {
+      "line": 545,
+      "chunk": 3929,
+      "rms": 0.1409
+    },
+    {
+      "line": 546,
+      "chunk": 3930,
+      "rms": 0.1139
+    },
+    {
+      "line": 547,
+      "chunk": 3931,
+      "rms": 0.0936
+    },
+    {
+      "line": 548,
+      "chunk": 3932,
+      "rms": 0.1388
+    },
+    {
+      "line": 550,
+      "chunk": 3934,
+      "rms": 0.09
+    },
+    {
+      "line": 551,
+      "chunk": 3935,
+      "rms": 0.1274
+    },
+    {
+      "line": 553,
+      "chunk": 3937,
+      "rms": 0.0853
+    },
+    {
+      "line": 574,
+      "chunk": 3987,
+      "rms": 0.1261
+    },
+    {
+      "line": 575,
+      "chunk": 3988,
+      "rms": 0.0922
+    },
+    {
+      "line": 576,
+      "chunk": 3989,
+      "rms": 0.1051
+    },
+    {
+      "line": 577,
+      "chunk": 3990,
+      "rms": 0.1109
+    },
+    {
+      "line": 578,
+      "chunk": 3991,
+      "rms": 0.1351
+    },
+    {
+      "line": 582,
+      "chunk": 3995,
+      "rms": 0.1017
+    },
+    {
+      "line": 583,
+      "chunk": 3996,
+      "rms": 0.1854
+    },
+    {
+      "line": 586,
+      "chunk": 3999,
+      "rms": 0.1634
+    },
+    {
+      "line": 590,
+      "chunk": 4002,
+      "rms": 0.1209
+    },
+    {
+      "line": 591,
+      "chunk": 4003,
+      "rms": 0.0821
+    },
+    {
+      "line": 592,
+      "chunk": 4004,
+      "rms": 0.0939
+    },
+    {
+      "line": 593,
+      "chunk": 4005,
+      "rms": 0.124
+    },
+    {
+      "line": 595,
+      "chunk": 4007,
+      "rms": 0.0919
+    },
+    {
+      "line": 597,
+      "chunk": 4009,
+      "rms": 0.1092
+    },
+    {
+      "line": 598,
+      "chunk": 4010,
+      "rms": 0.1023
+    },
+    {
+      "line": 600,
+      "chunk": 4012,
+      "rms": 0.1366
+    },
+    {
+      "line": 601,
+      "chunk": 4013,
+      "rms": 0.124
+    },
+    {
+      "line": 602,
+      "chunk": 4014,
+      "rms": 0.1011
+    },
+    {
+      "line": 604,
+      "chunk": 4016,
+      "rms": 0.1387
+    },
+    {
+      "line": 607,
+      "chunk": 4019,
+      "rms": 0.1036
+    },
+    {
+      "line": 608,
+      "chunk": 4020,
+      "rms": 0.1106
+    },
+    {
+      "line": 613,
+      "chunk": 4030,
+      "rms": 0.1004
+    },
+    {
+      "line": 617,
+      "chunk": 4035,
+      "rms": 0.0835
+    }
+  ],
+  "spike_windows": [
+    {
+      "start": 26,
+      "end": 27,
+      "n": 2,
+      "max": 0.0944
+    },
+    {
+      "start": 107,
+      "end": 109,
+      "n": 2,
+      "max": 0.1211
+    },
+    {
+      "start": 175,
+      "end": 175,
+      "n": 1,
+      "max": 0.1056
+    },
+    {
+      "start": 231,
+      "end": 238,
+      "n": 5,
+      "max": 0.1535
+    },
+    {
+      "start": 305,
+      "end": 314,
+      "n": 5,
+      "max": 0.1089
+    },
+    {
+      "start": 363,
+      "end": 365,
+      "n": 3,
+      "max": 0.1063
+    },
+    {
+      "start": 534,
+      "end": 540,
+      "n": 4,
+      "max": 0.1176
+    },
+    {
+      "start": 1230,
+      "end": 1236,
+      "n": 6,
+      "max": 0.1108
+    },
+    {
+      "start": 3348,
+      "end": 3348,
+      "n": 1,
+      "max": 0.0843
+    },
+    {
+      "start": 3578,
+      "end": 3578,
+      "n": 1,
+      "max": 0.0868
+    },
+    {
+      "start": 3605,
+      "end": 3605,
+      "n": 1,
+      "max": 0.0898
+    },
+    {
+      "start": 3656,
+      "end": 3658,
+      "n": 2,
+      "max": 0.0865
+    },
+    {
+      "start": 3690,
+      "end": 3698,
+      "n": 5,
+      "max": 0.1354
+    },
+    {
+      "start": 3732,
+      "end": 3733,
+      "n": 2,
+      "max": 0.0957
+    },
+    {
+      "start": 3742,
+      "end": 3745,
+      "n": 3,
+      "max": 0.1373
+    },
+    {
+      "start": 3775,
+      "end": 3777,
+      "n": 3,
+      "max": 0.1412
+    },
+    {
+      "start": 3799,
+      "end": 3801,
+      "n": 3,
+      "max": 0.3034
+    },
+    {
+      "start": 3854,
+      "end": 3854,
+      "n": 1,
+      "max": 0.1468
+    },
+    {
+      "start": 3869,
+      "end": 3879,
+      "n": 9,
+      "max": 0.1852
+    },
+    {
+      "start": 3925,
+      "end": 3937,
+      "n": 9,
+      "max": 0.1409
+    },
+    {
+      "start": 3987,
+      "end": 4020,
+      "n": 21,
+      "max": 0.1854
+    },
+    {
+      "start": 4030,
+      "end": 4035,
+      "n": 2,
+      "max": 0.1004
+    }
+  ],
+  "turns": [
+    {
+      "partial_line": 36,
+      "text": "Halo.",
+      "bdv": "RESPOND",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "False",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 55,
+      "text": "semuanya",
+      "bdv": "ACK_ONLY",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 77,
+      "text": "Ada 100 pertanyaan.",
+      "bdv": "ACK_ONLY",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 96,
+      "text": "nomor satu",
+      "bdv": "ACK_ONLY",
+      "fallback": true,
+      "interrupt": false,
+      "gate_seen": "False",
+      "fallback_reason": "turn_complete",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 125,
+      "text": "Namamu siapa?",
+      "bdv": "RESPOND",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 143,
+      "text": "Jam berapa sekarang?",
+      "bdv": "RESPOND",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 165,
+      "text": "100 saja langsung.",
+      "bdv": "ACK_ONLY",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 186,
+      "text": "nomor berapa lagi?",
+      "bdv": "RESPOND",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 308,
+      "text": "Berapa lagi?",
+      "bdv": "RESPOND",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "False",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 386,
+      "text": "No.",
+      "bdv": "ACK_ONLY",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 409,
+      "text": "Gimana masa depan AI?",
+      "bdv": "RESPOND",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 488,
+      "text": ", pesan tiket, cari hotel.",
+      "bdv": "ACK_ONLY",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 530,
+      "text": "Tapi Play Store belum mengizinkan.",
+      "bdv": "ACK_ONLY",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    },
+    {
+      "partial_line": 559,
+      "text": "Coba kamu cari dulu kenapa masalahnya.",
+      "bdv": "RESPOND",
+      "fallback": true,
+      "interrupt": true,
+      "gate_seen": "True",
+      "fallback_reason": "suppressed_audio",
+      "steer": "engine",
+      "play_steered": "True"
+    }
+  ],
+  "transcripts": [
+    {
+      "line_no": 36,
+      "state": "partial",
+      "text": "Halo."
+    },
+    {
+      "line_no": 55,
+      "state": "partial",
+      "text": "semuanya"
+    },
+    {
+      "line_no": 77,
+      "state": "partial",
+      "text": "Ada 100 pertanyaan."
+    },
+    {
+      "line_no": 96,
+      "state": "partial",
+      "text": "nomor satu"
+    },
+    {
+      "line_no": 125,
+      "state": "partial",
+      "text": "Namamu siapa?"
+    },
+    {
+      "line_no": 143,
+      "state": "partial",
+      "text": "Jam berapa sekarang?"
+    },
+    {
+      "line_no": 165,
+      "state": "partial",
+      "text": "100 saja langsung."
+    },
+    {
+      "line_no": 186,
+      "state": "partial",
+      "text": "nomor berapa lagi?"
+    },
+    {
+      "line_no": 308,
+      "state": "partial",
+      "text": "Berapa lagi?"
+    },
+    {
+      "line_no": 386,
+      "state": "partial",
+      "text": "No."
+    },
+    {
+      "line_no": 409,
+      "state": "partial",
+      "text": "Gimana masa depan AI?"
+    },
+    {
+      "line_no": 465,
+      "state": "partial",
+      "text": "Kalau saya sih lebih lebih pengen AI itu bisa order Grab"
+    },
+    {
+      "line_no": 472,
+      "state": "partial",
+      "text": ", Gojek"
+    },
+    {
+      "line_no": 488,
+      "state": "partial",
+      "text": ", pesan tiket, cari hotel."
+    },
+    {
+      "line_no": 530,
+      "state": "partial",
+      "text": "Tapi Play Store belum mengizinkan."
+    },
+    {
+      "line_no": 559,
+      "state": "partial",
+      "text": "Coba kamu cari dulu kenapa masalahnya."
+    }
+  ],
+  "incident_counts": {
+    "FINAL_TRANSCRIPT_MISSING": 14,
+    "SUPPRESS": 16,
+    "GOVERNANCE": 14,
+    "GEMINI_INTERRUPTED": 13,
+    "AUDIOGATE_HOLD": 14
+  }
+}

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <title>Papua AI</title>
+
+  <style>
+    /* Critical — hide blocking overlays before external CSS loads (WebView Android) */
+    .onboarding-overlay.hidden,
+    .settings-overlay.hidden,
+    .post-call-card.hidden,
+    .voice-foot.hidden,
+    .text-compose.hidden { display: none !important; pointer-events: none !important; }
+    .panel-overlay { display: none !important; }
+    .panel-head,
+    .panel-head button,
+    .btn-call,
+    .btn-settings {
+      pointer-events: auto !important;
+      position: relative;
+      z-index: 1001;
+    }
+    button { touch-action: manipulation; cursor: pointer; -webkit-tap-highlight-color: rgba(255,255,255,0.15); }
+  </style>
+
+  <script>
+    (function () {
+      window.__personaPendingTaps = [];
+      var lastTapId = "";
+      var lastTapTs = 0;
+      window.__personaTap = function (actionId) {
+        if (!actionId) return;
+        var now = Date.now();
+        if (lastTapId === actionId && now - lastTapTs < 350) return;
+        lastTapId = actionId;
+        lastTapTs = now;
+        var fn = window.__personaActions && window.__personaActions[actionId];
+        if (typeof fn === "function") {
+          fn();
+          return;
+        }
+        window.__personaPendingTaps.push(actionId);
+      };
+      window.__personaUiTap = function (actionId) {
+        if (!actionId) return;
+        try {
+          if (window.__personaTap) {
+            window.__personaTap(actionId);
+            return;
+          }
+        } catch (e) {}
+        try {
+          if (window.PersonaAndroid && PersonaAndroid.uiTap) PersonaAndroid.uiTap(actionId);
+        } catch (e2) {}
+      };
+      function bindTouchUi() {
+        document.addEventListener(
+          "touchend",
+          function (e) {
+            var btn = e.target.closest("[data-persona-action]");
+            if (!btn || btn.disabled) return;
+            window.__personaTap(btn.getAttribute("data-persona-action"));
+          },
+          { passive: false, capture: true },
+        );
+        document.addEventListener(
+          "click",
+          function (e) {
+            var btn = e.target.closest("[data-persona-action]");
+            if (!btn || btn.disabled) return;
+            window.__personaTap(btn.getAttribute("data-persona-action"));
+          },
+          true,
+        );
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindTouchUi);
+      } else {
+        bindTouchUi();
+      }
+    })();
+  </script>
+
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/static/styles.css?v=28" />
+
+</head>
+
+<body>
+
+  <div class="panel" id="panel">
+
+    <header class="panel-head">
+
+      <div class="panel-head-top">
+
+        <div class="panel-title">
+
+          <span class="status-dot" id="statusDot"></span>
+
+          <span id="modelStatus">Papua AI</span>
+
+        </div>
+
+        <button class="btn-settings" id="btnSettings" type="button" aria-label="Pengaturan" data-persona-action="btnSettings" onclick="window.__personaUiTap('btnSettings')">
+
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+
+        </button>
+
+      </div>
+
+      <div class="panel-actions panel-actions-call">
+
+        <button class="btn-call btn-call-primary" id="btnCall" type="button" aria-label="Ngobrol suara" data-persona-action="btnCall" onclick="window.__personaUiTap('btnCall')">
+
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+
+          <span>Ngobrol</span>
+
+        </button>
+
+        <button class="btn-close hidden-in-app" id="btnClose" type="button" aria-label="Tutup">
+
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+
+    <div class="companion-banner hidden" id="resumeBanner">
+
+      <p id="resumeBannerText">Lanjut obrolan kemarin?</p>
+
+      <div class="companion-banner-actions">
+
+        <button type="button" class="btn-banner-yes" id="btnResumeYes">Lanjut</button>
+
+        <button type="button" class="btn-banner-no" id="btnResumeNo">Baru</button>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="onboarding-overlay hidden" id="onboarding" hidden role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+
+      <header class="onboarding-header">
+
+        <div class="onboarding-progress" id="onboardingProgress" aria-hidden="true">
+
+          <span class="onboarding-dot active" data-step="0"></span>
+
+          <span class="onboarding-dot" data-step="1"></span>
+
+          <span class="onboarding-dot" data-step="2"></span>
+
+          <span class="onboarding-dot" data-step="3"></span>
+
+        </div>
+
+        <button type="button" class="onboarding-skip" id="btnOnboardingSkip" data-persona-action="btnOnboardingSkip" onclick="window.__personaUiTap('btnOnboardingSkip')">Lewati</button>
+
+      </header>
+
+
+
+      <div class="onboarding-content">
+
+        <div class="onboarding-step active" data-step="0">
+
+          <div class="onboarding-orb-wrap" aria-hidden="true">
+
+            <div class="onboarding-orb-glow onboarding-orb-glow-voice"></div>
+
+            <div class="onboarding-orb onboarding-orb-voice">
+
+              <span class="onboarding-orb-shine"></span>
+
+              <span class="onboarding-orb-icon">
+
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+
+              </span>
+
+            </div>
+
+          </div>
+
+          <h2 class="onboarding-title" id="onboardingTitle">Teman Ngobrol Suara Baru</h2>
+
+          <p class="onboarding-desc">Halo ko! Ini kawan dengerin cerita ko — bukan layanan pelanggan. Cerita aja, sa dengerin dengan suara.</p>
+
+        </div>
+
+
+
+        <div class="onboarding-step" data-step="1">
+
+          <div class="onboarding-orb-wrap" aria-hidden="true">
+
+            <div class="onboarding-orb-glow onboarding-orb-glow-wifi"></div>
+
+            <div class="onboarding-orb onboarding-orb-wifi">
+
+              <span class="onboarding-orb-shine"></span>
+
+              <span class="onboarding-orb-icon">
+
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+
+              </span>
+
+            </div>
+
+          </div>
+
+          <h2 class="onboarding-title">Butuh Koneksi Internet</h2>
+
+          <p class="onboarding-desc">Obrol suara jalan lewat internet. Pastikan HP ko online ya — tra perlu PC, semua jalan di HP ko sendiri.</p>
+
+        </div>
+
+
+
+        <div class="onboarding-step" data-step="2">
+
+          <div class="onboarding-orb-wrap" aria-hidden="true">
+
+            <div class="onboarding-orb-glow onboarding-orb-glow-key"></div>
+
+            <div class="onboarding-orb onboarding-orb-key">
+
+              <span class="onboarding-orb-shine"></span>
+
+              <span class="onboarding-orb-icon">
+
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+
+              </span>
+
+            </div>
+
+          </div>
+
+          <h2 class="onboarding-title">API Key Ko Sendiri</h2>
+
+          <p class="onboarding-desc">App ini pakai Gemini AI. Ko harus punya API key sendiri (gratis). Key cuma disimpan di HP ko — tra dibagi ke orang lain.</p>
+
+        </div>
+
+
+
+        <div class="onboarding-step onboarding-step-form" data-step="3">
+
+          <div class="onboarding-orb-wrap onboarding-orb-wrap-sm" aria-hidden="true">
+
+            <div class="onboarding-orb-glow onboarding-orb-glow-key"></div>
+
+            <div class="onboarding-orb onboarding-orb-key onboarding-orb-sm">
+
+              <span class="onboarding-orb-shine"></span>
+
+              <span class="onboarding-orb-icon">
+
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+
+              </span>
+
+            </div>
+
+          </div>
+
+          <h2 class="onboarding-title">Masukkan API Key</h2>
+
+          <p class="onboarding-desc">Ambil key gratis di Google AI Studio, terus tempel di bawah ini.</p>
+
+          <a class="onboarding-link" id="btnOpenAiStudio" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Buka aistudio.google.com/apikey</a>
+
+          <label class="onboarding-field">
+
+            <span class="onboarding-field-label">Gemini API Key</span>
+
+            <input type="password" class="onboarding-input" id="onboardingApiKey" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…" />
+
+          </label>
+
+          <p class="onboarding-error hidden" id="onboardingError">Key tra valid — cek lagi ya ko.</p>
+
+          <p class="onboarding-note">Tanpa key, tombol Ngobrol tra bisa dipakai.</p>
+
+        </div>
+
+      </div>
+
+
+
+      <footer class="onboarding-footer">
+
+        <button type="button" class="btn-onboarding-continue" id="btnOnboardingNext" data-persona-action="btnOnboardingNext" onclick="window.__personaUiTap('btnOnboardingNext')">Lanjutkan</button>
+
+      </footer>
+
+    </div>
+
+
+
+    <div class="chat-body">
+
+      <div class="companion-stage" id="companionStage">
+
+        <div class="companion-orb-wrap" id="companionOrbWrap">
+
+          <div class="ethereal-glow ethereal-glow-outer" aria-hidden="true"></div>
+
+          <div class="ethereal-glow ethereal-glow-mid" aria-hidden="true"></div>
+
+
+
+          <img
+            class="cenderawasih-emblem"
+            src="/static/cenderawasih-emblem.png?v=1"
+            width="240"
+            height="240"
+            alt=""
+            draggable="false"
+          />
+
+        </div>
+
+      </div>
+
+
+
+      <div class="messages" id="messages"></div>
+
+    </div>
+
+
+
+    <footer class="panel-foot panel-foot-collapsed" id="textFoot">
+
+      <button type="button" class="btn-text-toggle" id="btnTextToggle">Tulis pesan…</button>
+
+      <div class="text-compose hidden" id="textCompose">
+
+        <div class="char-count"><span id="charCount">0</span>/2000</div>
+
+        <div class="input-row">
+
+          <textarea id="input" class="msg-input" rows="1" placeholder="Tulis pesan…" maxlength="2000"></textarea>
+
+          <button class="btn-send" id="btnSend" type="button" disabled aria-label="Kirim">
+
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </footer>
+
+
+
+    <footer class="panel-foot voice-foot hidden" id="voiceFoot">
+
+      <div class="voice-call-meta">
+
+        <span class="voice-timer" id="voiceTimer">0:00</span>
+
+        <div class="voice-bars" id="voiceBars" aria-hidden="true">
+
+          <span></span><span></span><span></span><span></span><span></span>
+
+        </div>
+
+      </div>
+
+      <div class="voice-status" id="voiceStatus">Menyambung…</div>
+
+      <button class="btn-end-call" id="btnEndCall" type="button" data-persona-action="btnEndCall" onclick="window.__personaUiTap('btnEndCall')">Akhiri</button>
+
+    </footer>
+
+
+
+    <div class="settings-overlay hidden" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+
+      <div class="settings-sheet">
+
+        <header class="settings-header">
+
+          <h2 class="settings-title" id="settingsTitle">Pengaturan</h2>
+
+          <button type="button" class="btn-settings-close" id="btnSettingsClose" aria-label="Tutup" data-persona-action="btnSettingsClose" onclick="window.__personaUiTap('btnSettingsClose')">
+
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+
+          </button>
+
+        </header>
+
+        <div class="settings-body">
+
+          <div class="settings-mop-block">
+
+            <span class="onboarding-field-label">Koleksi Mop Papua</span>
+
+            <p class="settings-mop-count" id="settingsMopCount">Memuat koleksi…</p>
+
+            <p class="settings-mop-desc">Lelucon verbal Melayu Papua — AI seling Mop pas obrolan santai supaya lebih asik.</p>
+
+            <ul class="settings-mop-list" id="settingsMopPreview" aria-label="Contoh Mop"></ul>
+
+          </div>
+
+          <div class="settings-mop-block">
+
+            <span class="onboarding-field-label">Kamus Bahasa Papua</span>
+
+            <p class="settings-mop-count" id="settingsKamusCount">Memuat kamus…</p>
+
+            <p class="settings-mop-desc">Kosakata percakapan sehari-hari — AI bisa jelasin arti kata pas ko tanya.</p>
+
+            <ul class="settings-mop-list" id="settingsKamusPreview" aria-label="Contoh kata Papua"></ul>
+
+          </div>
+
+          <div class="settings-divider" aria-hidden="true"></div>
+
+          <label class="onboarding-field settings-field">
+
+            <span class="onboarding-field-label">Pilihan suara</span>
+
+            <select id="voiceSelect" class="voice-select settings-voice-select" aria-label="Pilihan suara">
+
+              <option value="Sulafat">Sulafat — hangat</option>
+
+            </select>
+
+          </label>
+
+          <p class="settings-note">Suara dipakai pas ngobrol live — bisa ganti kapan saja.</p>
+
+          <div class="settings-divider" aria-hidden="true"></div>
+
+          <label class="onboarding-field settings-field">
+            <span class="onboarding-field-label">Musik latar tongkrongan (BGM)</span>
+            <select id="bgmSelect" class="voice-select settings-voice-select" aria-label="Musik latar">
+              <option value="disko_tanah">Disko Tanah — pelan ala tongkrongan</option>
+              <option value="hiphop_papua">Hip-Hop Papua — tempo cepat</option>
+              <option value="off">Mati — tanpa BGM</option>
+            </select>
+          </label>
+          <p class="settings-note">BGM pelan saat ngobrol live. Saat punchline Mop → jedag-jedug kencang 3 detik + tertawa penonton.</p>
+
+          <div class="settings-divider" aria-hidden="true"></div>
+
+          <div class="settings-mop-block settings-sim-block">
+            <h3 class="settings-subtitle">Simulator Logat Papua</h3>
+            <p class="settings-mop-desc">Atur gaya bicara Raja Mop — langsung ke otak AI pas ngobrol live.</p>
+
+            <label class="settings-field settings-range-field">
+              <span>Tempo bicara <strong id="simTempoVal">1.0</strong></span>
+              <input type="range" id="simTempo" min="0.5" max="1.5" step="0.05" value="1" />
+            </label>
+
+            <label class="settings-field settings-range-field">
+              <span>Ayunan nada <strong id="simPitchVal">1.0</strong></span>
+              <input type="range" id="simPitch" min="0.5" max="1.5" step="0.05" value="1" />
+            </label>
+
+            <label class="settings-field settings-range-field">
+              <span>Frekuensi Mop <strong id="simMopVal">0.6</strong></span>
+              <input type="range" id="simMopFreq" min="0" max="1" step="0.05" value="0.6" />
+            </label>
+          </div>
+
+          <div class="settings-divider" aria-hidden="true"></div>
+
+          <div class="settings-mop-block settings-memory-block">
+            <h3 class="settings-subtitle">Ingatan Ko</h3>
+            <p class="settings-mop-desc">Fakta penting tersimpan di HP ko — AI ingat ini antar obrolan. Bilang "ingat ya, …" pas ngobrol atau tambah manual di bawah.</p>
+            <p class="settings-mop-count" id="settingsMemoryCount">Memuat ingatan…</p>
+            <ul class="settings-memory-list" id="settingsMemoryList" aria-label="Daftar ingatan tersimpan"></ul>
+            <label class="onboarding-field settings-field">
+              <span class="onboarding-field-label">Tambah ingatan baru</span>
+              <input type="text" class="onboarding-input" id="settingsMemoryInput" autocomplete="off" placeholder="Contoh: Nama ko Budi, suka main basket" />
+            </label>
+            <button type="button" class="btn-memory-add" id="btnMemoryAdd" data-persona-action="btnMemoryAdd" onclick="window.__personaUiTap('btnMemoryAdd')">Simpan ingatan</button>
+          </div>
+
+          <div class="settings-divider" aria-hidden="true"></div>
+
+          <div class="settings-mop-block">
+            <span class="onboarding-field-label">Pengembang</span>
+            <p class="settings-mop-count" id="settingsDeveloperCredit">Posman Silaban — Solo Developer</p>
+            <p class="settings-mop-desc">Papua AI dibuat oleh Posman Silaban (Master Dev). Ingatan permanen — tra dilupakan.</p>
+          </div>
+
+          <div class="settings-divider" aria-hidden="true"></div>
+
+          <p class="settings-desc">Gemini API key ko disimpan cuma di HP ini — tra dibagi ke server lain.</p>
+
+          <p class="settings-status" id="settingsKeyStatus">Belum ada API key</p>
+
+          <a class="onboarding-link settings-link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Buka Google AI Studio</a>
+
+          <label class="onboarding-field settings-field">
+
+            <span class="onboarding-field-label">Gemini API Key</span>
+
+            <input type="password" class="onboarding-input" id="settingsApiKey" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…" />
+
+          </label>
+
+          <p class="onboarding-error hidden" id="settingsError">Key tra valid — cek lagi ya ko.</p>
+
+          <button type="button" class="btn-onboarding-continue settings-save" id="btnSettingsSave" data-persona-action="btnSettingsSave" onclick="window.__personaUiTap('btnSettingsSave')">Simpan</button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="post-call-card hidden" id="postCallCard">
+
+      <p class="post-call-label">Tadi kita ngobrol tentang</p>
+
+      <p class="post-call-summary" id="postCallSummary"></p>
+
+      <p class="post-call-mood" id="postCallMood"></p>
+
+      <button type="button" class="btn-post-call-close" id="btnPostCallClose">OK</button>
+
+    </div>
+
+
+
+  </div>
+
+  <script src="/static/live.js?v=50"></script>
+
+  <script src="/static/app.js?v=49"></script>
+
+</body>
+
+</html>
+
+

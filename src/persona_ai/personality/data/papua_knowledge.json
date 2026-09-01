@@ -1,0 +1,659 @@
+{
+  "version": 4,
+  "description": "KB Papua v3 — kabupaten, kampung, legenda lokal, kehidupan sehari-hari.",
+  "usage_note": "Pakai fakta ini kalau ko tanya tentang Papua. Kalau tra tau pasti, bilang jujur — jangan mengarang.",
+  "core_facts": [
+    "Papua bagian timur Indonesia; provinsi sudah dimekarkan (Papua, Papua Tengah, Papua Pegunungan, Papua Selatan, Papua Barat, Papua Barat Daya).",
+    "Bahasa lingua franca urban: Melayu Papua (sa/ko, pu, tra/su) — campur Indonesia sehari-hari.",
+    "Makanan pokok: sagu (papeda), ikan, sayur hutan; pinang/sirih kebiasaan sosial di banyak daerah.",
+    "Kota besar: Jayapura, Merauke, Sorong, Manokwari, Timika, Nabire, Biak, Wamena.",
+    "Ratusan suku adat — masing-masing punya bahasa, adat, rumah tradisional (honai, rumah panggung, dll.).",
+    "Cuaca tropis lembap; dataran rendah panas, pegunungan sejuk — musim hujang/huja ganggu transport.",
+    "Masyarakat umumnya ramah; gotong royong kuat di kampung/komunitas.",
+    "Kristen Protestan dan Katolik dominan di urban; adat lokal masih hidup di banyak kampung.",
+    "Legenda dan cerita rakyat lokal beda tiap suku — ceritakan ringkas, hormati versi adat."
+  ],
+  "topics": [
+    {
+      "id": "tabi_jayapura_sentani",
+      "title": "Wilayah Adat Tabi (Port Numbay & Bhuvani)",
+      "keywords": [
+        "tabi", "port numbay", "numbay", "bhuvani", "ondofolo", "ondoafi", "mano", "wally", "ohee",
+        "tobati", "enggros", "youtefa", "kayobatu", "nafri", "skow mabo", "yoboi", "babrongko", "doyo",
+        "taksi sentani", "anak port numbay"
+      ],
+      "facts": [
+        "Tabi = wilayah adat Jayapura (Port Numbay) & Sentani (Bhuvani); Ondofolo/Ondoafi pemimpin adat.",
+        "Port Numbay: Tobati/Enggros (Mano=Ondoafi, Hanasbey, Ireeuw…), Kayobatu, Nafri, Skow Mabo — marga per kampung.",
+        "Sentani: marga Wally (Yoboi/Babrongko), Eluay (Sereh), Ohee (Doyo Ondofolo); hak ulayat dusun sagu.",
+        "Frasa lokal: Anak Port Numbay, Pi Spen di Abe, Makan pinang di Dok II, Taksi Sentani (angkot Jayapura–Sentani)."
+      ]
+    },
+    {
+      "id": "jayapura",
+      "title": "Jayapura & Sekitarnya",
+      "keywords": ["jayapura", "entrop", "abepura", "hamadi", "sentani", "expo", "mandala", "kotaraja", "skouw"],
+      "facts": [
+        "Jayapura ibu kota Provinsi Papua; area urban: Entrop, Abepura, Hamadi.",
+        "Danau Sentani dekat Jayapura — budaya, perahu tradisional, Festival Danau Sentani.",
+        "Bandara Sentani (DJJ) gerbang udara utama Papua bagian timur.",
+        "Panas lembap tipikal; angkot/mobil sewa transportasi harian."
+      ]
+    },
+    {
+      "id": "merauke",
+      "title": "Merauke",
+      "keywords": ["merauke", "tanah merah", "wasur", "papan", "selatan", "mooi"],
+      "facts": [
+        "Merauke di ujung selatan Papua — kota paling timur Indonesia.",
+        "Taman Nasional Wasur — savana, burung, ekosistem unik.",
+        "Pantai Tanah Merah populer wisata lokal.",
+        "Obrolan lokal kaya partikel mo, toh, kah, bar."
+      ]
+    },
+    {
+      "id": "timika_mimika",
+      "title": "Timika & Mimika",
+      "keywords": ["timika", "mimika", "grasberg", "freeport", "amamapare", "kuala kencana", "pomako"],
+      "facts": [
+        "Timika ibu kota Kabupaten Mimika — pusat ekonomi dan migrasi pekerja.",
+        "Wilayah dekat operasi tambang Grasberg (Freeport) — sektor ekonomi besar.",
+        "Pelabuhan Amamapare melayani logistik timika.",
+        "Cuaca hujan sering; rencanakan perjalanan darat/udara dengan fleksibel."
+      ]
+    },
+    {
+      "id": "biak_numfor",
+      "title": "Biak & Numfor",
+      "keywords": ["biak", "numfor", "supiori", "manokwari selatan", "aosiafa", "biak kota", "farkawawin", "keret", "marga biak"],
+      "facts": [
+        "Biak pulau di Teluk Cenderawasih — penjelajah laut, budaya pesisir, sejarah Perang Dunia II.",
+        "Farkawawin = adat pernikahan Biak; Ararem = prosesi mas kawin — harga diri marga (keret).",
+        "Mas kawin sakral: Piring Gantung (Benjaf/Piring Adat) keramik antik + Guci Antik (Sner) + uang & pelengkap.",
+        "Prosesi Ararem: keluarga pria jalan kaki beriringan — tifa, tari, nyanyi lagu Wor ke rumah pengantin.",
+        "Bahasa asli Wós Vyak: Syowi (halo), Kopyum (apa kabar), Injo/Kasumasa (terima kasih), Imboi (iya).",
+        "Keret (marga) populer: Rumbiak, Rumansara, Rumkorem, Ronsumbre, Randongkir, Mambrasar, Paraibabo, Yappen, dll.",
+        "Keret Auwr kuno: Fairyo, Farwas, Rejauw, Ansek, Makmaker, Sanadi, Arfayan, Rumawak, Kampa, Warwer, dll.",
+        "Sub-suku: Aimando, Betew, Doreri, Kafdaron, Karon, Usba, Wardo, Kaipuri.",
+        "Wor samudra (korfandi): Ersam, Dow Be Kok Masan, Dow Bekok Wam — nyanyian pelaut menundukkan laut.",
+        "Frasa pesisir: Kabor!, Akur!, Mambri — seling saat ngobrol santai."
+      ]
+    },
+    {
+      "id": "nabire",
+      "title": "Nabire & Teluk Cenderawasih",
+      "keywords": ["nabire", "teluk cenderawasih", "cenderawasih", "teluk", "paniai", "enarotali"],
+      "facts": [
+        "Nabire di pesisir Teluk Cenderawasih — akses darat ke Paniai (Enarotali).",
+        "Teluk Cenderawasih kaya biodiversitas laut.",
+        "Danau Paniai terkenal — budaya Mee/Ekari di sekitarnya.",
+        "Perjalanan antar kabupaten bisa jauh — cek jadwal transport."
+      ]
+    },
+    {
+      "id": "sorong_raja_ampat",
+      "title": "Sorong & Raja Ampat",
+      "keywords": ["sorong", "raja ampat", "waisai", "misool", "wayag", "dua pulau", "dompak"],
+      "facts": [
+        "Sorong gerbang ke Raja Ampat (Papua Barat Daya).",
+        "Raja Ampat: diving/snorkeling kelas dunia — Wayag, Misool populer.",
+        "Waisai ibu kota administratif Kepulauan Raja Ampat.",
+        "Perjalanan antar pulau speedboat — cuaca dan ombak pengaruhi jadwal."
+      ]
+    },
+    {
+      "id": "manokwari",
+      "title": "Manokwari",
+      "keywords": ["manokwari", "papua barat", "mansinam", "gunung", "bbr", "rumberpon"],
+      "facts": [
+        "Manokwari pernah ibu kota Papua Barat; pusat pemerintahan pindah ke Sorong.",
+        "Pulau Mansinam — sejarah misi Kristen awal.",
+        "Melayu Manokwari: serial verb (pergi ambil, kasi tau, bikin).",
+        "Arfak Mountains dekat — birdwatching cenderawasih."
+      ]
+    },
+    {
+      "id": "fakfak_kaimana",
+      "title": "Fakfak & Kaimana",
+      "keywords": ["fakfak", "kaimana", "teluk bintuni", "bintuni", "triton", "forbes"],
+      "facts": [
+        "Fakfak dan Kaimana di Papua Barat — pesisir Teluk Bintuni/Triton.",
+        "Kaimana terkenal whale shark (hiu paus) musim tertentu.",
+        "Reminiscent of eastern spice route history — budaya pesisir.",
+        "Akses sering via Sorong atau pesawat perintis."
+      ]
+    },
+    {
+      "id": "pegunungan",
+      "title": "Pegunungan (Baliem, Wamena)",
+      "keywords": ["wamena", "baliem", "pegunungan", "habbema", "puncak jaya", "carstensz", "dingin", "yahukimo"],
+      "facts": [
+        "Wamena pusat Lembah Baliem — suku Dani dan budaya unik.",
+        "Festival Lembah Baliem tahunan — tarian perang, adat Dani.",
+        "Suhu sejuk; danau Habberma (Danau Habbema) pemandangan ikonik.",
+        "Puncak Jaya/Carstensz — gunung tertinggi Indonesia (izin & logistik sulit)."
+      ]
+    },
+    {
+      "id": "suku_dani",
+      "title": "Suku Dani",
+      "keywords": ["dani", "lembah baliem", "kurulu", "wamena", "honai", "koteka", "romi"],
+      "facts": [
+        "Suku Dani di Pegunungan Tengah — Lembah Baliem terkenal.",
+        "Honai rumah bundar tradisional; koteka/rok rumbai pakaian adat.",
+        "Iki Palek — tradisi historis potong satu ruas jari sebagai duka cita mendalam atas kematian keluarga inti; simbol sakit hati. Praktik lama, banyak komunitas sudah tidak melakukan — hormati sensitivitas saat membahas.",
+        "Pertanian sweet potato (hipere) dan festival adat penting.",
+        "Kunjungi kampung adat dengan izin kepala adat/ guide lokal."
+      ]
+    },
+    {
+      "id": "suku_asmat",
+      "title": "Suku Asmat",
+      "keywords": ["asmat", "agats", "pom", "carving", "ukir", "swart", "casuarina", "patung bis", "bis pole"],
+      "facts": [
+        "Suku Asmat di pesisir selatan — Agats ibu kota Kabupaten Asmat.",
+        "Ukiran Asmat terkenal dunia — ukir kayu tanpa sketsa; motif religius penghubung manusia hidup dengan arwah leluhur (Patung Bis/bis poles).",
+        "Transportasi sungai/perahu dominan di dataran rawa.",
+        "Museum culture Asmat ada di Agats — wisata budaya."
+      ]
+    },
+    {
+      "id": "suku_yali_korowai",
+      "title": "Suku Yali & Korowai",
+      "keywords": ["yali", "korowai", "dekel", "rumah pohon", "tree house", "baliem selatan"],
+      "facts": [
+        "Yali di pegunungan selatan — terkenal rumah adat dan topi bulu.",
+        "Korowai terkenal rumah tinggi di pohon (tree house) — akses sangat terpencil.",
+        "Wisata etis: hormati privasi, pakai guide lokal resmi.",
+        "Bukan tempat sembarang — butuh izin adat dan persiapan kesehatan."
+      ]
+    },
+    {
+      "id": "suku_mee_kamoro",
+      "title": "Suku Mee, Kamoro & Mimika",
+      "keywords": ["mee", "kamoro", "amungme", "mimika", "paniai", "enarotali", "nabire"],
+      "facts": [
+        "Mee/Ekari di dataran Paniai — Danau Paniai pusat budaya.",
+        "Kamoro dan Amungme di Mimika — adat pesisir dan pegunung dekat Timika.",
+        "Tarian tifa dan upacara adat masih hidup.",
+        "Konflik lahan/adat vs industri pernah sensitif — jawab netral."
+      ]
+    },
+    {
+      "id": "serui_yapen",
+      "title": "Serui & Kepulauan Yapen",
+      "keywords": ["serui", "yapen", "waropen", "biak selatan", "pulau yapen"],
+      "facts": [
+        "Serui di Pulau Yapen — kabupaten Yapen Islands.",
+        "Masyarakat pesisir nelayan; sagu dan ikan makanan utama.",
+        "Akses via laut/udara dari Biak atau Jayapura.",
+        "Festival budaya lokal kadang diadakan di Serui."
+      ]
+    },
+    {
+      "id": "budaya_adat",
+      "title": "Budaya & Adat Umum",
+      "keywords": ["adat", "budaya", "honai", "koteka", "tari", "upacara", "suku", "tifa", "bakar batu"],
+      "facts": [
+        "Tifa (gendang panjang) musik adat hampir di semua suku.",
+        "Pesta bakar batu (barapen) tradisi memasak komunal di Pegunungan.",
+        "Kunjungi kampung adat: bawa oleh-oleh kecil, minta izin, dress modest.",
+        "Foto orang/adat — tanya izin dulu."
+      ]
+    },
+    {
+      "id": "fauna",
+      "title": "Fauna Papua",
+      "keywords": ["cendrawasih", "burung", "kasuari", "kuskus", "cuscus", "nuri", "penyu", "hiu paus"],
+      "facts": [
+        "Cenderawasih (burung paradise) ikon Papua — banyak spesies endemik.",
+        "Kasuari dan kuskus juga endemik.",
+        "Burung nuri (urip) simbol warna-warni Papua.",
+        "Lindungi satwa — jangan beli produk dari satwa liar ilegal."
+      ]
+    },
+    {
+      "id": "kuliner",
+      "title": "Kuliner Papua",
+      "keywords": ["makan", "makanan", "sagu", "papeda", "ikan", "kuah kuning", "pinang", "buah merah", "barapen"],
+      "facts": [
+        "Papeda/bubur sagu — tekstur kenyal, santap dengan ikan kuah kuning.",
+        "Ikan bakar, tinoransak (sayur santan), ubi dan pisang hutan.",
+        "Pinang+sirih+kapur ritual sosial di dataran rendah.",
+        "Buah merah (Pandanus conoideus) minyak/suplemen khas Papua."
+      ]
+    },
+    {
+      "id": "bahasa",
+      "title": "Bahasa & Logat",
+      "keywords": ["bahasa", "logat", "melayu papua", "sa", "ko", "beta", "biak", "dani", "dialek", "papuan malay"],
+      "facts": [
+        "Melayu Papua urban: sa, ko, pu, tra, su, mo, kah, iyo toh.",
+        "Beta = Ambon — bukan Papua.",
+        "800+ bahasa daerah — Papua punya keanekaragaman bahasa terbesar di Indonesia.",
+        "Di kota: Indonesia + Melayu Papua; di kampung: bahasa suku."
+      ]
+    },
+    {
+      "id": "agama",
+      "title": "Agama & Kehidupan Rohani",
+      "keywords": ["gereja", "kristen", "katolik", "doa", "misa", "pendeta", "pastor", "rohani", "islam"],
+      "facts": [
+        "Mayoritas Kristen Protestan dan Katolik di kota-kota besar.",
+        "Gereja pusat kehidupan sosial banyak komunitas.",
+        "Islam dan kepercayaan adat juga ada — plural.",
+        "Asisten bukan pendeta — untuk doa/refleksi ringan, arahkan ke gembala lokal bila berat."
+      ]
+    },
+    {
+      "id": "kesehatan",
+      "title": "Kesehatan",
+      "keywords": ["sehat", "sakit", "puskesmas", "obat", "daun gatal", "malaria", "demam", "rsud", "bidan"],
+      "facts": [
+        "RSUD/RS swasta di kota; puskesmas posyandu di kecamatan.",
+        "Malaria, DBD, diare masih concern di pedalaman — profilaksis & OB.",
+        "Daun gatal tradisional untuk pegal — sangat umum.",
+        "Asisten bukan dokter — bila parah ke RS/puskesmas segera."
+      ]
+    },
+    {
+      "id": "transportasi",
+      "title": "Transportasi",
+      "keywords": ["pesawat", "bandara", "kapal", "perahu", "jalan", "angkot", "travel", "pelabuhan", "pelni"],
+      "facts": [
+        "Bandara: Sentani, Sorong, Manokwari, Merauke, Timika, Biak, Nabire, Wamena (perintis).",
+        "Pesawat antar-kota paling andal; jalan Trans Papua masih berkembang.",
+        "PELNI/kapal lokal melayani pelabuhan pesisir.",
+        "Speedboat/perahu untuk pulau dan sungai."
+      ]
+    },
+    {
+      "id": "wisata",
+      "title": "Wisata",
+      "keywords": ["wisata", "liburan", "travel", "pantai", "snorkeling", "diving", "foto", "backpacker"],
+      "facts": [
+        "Raja Ampat, Baliem Valley, Sentani, Mansinam, Wasur, Paniai.",
+        "Surat izin/SIKA untuk beberapa daerah — cek regulasi terbaru.",
+        "Guide lokal wajib untuk adat/pedalaman.",
+        "Musim huja (hujan) Nov–Apr ganggu penerbangan/perahu."
+      ]
+    },
+    {
+      "id": "ekonomi",
+      "title": "Ekonomi & Mata Pencaharian",
+      "keywords": ["kerja", "ekonomi", "nelayan", "tambang", "sagu", "kebun", "petani", "umkm", "pasar"],
+      "facts": [
+        "Mata pencaharian: nelayan, petani sagu, perkebunan, UMKM pasar.",
+        "Sektor tambang (Mimika) dan migas (Bintuni) ekonomi skala besar.",
+        "Pasar tradisional (mume) jantung ekonomi harian di kota.",
+        "Youth banyak cari kerja di kota — migrasi dari kampung umum."
+      ]
+    },
+    {
+      "id": "pendidikan",
+      "title": "Pendidikan",
+      "keywords": ["sekolah", "kuliah", "universitas", "cendrawasih", "uncen", "sma", "sd", "mahasiswa", "beasiswa"],
+      "facts": [
+        "Universitas Cenderawasih (UNCEN) Jayapura — PTN utama Papua.",
+        "Akses sekolah lebih baik di kota; pedalaman masih tantangan guru/fasilitas.",
+        "Beasiswa AFIR, KIP, daerah tersedia — cek portal resmi.",
+        "Bahasa pengantar Indonesia; budaya lokal di luar sekolah."
+      ]
+    },
+    {
+      "id": "provinsi_pemekaran",
+      "title": "Provinsi & Administrasi",
+      "keywords": ["provinsi", "pemekaran", "papua tengah", "papua selatan", "papua pegunungan", "papua barat daya", "kabupaten"],
+      "facts": [
+        "Pemekaran 2022: Papua Tengah, Papua Pegunungan, Papua Selatan (dari Papua); Papua Barat Daya (dari Papua Barat).",
+        "Jayapura tetap ibu kota Provinsi Papua (DOB baru punya ibu kota masing-masing).",
+        "Nama kabupaten/kota banyak — kalau ragu, tanya kabupaten spesifik.",
+        "Peta administratif berubah — cek sumber resmi Kemendagri bila perlu detail."
+      ]
+    },
+    {
+      "id": "sejarah_ringkas",
+      "title": "Sejarah Ringkas",
+      "keywords": ["sejarah", "merdeka", "integrasi", "1969", "penjajahan", "belanda", "sp", "pepera"],
+      "facts": [
+        "Masa kolonial Belanda; integrasi ke RI proses panjang abad 20.",
+        "Pepera 1969 bagian sejarah integrasi — topik sensitif, netral & hormat.",
+        "Konflik dan dialog politik masih berlangsung — jangan spekulasi.",
+        "Arahkan ke buku/sejarah resmi bila ko mau detail akademik."
+      ]
+    },
+    {
+      "id": "keerom_sarmi",
+      "title": "Keerom & Sarmi",
+      "keywords": ["keerom", "sarmi", "skouw", "border", "pepera", "perbatasan", "mander"],
+      "facts": [
+        "Keerom di perbatasan Papua Nugini — Sota/Skouw gerbang lintas batas.",
+        "Sarmi pesisir utara — masyarakat nelayan dan sagu.",
+        "Perbatasan internasional — urus dokumen resmi bila mau lintas.",
+        "Cuaca hujan tinggi; jalan berlumpur musim huja."
+      ]
+    },
+    {
+      "id": "boven_digoel_mappi",
+      "title": "Boven Digoel & Mappi (Papua Selatan)",
+      "keywords": ["boven digoel", "mappi", "tanah merah", "kimaam", "asmat selatan", "papua selatan"],
+      "facts": [
+        "Kabupaten Boven Digoel & Mappi masuk Provinsi Papua Selatan.",
+        "Hutan tropis dan sungai besar — akses dominan perahu.",
+        "Tanah Merah ibu kota Boven Digoel (beda dengan pantai Merauke).",
+        "Komunitas adat kuat — izin adat wajib."
+      ]
+    },
+    {
+      "id": "dogiyai_deiyai_intan",
+      "title": "Dogiyai, Deiyai & Intan Jaya",
+      "keywords": ["dogiyai", "deiyai", "intan jaya", "tigi", "danau paniai", "danau tigi", "papua tengah"],
+      "facts": [
+        "Tiga kabupaten danau di Papua Tengah — budaya Mee/Dani terkait.",
+        "Danau Tigi dan sekitarnya pemandangan danau pegunungan.",
+        "Komo ibu kota Dogiyai; Tigi Deiyai; Sugapa Intan Jaya.",
+        "Suhu sejuk; persiapan kesehatan untuk perjalanan darat."
+      ]
+    },
+    {
+      "id": "tolikara_lanny",
+      "title": "Tolikara & Lanny Jaya",
+      "keywords": ["tolikara", "lanny jaya", "karubaga", "tiom", "yalimo", "goliath"],
+      "facts": [
+        "Tolikara ibu kota Karubaga — pegunungan tengah.",
+        "Lanny Jaya (Tiom) — suku Yali dan Lani terkait.",
+        "Gunung Goliath dan pemandangan pegunungan ikonik.",
+        "Festival adat lokal kadang di Karubaga/Tiom."
+      ]
+    },
+    {
+      "id": "puncak_ilaga",
+      "title": "Puncak & Ilaga",
+      "keywords": ["puncak", "ilaga", "enarotali", "beoga", "papua tengah", "gmining"],
+      "facts": [
+        "Kabupaten Puncak (Ilaga) dan Puncak Jaya (Mulia) di Papua Tengah/Pegunungan.",
+        "Ilaga jadi ibu kota Kabupaten Puncak setelah pemekaran.",
+        "Akses darat/udara perintis — rencana logistik matang.",
+        "Konflik masa lalu pernah terjadi — jawab netral bila ditanya politik."
+      ]
+    },
+    {
+      "id": "oksibil_bintang",
+      "title": "Pegunungan Bintang (Oksibil, Batom)",
+      "keywords": ["oksibil", "batom", "pegunungan bintang", "bintang", "yahukimo", "dekenai"],
+      "facts": [
+        "Kabupaten Pegunungan Bintang — ibu kota Oksibil.",
+        "Batomb dan Dekenai kota/kabupaten terkait pegunungan timur.",
+        "Suku Yali, Kimyal, dan lainnya — adat kuat.",
+        "Sangat terpencil — bandara perintis dan jalan tanah."
+      ]
+    },
+    {
+      "id": "waropen_supiori",
+      "title": "Waropen & Supiori",
+      "keywords": ["waropen", "supiori", "serui", "rufei", "biak utara", "pantai"],
+      "facts": [
+        "Waropen pesisir teluk — Rufei/Bunafi pusat administrasi.",
+        "Pulau Supiori utara Biak — nelayan dan sagu.",
+        "Akses laut dari Serui/Biak.",
+        "Hutan bakau dan pantai di sepanjang teluk."
+      ]
+    },
+    {
+      "id": "teluk_wondama",
+      "title": "Teluk Wondama",
+      "keywords": ["wondama", "teluk wondama", "rasiei", "rumberpon", "wasior"],
+      "facts": [
+        "Kabupaten Teluk Wondama — Rasiei ibu kota.",
+        "Wasior pernah jadi pusat administrasi terkait.",
+        "Pesisir Teluk Bintuni — nelayan dan mangrove.",
+        "Akses dari Manokwari/Sorong via laut/udara."
+      ]
+    },
+    {
+      "id": "sorong_kota",
+      "title": "Kota Sorong",
+      "keywords": ["kota sorong", "sorong city", "malamsohari", "klasaman", "remu"],
+      "facts": [
+        "Sorong kota metropolitan Papua Barat — gerbang Raja Ampat.",
+        "Malamsohari, Remu, Klasaman area urban.",
+        "Bandara Domine Eduard Osok (SOQ) — hub penerbangan.",
+        "Pelabuhan Sorong — transit ke Raja Ampat & Maluku."
+      ]
+    },
+    {
+      "id": "legenda_sentani",
+      "title": "Legenda Danau Sentani",
+      "keywords": ["legenda", "sentani", "onde", "pulau love", "cerita rakyat", "mitos"],
+      "facts": [
+        "Danau Sentani punya banyak legenda lokal suku Sentani.",
+        "Cerita Onde-Onde (tarian/lagu tradisional) terkait budaya Sentani.",
+        "Pulau-pulau kecil di danau punya cerita masing-masing — versi beda tiap kampung.",
+        "Ceritakan ringkas; akui kalau versi lokal bisa berbeda."
+      ]
+    },
+    {
+      "id": "legenda_biak",
+      "title": "Legenda & Sejarah Biak",
+      "keywords": ["legenda biak", "mansinam", "biak perang", "pd ii", "cerita biak"],
+      "facts": [
+        "Biak saksi sejarah Perang Dunia II — monumen dan museum.",
+        "Legenda laut dan roh laut (water spirit) bagian kepercayaan lokal.",
+        "Mansinam terkait legenda penginjilan pertama.",
+        "Hormati cerita adat — jangan olok-olok kepercayaan lokal."
+      ]
+    },
+    {
+      "id": "legenda_asmat",
+      "title": "Legenda Suku Asmat",
+      "keywords": ["legenda asmat", "bisj", "mbis", "roh", "lembah", "dendam", "ukiran"],
+      "facts": [
+        "Ukiran Asmat terinspirasi roh leluhur dan alam (Mbis/bisj poles).",
+        "Cerita perang suku dulu bagian sejarah oral — sensitif, netral.",
+        "Ukiran modern juga seni kontemporer — budaya hidup.",
+        "Museum Asmat Agats menyimpan banyak karya."
+      ]
+    },
+    {
+      "id": "legenda_dani",
+      "title": "Legenda Lembah Baliem",
+      "keywords": ["legenda dani", "baliem", "roh gunung", "perang suku", "cerita dani"],
+      "facts": [
+        "Dani punya cerita asal-usul lembah dan roh gunung.",
+        "Festival perang adat (mock war) turisme budaya — bukan konflik nyata.",
+        "Sweet potato (hipere) sakral dalam kehidupan sehari-hari.",
+        "Guide lokal jelaskan konteks adat bila ko ke Baliem."
+      ]
+    },
+    {
+      "id": "musik_tari",
+      "title": "Musik & Tari Adat",
+      "keywords": ["tifa", "tari", "tari perang", "yospan", "sosang", "gospel", "lagu papua"],
+      "facts": [
+        "Tifa — gendang kayu panjang, iringi tarian adat.",
+        "Yospan/Sosang tarian remaja populer di dataran rendah.",
+        "Lagu gospel Papua (Bahasa Indonesia/Melayu) kuat di gereja.",
+        "Festival budaya tiap daerah showcase tarian masing-masing suku.",
+        "Lagu ikonik: Apuse, Hai Tanahku Papua, Yamko Rambe Yamko — Franky Sahilatua & Abe Pahabol.",
+        "Musik modern: Edhy B, Nowela, Mambes; adat Sentani: Onde-Onde."
+      ]
+    },
+    {
+      "id": "pasar_kehidupan_harian",
+      "title": "Pasar & Kehidupan Sehari-hari",
+      "keywords": ["pasar", "mume", "warung", "pinang", "menginang", "gotong royong", "arisan"],
+      "facts": [
+        "Pasar Mume (tradisional) jual ikan, sagu, sayur, pinang.",
+        "Menginang (pinang+sirih+kapur) — 'permen sosial' Papua: wajib saat baku dapa, tanda keakraban dan persahabatan, bukan cuma kebiasaan makan.",
+        "Gotong royong bangun rumah/adat masih hidup di kampung.",
+        "Warung kopi tempat tongkrong — obrolan penting budaya urban."
+      ]
+    },
+    {
+      "id": "cuaca_musim",
+      "title": "Cuaca & Musim",
+      "keywords": ["hujan", "huja", "hujang", "kemarau", "musim", "banjir", "panas", "lembap"],
+      "facts": [
+        "Musim huja/hujan Nov–Apr — penerbangan/perahu sering terganggu.",
+        "Kemarau lebih kering Mei–Okt — travel lebih stabil.",
+        "Pegunungan dingin malam; dataran rendah panas lembap siang.",
+        "Banjir bandang bisa terjadi — waspada musim hujan."
+      ]
+    },
+    {
+      "id": "kehidupan_kampung",
+      "title": "Kehidupan Kampung",
+      "keywords": ["kampung", "desa", "adat", "kepala suku", "ondoafi", "tetua", "sagu ladang"],
+      "facts": [
+        "Kepala adat (ondoafi/tetua) punya peran penting di kampung.",
+        "Ladang sagu dan kebun keluarga makanan utama pedesaan.",
+        "Listrik/pln belum merata semua kampung — solar/genset umum.",
+        "Kunjungi kampung: bawa oleh-oleh rokok/teh/gula, minta izin dulu."
+      ]
+    },
+    {
+      "id": "gaya_dialek_berbicara",
+      "title": "Gaya Berbicara & Dialek Papua",
+      "keywords": ["dialek", "logat", "gaya berbicara", "pu", "mo", "toh", "kah", "baru", "su", "lah", "intonasi", "lafal", "grammar", "tata bahasa"],
+      "facts": [
+        "Dialek Papua: lafal & intonasi khas; kata disingkat — Sa, Ko, Pi, Tra, Su, Mo, Skali.",
+        "Kepunyaan: subjek dulu + pu terpisah — sa pu rumah, ko pu maitua (bukan rumahku).",
+        "Su menggantikan -lah perintah: Makan sudah…, Tidur sudah… — su tidak menempel ke kata kerja.",
+        "E/eee menggantikan 'yah' di akhir; Mo/Toh/Kah/Baru = penegas & pelengkap kalimat.",
+        "Predikat kebanyakan sama Indonesia baku; urutan subjek-predikat, subjek dulu."
+      ]
+    },
+    {
+      "id": "papua_ai_developer",
+      "title": "Pengembang Papua AI",
+      "keywords": ["posman silaban", "posman", "silaban", "pengembang", "developer", "dev", "pembuat", "siapa buat", "solo dev", "master dev", "creator", "programmer"],
+      "facts": [
+        "Papua AI dibuat oleh Posman Silaban — Solo Developer / Master Dev asal Papua.",
+        "Posman Silaban merancang karakter Raja Mop, database budaya, dan aplikasi Android ini.",
+        "Ingatan permanen: nama pengembang = Posman Silaban — tra boleh lupa atau ganti."
+      ]
+    },
+    {
+      "id": "kata_populer_slang",
+      "title": "Kata Populer & Slang Papua",
+      "keywords": ["sa", "ko", "tong", "kam", "trapapa", "tramau", "stecu", "yombex", "yap sene", "epen", "cupen toh", "slang", "kata papua", "arti"],
+      "facts": [
+        "Sa = saya/aku; Ko = kamu; Tong = kita/kami; Kam = kalian — dasar obrolan urban.",
+        "Trapapa = tidak apa-apa; Tramau = tidak mau.",
+        "Stecu = stelan cuek — sikap cuek & malas tahu.",
+        "Yombex (Jayapura/Port Numbay) = sombong, berlagak, belagu, cool sok keren — ejek teman pamer; Ih, yombex paling parah!",
+        "Epen = Emang Penting? (cuek); Kalkota = mbual/omong kosong; Kombas = geng nongkrong; Sakar = pelit.",
+        "Epen kah, cupen toh = Emang penting kah? … (cu)kup penting toh — ungkapan cuek/santai.",
+        "Catatan: di Sorong yombex kadang nuansa iya/setuju — AI ini prioritaskan arti Jayapura (sombong/pamer)."
+      ]
+    },
+    {
+      "id": "islam_papua",
+      "title": "Islam & Keberagaman",
+      "keywords": ["islam", "masjid", "muslim", "halal", "idul", "lebaran"],
+      "facts": [
+        "Komunitas Muslim ada di kota (Jayapura, Sorong, dll.) — masjid aktif.",
+        "Makanan halal tersedia di urban; pedalaman cek dulu.",
+        "Keberagaman agama umumnya hidup rukun di kota.",
+        "Hormati semua kepercayaan — jangan provokasi."
+      ]
+    },
+    {
+      "id": "raja_ampat_detail",
+      "title": "Pulau-pulau Raja Ampat",
+      "keywords": ["wayag", "misool", "batanta", "salawati", "waigeo", "piaynemo", "telaga biru"],
+      "facts": [
+        "Empat pulau utama: Waigeo, Misool, Salawati, Batanta.",
+        "Piaynemo/Wayag viewpoint ikonik — foto drone populer.",
+        "Telaga Bintang/Telaga Biru di Misool — snorkeling.",
+        "Park tag/conservation fee — dukung pelestarian laut."
+      ]
+    },
+    {
+      "id": "wilayah_pantai_pegunungan",
+      "title": "Pesisir vs Pegunungan (Lapago/Meepago)",
+      "keywords": ["pantai", "pesisir", "pegunungan", "lapago", "meepago", "datang rendah", "highland", "honai", "rumah panggung", "suku", "wilayah adat"],
+      "facts": [
+        "Pesisir/pantai: ikan, sagu, perahu, rumah panggung; logat urban Melayu Papua kuat di kota.",
+        "Pegunungan (Lapago/Meepago): honai bundar, sweet potato, barapen; cuaca sejuk, adat berbeda dari pesisir.",
+        "Cara sapa & hormat bisa beda tiap suku — urban sa/ko vs kampung bahasa suku (Biak: Aya/Au).",
+        "Jangan generalisasi satu suku = seluruh Papua; tanya dulu ko dari pantai atau pegunungan."
+      ]
+    },
+    {
+      "id": "olahraga_bola_papua",
+      "title": "Sepak Bola & Olahraga Papua",
+      "keywords": ["persipura", "bola", "sepak bola", "boaz solossa", "boaz", "solossa", "pon", "papua united", "liga", "atlet", "sepakbola", "persipura jayapura", "lukas enembe", "stadion"],
+      "facts": [
+        "Persipura Jayapura — klub legendaris Papua; juara Liga Indonesia 2008/2009 & 2010/2011.",
+        "Boaz Solossa — kapten & ikon Persipura; top skor historis Liga Indonesia; legenda sepak bola Papua.",
+        "Stadion Lukas Enembe (Jayapura) — kandang Persipura; obrolan bola Papua sering sebut stadion ini.",
+        "PON (Pekan Olahraga Nasional) — Papua sering tuan rumah/atlet kuat; sepak bola & atletik populer dibahas.",
+        "Obrolan bola sangat umum di tongkrong — Persipura, liga lokal, PON, pemain Papua di liga nasional."
+      ]
+    },
+    {
+      "id": "salam_sapaan_lokal",
+      "title": "Salam, Sapaan & Waktu",
+      "keywords": ["amolongo", "sae", "kano kano", "namo budaya", "salam", "selamat pagi", "aosiafa", "kaka", "pace", "mace", "syambae", "rob bebye", "mandira bebye"],
+      "facts": [
+        "Urban universal: Syambae/Arwo bebye (selamat pagi), Mandira bebye (sore), Rob bebye (malam) — Melayu Papua.",
+        "Biak/Numfor: Aosiafa (selamat tinggal); sapaan Aya/Au di kampung Biak.",
+        "Sapaan hormat: pace (laki-laki), mace (ibu), kaka (kakak), nona (gadis) — sesuaikan konteks.",
+        "Salam adat bervariasi tiap suku — Amolongo, Sae, Kano-kano, Namo budaya: sebut dengan hormat, tanya ko suku/wilayah dulu.",
+        "Pagi: selamat pagi kaka/pace/mace; sore/malam: mandira/rob bebye — natural di obrolan Papua."
+      ]
+    },
+    {
+      "id": "wilayah_adat_pemekaran",
+      "title": "Wilayah Adat & Pembagian Budaya",
+      "keywords": ["mamta", "saireri", "domberai", "bomberai", "anim ha", "la pago", "mee pago", "meepago", "lapago", "wilayah adat", "suku", "pembagian"],
+      "facts": [
+        "Papua punya pembagian wilayah adat/budaya — Mamta, Saireri, Domberai, Bomberai, Anim Ha, La Pago, Mee Pago (Mee Pago/Lapago = pegunungan tengah).",
+        "Pesisir (Saireri, Domberai, Bomberai): ikan, perahu, rumah panggung; logat urban kuat.",
+        "Pegunungan (La Pago, Mee Pago): honai, barapen, sweet potato; adat & bahasa suku berbeda dari pantai.",
+        "Jangan generalisasi satu suku = seluruh Papua — tanya ko dari wilayah mana dulu."
+      ]
+    },
+    {
+      "id": "kuliner_tradisi_noken",
+      "title": "Kuliner, Noken & Tradisi",
+      "keywords": ["noken", "es pinang", "es buah pinang", "barapen", "kit oba isago", "papeda", "keladi", "ulat sagu", "karung", "tradisi makan", "unesco"],
+      "facts": [
+        "Noken — anyaman serat kulit kayu (Mama-mama); digantung di dahi/kepala; UNESCO warisan budaya; simbol rahim, kehidupan, perdamaian, kedewasaan perempuan.",
+        "Barapen / Kit Oba Isago — bakar batu pegunungan: batu panas dalam lubang tanah, masak komunal petatas/ubi/sayur/daging; simbol perdamaian suku, pernikahan, tamu agung, syukur.",
+        "Papeda — bubur sagu kenyal; santap dengan ikan kuah kuning; makanan sehari-hari urban & pesisir.",
+        "Es buah pinang — minuman segar lokal populer di tongkrong; pinang/sirih juga ritual sapa sosial (menginang).",
+        "Cara masak detail beda tiap suku — ceritakan umum, kalau spesifik tanya ko dari mana."
+      ]
+    },
+    {
+      "id": "lima_pilar_budaya",
+      "title": "Lima Pilar Budaya Papua (Professor Mode)",
+      "keywords": [
+        "barapen", "kit oba isago", "bakar batu", "ararem", "biak", "piring gantung",
+        "noken", "unesco", "iki palek", "potong jari", "dani", "asmat", "ukir",
+        "patung bis", "menginang", "pinang", "budaya papua", "tradisi", "adat"
+      ],
+      "facts": [
+        "1) Barapen/Kit Oba Isago: gotong royong pegunungan — masak massal batu panas; perdamaian suku, pernikahan, tamu agung, syukur.",
+        "2) Ararem (Biak): hantaran maskawin — jalan kaki, nyanyi, tifa; Piring Gantung + guci antik wajib; penghormatan pada perempuan.",
+        "3) Noken (UNESCO): anyaman serat kayu, pakai di kepala; simbol rahim, kehidupan, perdamaian; perempuan siap nikah kalau su jago rajut.",
+        "4) Iki Palek (Dani, historis): potong satu ruas jari saat duka cita keluarga inti — simbol sakit hati; praktik lama, sensitif & tidak universal hari ini.",
+        "5) Ukiran Asmat: ukir tanpa sketsa; Patung Bis religius — jembatan manusia hidup & arwah leluhur.",
+        "Menginang (pinang): 'permen sosial' baku dapa — tanda keakraban di banyak daerah Papua."
+      ]
+    },
+    {
+      "id": "ibu_kota_pemekaran",
+      "title": "Ibu Kota Provinsi Baru",
+      "keywords": ["ibu kota", "nabire", "merauke", "wamena", "manokwari", "sorong", "jayapura"],
+      "facts": [
+        "Papua Tengah: Nabire (sementara/ resmi cek Kemendagri terbaru).",
+        "Papua Selatan: Merauke. Papua Pegunungan: Wamena.",
+        "Papua Barat Daya: Sorong. Papua Barat: Manokwari.",
+        "Provinsi Papua (DOB lama): Jayapura — administrasi bisa berubah."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,603 @@
+line_no,chunk_id,direction,bytes,rms,event_note
+16,,session,,,live session voice=Leda lang=id-ID session=web-97421f04
+19,1,client,3200,0.0009,
+21,1,gemini,3200,0.0009,
+22,1,model_out,2,,forward mode=allow
+23,2,model_out,4320,,forward mode=allow
+24,3,model_out,7680,,forward mode=allow
+25,10,model_out,13440,,forward mode=allow
+26,,gate,,,greeting_complete gate_closed
+28,10,client,3200,0.0009,
+29,10,gemini,3200,0.0009,
+30,25,client,3200,0.0732,
+31,26,client,3200,0.0944,rms_spike
+32,27,client,3200,0.0824,rms_spike
+33,28,client,3200,0.0523,
+34,29,client,3200,0.0306,
+35,30,client,3200,0.0356,
+36,,asr,,,transcript_partial:Halo.
+37,50,client,3200,0.0016,
+38,50,gemini,3200,0.0016,
+39,1,model_out,,,suppress chunks=1 total=1 mode=suppress
+40,2,model_out,,,suppress chunks=1 total=2 mode=suppress
+41,3,model_out,,,suppress chunks=1 total=3 mode=suppress
+42,,asr,,,FINAL_MISSING reason=suppressed_audio text=Halo.
+43,,gov,,,gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True
+44,,gemini,,,interrupted_flag keep_playback
+45,,gate,,,gate_hold seen=False
+46,20,model_out,9600,,forward mode=engine
+47,30,model_out,3840,,forward mode=engine
+48,100,gemini,3200,0.0016,
+49,105,client,3200,0.0315,
+50,106,client,3200,0.0718,
+51,107,client,3200,0.1211,rms_spike
+52,108,client,3200,0.0738,
+53,109,client,3200,0.0825,rms_spike
+54,110,client,3200,0.0387,
+55,,asr,,,transcript_partial:semuanya
+56,10,model_out,,,suppress chunks=1 total=10 mode=suppress
+57,,asr,,,FINAL_MISSING reason=suppressed_audio text=semuanya
+58,,gov,,,gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True
+59,,gemini,,,interrupted_flag keep_playback
+60,,gate,,,gate_hold seen=True
+61,40,model_out,9600,,forward mode=engine
+62,50,model_out,9600,,forward mode=engine
+63,171,client,3200,0.0361,
+64,172,client,3200,0.0475,
+65,173,client,3200,0.0481,
+66,174,client,3200,0.0638,
+67,175,client,3200,0.1056,rms_spike
+68,176,client,3200,0.026,
+69,177,client,3200,0.0493,
+70,178,client,3200,0.0329,
+71,179,client,3200,0.0352,
+72,180,client,3200,0.078,
+73,181,client,3200,0.0603,
+74,182,client,3200,0.0617,
+75,183,client,3200,0.027,
+76,184,client,3200,0.0295,
+77,,asr,,,transcript_partial:Ada 100 pertanyaan.
+78,20,model_out,,,suppress chunks=1 total=20 mode=suppress
+79,200,gemini,3200,0.0009,
+80,,asr,,,FINAL_MISSING reason=suppressed_audio text=Ada 100 pertanyaan.
+81,,gov,,,gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True
+82,,gemini,,,interrupted_flag keep_playback
+83,,gate,,,gate_hold seen=True
+84,60,model_out,9600,,forward mode=engine
+85,70,model_out,11520,,forward mode=engine
+86,230,client,3200,0.0595,
+87,231,client,3200,0.0874,rms_spike
+88,232,client,3200,0.1008,rms_spike
+89,233,client,3200,0.0395,
+90,234,client,3200,0.0954,rms_spike
+91,235,client,3200,0.0486,
+92,236,client,3200,0.0573,
+93,237,client,3200,0.1535,rms_spike
+94,238,client,3200,0.0817,rms_spike
+95,239,client,3200,0.0492,
+96,,asr,,,transcript_partial:nomor satu
+97,30,model_out,,,suppress chunks=1 total=30 mode=suppress
+98,257,client,3200,0.0617,
+99,258,client,3200,0.0528,
+100,259,client,3200,0.0429,
+101,260,client,3200,0.0354,
+102,261,client,3200,0.0415,
+103,40,model_out,,,suppress chunks=1 total=40 mode=suppress
+104,262,client,3200,0.0628,
+105,264,client,3200,0.0422,
+106,,asr,,,FINAL_MISSING reason=turn_complete text=nomor satu
+107,,gate,,,gate_hold seen=False
+108,,gov,,,gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True
+109,80,model_out,2910,,forward mode=engine
+110,90,model_out,13440,,forward mode=engine
+111,300,gemini,3200,0.0016,
+112,305,client,3200,0.0864,rms_spike
+113,306,client,3200,0.0704,
+114,307,client,3200,0.0884,rms_spike
+115,308,client,3200,0.0594,
+116,309,client,3200,0.0429,
+117,310,client,3200,0.0697,
+118,311,client,3200,0.0932,rms_spike
+119,312,client,3200,0.027,
+120,313,client,3200,0.0808,rms_spike
+121,314,client,3200,0.1089,rms_spike
+122,315,client,3200,0.0743,
+123,316,client,3200,0.0759,
+124,317,client,3200,0.0226,
+125,,asr,,,transcript_partial:Namamu siapa?
+126,,asr,,,FINAL_MISSING reason=suppressed_audio text=Namamu siapa?
+127,,gov,,,gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True
+128,,gemini,,,interrupted_flag keep_playback
+129,,gate,,,gate_hold seen=True
+130,100,model_out,7680,,forward mode=engine
+131,110,model_out,11520,,forward mode=engine
+132,362,client,3200,0.0551,
+133,363,client,3200,0.0936,rms_spike
+134,364,client,3200,0.0911,rms_spike
+135,365,client,3200,0.1063,rms_spike
+136,366,client,3200,0.0236,
+137,367,client,3200,0.0457,
+138,368,client,3200,0.0386,
+139,369,client,3200,0.0416,
+140,370,client,3200,0.0681,
+141,371,client,3200,0.0385,
+142,372,client,3200,0.0257,
+143,,asr,,,transcript_partial:Jam berapa sekarang?
+144,383,client,3200,0.0273,
+145,50,model_out,,,suppress chunks=1 total=50 mode=suppress
+146,,asr,,,FINAL_MISSING reason=suppressed_audio text=Jam berapa sekarang?
+147,,gov,,,gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True
+148,,gemini,,,interrupted_flag keep_playback
+149,,gate,,,gate_hold seen=True
+150,120,model_out,11520,,forward mode=engine
+151,130,model_out,15360,,forward mode=engine
+152,140,model_out,5760,,forward mode=engine
+153,400,gemini,3200,0.0013,
+154,408,client,3200,0.0498,
+155,409,client,3200,0.0485,
+156,410,client,3200,0.0704,
+157,411,client,3200,0.049,
+158,412,client,3200,0.0727,
+159,413,client,3200,0.0674,
+160,414,client,3200,0.0571,
+161,415,client,3200,0.0715,
+162,416,client,3200,0.0634,
+163,417,client,3200,0.0211,
+164,419,client,3200,0.0278,
+165,,asr,,,transcript_partial:100 saja langsung.
+166,60,model_out,,,suppress chunks=1 total=60 mode=suppress
+167,,asr,,,FINAL_MISSING reason=suppressed_audio text=100 saja langsung.
+168,,gov,,,gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True
+169,,gemini,,,interrupted_flag keep_playback
+170,,gate,,,gate_hold seen=True
+171,150,model_out,9600,,forward mode=engine
+172,160,model_out,1920,,forward mode=engine
+173,170,model_out,1920,,forward mode=engine
+174,500,gemini,3200,0.001,
+175,534,client,3200,0.0877,rms_spike
+176,535,client,3200,0.0624,
+177,536,client,3200,0.0593,
+178,537,client,3200,0.1176,rms_spike
+179,538,client,3200,0.0423,
+180,539,client,3200,0.0953,rms_spike
+181,540,client,3200,0.0877,rms_spike
+182,541,client,3200,0.0652,
+183,542,client,3200,0.0537,
+184,543,client,3200,0.0747,
+185,544,client,3200,0.0391,
+186,,asr,,,transcript_partial:nomor berapa lagi?
+187,70,model_out,,,suppress chunks=1 total=70 mode=suppress
+188,,asr,,,FINAL_MISSING reason=suppressed_audio text=nomor berapa lagi?
+189,,gov,,,gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True
+190,,gemini,,,interrupted_flag keep_playback
+191,,gate,,,gate_hold seen=True
+192,180,model_out,9600,,forward mode=engine
+193,190,model_out,5760,,forward mode=engine
+194,200,model_out,5760,,forward mode=engine
+195,600,gemini,3200,0.0017,
+196,611,client,3200,0.0465,
+197,618,client,3200,0.0354,
+198,663,client,3200,0.0287,
+199,700,gemini,3200,0.003,
+200,717,client,3200,0.034,
+201,718,client,3200,0.0241,
+202,719,client,3200,0.0226,
+203,726,client,3200,0.0232,
+204,730,client,3200,0.0389,
+205,742,client,3200,0.0642,
+206,743,client,3200,0.0424,
+207,744,client,3200,0.0234,
+208,745,client,3200,0.035,
+209,751,client,3200,0.0263,
+210,752,client,3200,0.025,
+211,764,client,3200,0.0599,
+212,765,client,3200,0.0232,
+213,766,client,3200,0.0322,
+214,767,client,3200,0.0362,
+215,768,client,3200,0.0339,
+216,769,client,3200,0.0403,
+217,770,client,3200,0.0273,
+218,771,client,3200,0.0243,
+219,772,client,3200,0.0293,
+220,773,client,3200,0.0333,
+221,774,client,3200,0.0308,
+222,775,client,3200,0.0311,
+223,776,client,3200,0.0314,
+224,779,client,3200,0.0429,
+225,780,client,3200,0.0366,
+226,797,client,3200,0.0534,
+227,798,client,3200,0.0296,
+228,799,client,3200,0.0342,
+229,800,client,3200,0.0298,
+230,800,gemini,3200,0.0298,
+231,801,client,3200,0.0286,
+232,803,client,3200,0.0284,
+233,824,client,3200,0.0222,
+234,825,client,3200,0.0606,
+235,826,client,3200,0.0263,
+236,827,client,3200,0.0417,
+237,828,client,3200,0.0377,
+238,829,client,3200,0.0266,
+239,830,client,3200,0.0253,
+240,831,client,3200,0.0293,
+241,857,client,3200,0.052,
+242,858,client,3200,0.0276,
+243,859,client,3200,0.0425,
+244,860,client,3200,0.0333,
+245,861,client,3200,0.053,
+246,862,client,3200,0.0357,
+247,863,client,3200,0.046,
+248,882,client,3200,0.029,
+249,883,client,3200,0.0697,
+250,884,client,3200,0.0352,
+251,885,client,3200,0.037,
+252,886,client,3200,0.0677,
+253,887,client,3200,0.0241,
+254,888,client,3200,0.0204,
+255,891,client,3200,0.027,
+256,900,gemini,3200,0.0068,
+257,966,client,3200,0.0396,
+258,967,client,3200,0.0312,
+259,968,client,3200,0.0228,
+260,974,client,3200,0.0214,
+261,975,client,3200,0.0296,
+262,977,client,3200,0.0225,
+263,987,client,3200,0.0311,
+264,988,client,3200,0.024,
+265,998,client,3200,0.0204,
+266,999,client,3200,0.0323,
+267,1000,gemini,3200,0.0103,
+268,1002,client,3200,0.0409,
+269,1003,client,3200,0.0255,
+270,1005,client,3200,0.0288,
+271,1006,client,3200,0.0243,
+272,1014,client,3200,0.0331,
+273,1017,client,3200,0.0344,
+274,1018,client,3200,0.0354,
+275,1020,client,3200,0.0308,
+276,1021,client,3200,0.0271,
+277,1044,client,3200,0.0307,
+278,1045,client,3200,0.0325,
+279,1047,client,3200,0.02,
+280,1048,client,3200,0.0337,
+281,1062,client,3200,0.0364,
+282,1063,client,3200,0.0268,
+283,1066,client,3200,0.0309,
+284,1078,client,3200,0.0296,
+285,1079,client,3200,0.0213,
+286,1100,gemini,3200,0.0026,
+287,1105,client,3200,0.0401,
+288,1124,client,3200,0.0293,
+289,1135,client,3200,0.0237,
+290,1200,gemini,3200,0.003,
+291,1208,client,3200,0.0241,
+292,1209,client,3200,0.0301,
+293,1210,client,3200,0.0298,
+294,1227,client,3200,0.0373,
+295,1228,client,3200,0.0745,
+296,1229,client,3200,0.0466,
+297,1230,client,3200,0.1108,rms_spike
+298,1231,client,3200,0.0828,rms_spike
+299,1232,client,3200,0.1014,rms_spike
+300,1233,client,3200,0.1085,rms_spike
+301,1234,client,3200,0.0684,
+302,1235,client,3200,0.081,rms_spike
+303,1236,client,3200,0.0855,rms_spike
+304,1237,client,3200,0.0621,
+305,1238,client,3200,0.0437,
+306,1239,client,3200,0.0249,
+307,1240,client,3200,0.0217,
+308,,asr,,,transcript_partial:Berapa lagi?
+309,1300,gemini,3200,0.0028,
+310,1302,client,3200,0.0246,
+311,,asr,,,FINAL_MISSING reason=suppressed_audio text=Berapa lagi?
+312,80,model_out,,,suppress chunks=1 total=80 mode=suppress
+313,90,model_out,,,suppress chunks=1 total=90 mode=suppress
+314,,gov,,,gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True
+315,,gemini,,,interrupted_flag keep_playback
+316,,gate,,,gate_hold seen=False
+317,1320,client,3200,0.03,
+318,1322,client,3200,0.022,
+319,1346,client,3200,0.025,
+320,210,model_out,7680,,forward mode=engine
+321,220,model_out,11520,,forward mode=engine
+322,1400,gemini,3200,0.0008,
+323,1429,client,3200,0.0371,
+324,1443,client,3200,0.0233,
+325,1445,client,3200,0.0203,
+326,1500,gemini,3200,0.0015,
+327,1519,client,3200,0.0218,
+328,1527,client,3200,0.0314,
+329,1561,client,3200,0.0421,
+330,1600,gemini,3200,0.0008,
+331,1632,client,3200,0.0303,
+332,1637,client,3200,0.0277,
+333,1646,client,3200,0.0417,
+334,1676,client,3200,0.0364,
+335,1700,gemini,3200,0.0061,
+336,1704,client,3200,0.0375,
+337,1716,client,3200,0.0345,
+338,1726,client,3200,0.0256,
+339,1732,client,3200,0.0797,
+340,1760,client,3200,0.0529,
+341,1798,client,3200,0.0261,
+342,1800,gemini,3200,0.0044,
+343,1809,client,3200,0.0289,
+344,1900,gemini,3200,0.0019,
+345,1906,client,3200,0.0306,
+346,2000,gemini,3200,0.001,
+347,2020,client,3200,0.0333,
+348,2100,gemini,3200,0.0011,
+349,2175,client,3200,0.0238,
+350,2200,gemini,3200,0.0013,
+351,2300,gemini,3200,0.0012,
+352,2400,gemini,3200,0.0008,
+353,2484,client,3200,0.0225,
+354,2500,gemini,3200,0.0019,
+355,2586,client,3200,0.0281,
+356,2600,gemini,3200,0.001,
+357,2609,client,3200,0.0226,
+358,2613,client,3200,0.0215,
+359,2700,gemini,3200,0.0023,
+360,2734,client,3200,0.0237,
+361,2777,client,3200,0.0242,
+362,2778,client,3200,0.026,
+363,2800,gemini,3200,0.0015,
+364,2849,client,3200,0.0246,
+365,2900,gemini,3200,0.0022,
+366,3000,gemini,3200,0.001,
+367,3100,gemini,3200,0.0015,
+368,3119,client,3200,0.0346,
+369,3131,client,3200,0.0251,
+370,3200,gemini,3200,0.0016,
+371,3300,gemini,3200,0.005,
+372,3301,client,3200,0.0258,
+373,3320,client,3200,0.0215,
+374,3348,client,3200,0.0843,rms_spike
+375,3349,client,3200,0.0263,
+376,3355,client,3200,0.0294,
+377,3368,client,3200,0.021,
+378,3371,client,3200,0.0472,
+379,3392,client,3200,0.0276,
+380,3393,client,3200,0.0773,
+381,3394,client,3200,0.0628,
+382,3395,client,3200,0.0406,
+383,3396,client,3200,0.0295,
+384,3397,client,3200,0.025,
+385,3400,gemini,3200,0.0008,
+386,,asr,,,transcript_partial:No.
+387,100,model_out,,,suppress chunks=1 total=100 mode=suppress
+388,,asr,,,FINAL_MISSING reason=suppressed_audio text=No.
+389,,gov,,,gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True
+390,,gemini,,,interrupted_flag keep_playback
+391,,gate,,,gate_hold seen=True
+392,230,model_out,9600,,forward mode=engine
+393,3420,client,3200,0.029,
+394,3500,gemini,3200,0.0022,
+395,3578,client,3200,0.0868,rms_spike
+396,3579,client,3200,0.0272,
+397,3580,client,3200,0.0333,
+398,3600,gemini,3200,0.0011,
+399,3604,client,3200,0.03,
+400,3605,client,3200,0.0898,rms_spike
+401,3606,client,3200,0.0787,
+402,3607,client,3200,0.063,
+403,3608,client,3200,0.0549,
+404,3609,client,3200,0.0716,
+405,3610,client,3200,0.0532,
+406,3612,client,3200,0.0371,
+407,3613,client,3200,0.0295,
+408,3614,client,3200,0.0295,
+409,,asr,,,transcript_partial:Gimana masa depan AI?
+410,,asr,,,FINAL_MISSING reason=suppressed_audio text=Gimana masa depan AI?
+411,,gov,,,gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True
+412,240,model_out,9600,,forward mode=engine
+413,,gemini,,,interrupted_flag keep_playback
+414,,gate,,,gate_hold seen=True
+415,250,model_out,9600,,forward mode=engine
+416,260,model_out,28800,,forward mode=engine
+417,270,model_out,21120,,forward mode=engine
+418,280,model_out,11520,,forward mode=engine
+419,290,model_out,5760,,forward mode=engine
+420,3655,client,3200,0.0536,
+421,3656,client,3200,0.0852,rms_spike
+422,3657,client,3200,0.0708,
+423,3658,client,3200,0.0865,rms_spike
+424,3659,client,3200,0.0755,
+425,3660,client,3200,0.0285,
+426,3661,client,3200,0.0516,
+427,3662,client,3200,0.0557,
+428,3663,client,3200,0.0387,
+429,3664,client,3200,0.0541,
+430,3665,client,3200,0.0302,
+431,3666,client,3200,0.0238,
+432,3679,client,3200,0.0637,
+433,3682,client,3200,0.0345,
+434,3686,client,3200,0.0291,
+435,3687,client,3200,0.0602,
+436,3688,client,3200,0.0463,
+437,3690,client,3200,0.0855,rms_spike
+438,3691,client,3200,0.1354,rms_spike
+439,3692,client,3200,0.1321,rms_spike
+440,3693,client,3200,0.1276,rms_spike
+441,3694,client,3200,0.0456,
+442,3697,client,3200,0.0463,
+443,3698,client,3200,0.0854,rms_spike
+444,3699,client,3200,0.0214,
+445,3700,client,3200,0.0225,
+446,3700,gemini,3200,0.0225,
+447,3701,client,3200,0.0371,
+448,3702,client,3200,0.0446,
+449,3703,client,3200,0.022,
+450,3704,client,3200,0.0534,
+451,3705,client,3200,0.0423,
+452,3714,client,3200,0.0426,
+453,3715,client,3200,0.0257,
+454,3716,client,3200,0.0238,
+455,3717,client,3200,0.0232,
+456,3727,client,3200,0.0333,
+457,3729,client,3200,0.0365,
+458,3730,client,3200,0.0203,
+459,3732,client,3200,0.0837,rms_spike
+460,3733,client,3200,0.0957,rms_spike
+461,3734,client,3200,0.0389,
+462,3735,client,3200,0.0497,
+463,3742,client,3200,0.129,rms_spike
+464,3743,client,3200,0.1373,rms_spike
+465,,asr,,,transcript_partial:Kalau saya sih lebih lebih pengen AI itu bisa order Grab
+466,3744,client,3200,0.0518,
+467,3745,client,3200,0.1358,rms_spike
+468,3746,client,3200,0.0798,
+469,3747,client,3200,0.0448,
+470,3759,client,3200,0.0256,
+471,3760,client,3200,0.0424,
+472,,asr,,,"transcript_partial:, Gojek"
+473,3761,client,3200,0.0698,
+474,3762,client,3200,0.0324,
+475,3763,client,3200,0.0777,
+476,3764,client,3200,0.0396,
+477,3766,client,3200,0.0618,
+478,3767,client,3200,0.0338,
+479,3769,client,3200,0.0402,
+480,3770,client,3200,0.0702,
+481,3771,client,3200,0.0309,
+482,3772,client,3200,0.0683,
+483,3773,client,3200,0.0509,
+484,3775,client,3200,0.1337,rms_spike
+485,3776,client,3200,0.1412,rms_spike
+486,3777,client,3200,0.0884,rms_spike
+487,3778,client,3200,0.0253,
+488,,asr,,,"transcript_partial:, pesan tiket, cari hotel."
+489,110,model_out,,,suppress chunks=1 total=110 mode=suppress
+490,,asr,,,"FINAL_MISSING reason=suppressed_audio text=, pesan tiket, cari hotel."
+491,,gov,,,gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True
+492,,gemini,,,interrupted_flag keep_playback
+493,,gate,,,gate_hold seen=True
+494,3799,client,3200,0.1101,rms_spike
+495,3800,client,3200,0.3034,rms_spike
+496,3800,gemini,3200,0.3034,
+497,3801,client,3200,0.1117,rms_spike
+498,3802,client,3200,0.0461,
+499,3803,client,3200,0.0366,
+500,300,model_out,10560,,forward mode=engine
+501,310,model_out,7680,,forward mode=engine
+502,3853,client,3200,0.023,
+503,3854,client,3200,0.1468,rms_spike
+504,3855,client,3200,0.0588,
+505,3856,client,3200,0.049,
+506,3857,client,3200,0.0767,
+507,3858,client,3200,0.0696,
+508,3859,client,3200,0.0602,
+509,3860,client,3200,0.055,
+510,3861,client,3200,0.026,
+511,3862,client,3200,0.0249,
+512,3869,client,3200,0.0896,rms_spike
+513,3870,client,3200,0.106,rms_spike
+514,3871,client,3200,0.027,
+515,3872,client,3200,0.1146,rms_spike
+516,3873,client,3200,0.0642,
+517,3874,client,3200,0.0827,rms_spike
+518,3875,client,3200,0.1693,rms_spike
+519,3876,client,3200,0.1852,rms_spike
+520,3877,client,3200,0.1521,rms_spike
+521,3878,client,3200,0.1631,rms_spike
+522,3879,client,3200,0.1371,rms_spike
+523,3880,client,3200,0.0774,
+524,3881,client,3200,0.0533,
+525,3882,client,3200,0.0462,
+526,3883,client,3200,0.0236,
+527,3884,client,3200,0.0345,
+528,3885,client,3200,0.0387,
+529,3886,client,3200,0.0204,
+530,,asr,,,transcript_partial:Tapi Play Store belum mengizinkan.
+531,3900,gemini,3200,0.0014,
+532,120,model_out,,,suppress chunks=1 total=120 mode=suppress
+533,,asr,,,FINAL_MISSING reason=suppressed_audio text=Tapi Play Store belum mengizinkan.
+534,,gov,,,gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True
+535,320,model_out,5760,,forward mode=engine
+536,,gemini,,,interrupted_flag keep_playback
+537,,gate,,,gate_hold seen=True
+538,330,model_out,9600,,forward mode=engine
+539,340,model_out,9600,,forward mode=engine
+540,3924,client,3200,0.0616,
+541,3925,client,3200,0.0924,rms_spike
+542,3926,client,3200,0.0594,
+543,3927,client,3200,0.113,rms_spike
+544,3928,client,3200,0.048,
+545,3929,client,3200,0.1409,rms_spike
+546,3930,client,3200,0.1139,rms_spike
+547,3931,client,3200,0.0936,rms_spike
+548,3932,client,3200,0.1388,rms_spike
+549,3933,client,3200,0.0686,
+550,3934,client,3200,0.09,rms_spike
+551,3935,client,3200,0.1274,rms_spike
+552,3936,client,3200,0.0359,
+553,3937,client,3200,0.0853,rms_spike
+554,3938,client,3200,0.0523,
+555,3943,client,3200,0.0409,
+556,3944,client,3200,0.0248,
+557,3945,client,3200,0.0622,
+558,3946,client,3200,0.0398,
+559,,asr,,,transcript_partial:Coba kamu cari dulu kenapa masalahnya.
+560,,asr,,,FINAL_MISSING reason=suppressed_audio text=Coba kamu cari dulu kenapa masalahnya.
+561,130,model_out,,,suppress chunks=1 total=130 mode=suppress
+562,,gov,,,gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True
+563,,gemini,,,interrupted_flag keep_playback
+564,,gate,,,gate_hold seen=True
+565,350,model_out,7680,,forward mode=engine
+566,360,model_out,1920,,forward mode=engine
+567,370,model_out,15360,,forward mode=engine
+568,380,model_out,13440,,forward mode=engine
+569,390,model_out,15360,,forward mode=engine
+570,400,model_out,11520,,forward mode=engine
+571,410,model_out,17280,,forward mode=engine
+572,420,model_out,15360,,forward mode=engine
+573,430,model_out,7680,,forward mode=engine
+574,3987,client,3200,0.1261,rms_spike
+575,3988,client,3200,0.0922,rms_spike
+576,3989,client,3200,0.1051,rms_spike
+577,3990,client,3200,0.1109,rms_spike
+578,3991,client,3200,0.1351,rms_spike
+579,3992,client,3200,0.0587,
+580,3993,client,3200,0.0337,
+581,3994,client,3200,0.065,
+582,3995,client,3200,0.1017,rms_spike
+583,3996,client,3200,0.1854,rms_spike
+584,3997,client,3200,0.037,
+585,3998,client,3200,0.051,
+586,3999,client,3200,0.1634,rms_spike
+587,4000,client,3200,0.0611,
+588,4000,gemini,3200,0.0611,
+589,4001,client,3200,0.048,
+590,4002,client,3200,0.1209,rms_spike
+591,4003,client,3200,0.0821,rms_spike
+592,4004,client,3200,0.0939,rms_spike
+593,4005,client,3200,0.124,rms_spike
+594,4006,client,3200,0.0686,
+595,4007,client,3200,0.0919,rms_spike
+596,4008,client,3200,0.0273,
+597,4009,client,3200,0.1092,rms_spike
+598,4010,client,3200,0.1023,rms_spike
+599,4011,client,3200,0.0581,
+600,4012,client,3200,0.1366,rms_spike
+601,4013,client,3200,0.124,rms_spike
+602,4014,client,3200,0.1011,rms_spike
+603,4015,client,3200,0.0271,
+604,4016,client,3200,0.1387,rms_spike
+605,4017,client,3200,0.0791,
+606,4018,client,3200,0.0473,
+607,4019,client,3200,0.1036,rms_spike
+608,4020,client,3200,0.1106,rms_spike
+609,4021,client,3200,0.0513,
+610,4022,client,3200,0.0255,
+611,4028,client,3200,0.0704,
+612,4029,client,3200,0.0464,
+613,4030,client,3200,0.1004,rms_spike
+614,4031,client,3200,0.0318,
+615,4033,client,3200,0.0451,
+616,4034,client,3200,0.0206,
+617,4035,client,3200,0.0835,rms_spike
+618,4036,client,3200,0.0328,
+619,4037,client,3200,0.0783,
+620,4038,client,3200,0.0296,
+621,4039,client,3200,0.0596,

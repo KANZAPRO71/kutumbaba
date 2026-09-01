@@ -1,0 +1,72 @@
+line_no	kind	note	extra
+39	SUPPRESS	chunks=1 total=1 mode=suppress	
+40	SUPPRESS	chunks=1 total=2 mode=suppress	
+41	SUPPRESS	chunks=1 total=3 mode=suppress	
+42	FINAL_TRANSCRIPT_MISSING	suppressed_audio	Halo.
+43	GOVERNANCE	gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True	
+44	GEMINI_INTERRUPTED	keeping playback	
+45	AUDIOGATE_HOLD	seen=False	
+56	SUPPRESS	chunks=1 total=10 mode=suppress	
+57	FINAL_TRANSCRIPT_MISSING	suppressed_audio	semuanya
+58	GOVERNANCE	gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True	
+59	GEMINI_INTERRUPTED	keeping playback	
+60	AUDIOGATE_HOLD	seen=True	
+78	SUPPRESS	chunks=1 total=20 mode=suppress	
+80	FINAL_TRANSCRIPT_MISSING	suppressed_audio	Ada 100 pertanyaan.
+81	GOVERNANCE	gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True	
+82	GEMINI_INTERRUPTED	keeping playback	
+83	AUDIOGATE_HOLD	seen=True	
+97	SUPPRESS	chunks=1 total=30 mode=suppress	
+103	SUPPRESS	chunks=1 total=40 mode=suppress	
+106	FINAL_TRANSCRIPT_MISSING	turn_complete	nomor satu
+107	AUDIOGATE_HOLD	seen=False	
+108	GOVERNANCE	gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True	
+126	FINAL_TRANSCRIPT_MISSING	suppressed_audio	Namamu siapa?
+127	GOVERNANCE	gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True	
+128	GEMINI_INTERRUPTED	keeping playback	
+129	AUDIOGATE_HOLD	seen=True	
+145	SUPPRESS	chunks=1 total=50 mode=suppress	
+146	FINAL_TRANSCRIPT_MISSING	suppressed_audio	Jam berapa sekarang?
+147	GOVERNANCE	gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True	
+148	GEMINI_INTERRUPTED	keeping playback	
+149	AUDIOGATE_HOLD	seen=True	
+166	SUPPRESS	chunks=1 total=60 mode=suppress	
+167	FINAL_TRANSCRIPT_MISSING	suppressed_audio	100 saja langsung.
+168	GOVERNANCE	gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True	
+169	GEMINI_INTERRUPTED	keeping playback	
+170	AUDIOGATE_HOLD	seen=True	
+187	SUPPRESS	chunks=1 total=70 mode=suppress	
+188	FINAL_TRANSCRIPT_MISSING	suppressed_audio	nomor berapa lagi?
+189	GOVERNANCE	gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True	
+190	GEMINI_INTERRUPTED	keeping playback	
+191	AUDIOGATE_HOLD	seen=True	
+311	FINAL_TRANSCRIPT_MISSING	suppressed_audio	Berapa lagi?
+312	SUPPRESS	chunks=1 total=80 mode=suppress	
+313	SUPPRESS	chunks=1 total=90 mode=suppress	
+314	GOVERNANCE	gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True	
+315	GEMINI_INTERRUPTED	keeping playback	
+316	AUDIOGATE_HOLD	seen=False	
+387	SUPPRESS	chunks=1 total=100 mode=suppress	
+388	FINAL_TRANSCRIPT_MISSING	suppressed_audio	No.
+389	GOVERNANCE	gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True	
+390	GEMINI_INTERRUPTED	keeping playback	
+391	AUDIOGATE_HOLD	seen=True	
+410	FINAL_TRANSCRIPT_MISSING	suppressed_audio	Gimana masa depan AI?
+411	GOVERNANCE	gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True	
+413	GEMINI_INTERRUPTED	keeping playback	
+414	AUDIOGATE_HOLD	seen=True	
+489	SUPPRESS	chunks=1 total=110 mode=suppress	
+490	FINAL_TRANSCRIPT_MISSING	suppressed_audio	, pesan tiket, cari hotel.
+491	GOVERNANCE	gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True	
+492	GEMINI_INTERRUPTED	keeping playback	
+493	AUDIOGATE_HOLD	seen=True	
+532	SUPPRESS	chunks=1 total=120 mode=suppress	
+533	FINAL_TRANSCRIPT_MISSING	suppressed_audio	Tapi Play Store belum mengizinkan.
+534	GOVERNANCE	gov raw=ACK_ONLY eff=ACK_ONLY steer=engine llm=False play=True	
+536	GEMINI_INTERRUPTED	keeping playback	
+537	AUDIOGATE_HOLD	seen=True	
+560	FINAL_TRANSCRIPT_MISSING	suppressed_audio	Coba kamu cari dulu kenapa masalahnya.
+561	SUPPRESS	chunks=1 total=130 mode=suppress	
+562	GOVERNANCE	gov raw=RESPOND eff=RESPOND steer=engine llm=False play=True	
+563	GEMINI_INTERRUPTED	keeping playback	
+564	AUDIOGATE_HOLD	seen=True	

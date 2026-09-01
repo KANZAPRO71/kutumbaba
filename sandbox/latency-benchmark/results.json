@@ -1,0 +1,73 @@
+{
+  "measured_at": "2026-08-27T14:48:02Z",
+  "persona": {
+    "health": {
+      "name": "persona_health",
+      "n": 5,
+      "min_ms": 3.4,
+      "median_ms": 15.5,
+      "mean_ms": 24.3,
+      "p90_ms": 59.5,
+      "max_ms": 59.5
+    },
+    "bdv_local": {
+      "name": "persona_bdv",
+      "n": 5,
+      "min_ms": 0.1,
+      "median_ms": 0.2,
+      "mean_ms": 0.8,
+      "p90_ms": 3.1,
+      "max_ms": 3.1
+    },
+    "live_log": {
+      "connect": {
+        "name": "persona_connect",
+        "n": 1,
+        "min_ms": 734.0,
+        "median_ms": 734.0,
+        "mean_ms": 734.0,
+        "p90_ms": 734.0,
+        "max_ms": 734.0
+      },
+      "greeting": {
+        "name": "persona_greeting_to_audio",
+        "n": 0
+      },
+      "turn_commit_to_audio": {
+        "name": "persona_commit_to_audio",
+        "n": 1,
+        "min_ms": 1110.0,
+        "median_ms": 1110.0,
+        "mean_ms": 1110.0,
+        "p90_ms": 1110.0,
+        "max_ms": 1110.0
+      },
+      "turn_governance": {
+        "name": "persona_governance",
+        "n": 1,
+        "min_ms": 125.0,
+        "median_ms": 125.0,
+        "mean_ms": 125.0,
+        "p90_ms": 125.0,
+        "max_ms": 125.0
+      },
+      "turn_steer_to_audio": {
+        "name": "persona_steer_to_audio",
+        "n": 1,
+        "min_ms": 985.0,
+        "median_ms": 985.0,
+        "mean_ms": 985.0,
+        "p90_ms": 985.0,
+        "max_ms": 985.0
+      },
+      "samples": 34
+    },
+    "live_log_path": "C:\\Users\\msi-u\\.cursor\\projects\\f-Persona-Ai\\terminals\\422563.txt"
+  },
+  "reference": {
+    "voice_e2e_budget_ms": 600,
+    "turn_taking_ms": "150-300",
+    "llm_ttft_ms": "150-400",
+    "tts_ttfa_ms": "100-200"
+  }
+}

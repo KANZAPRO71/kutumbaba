@@ -1,0 +1,21 @@
+{
+  "frozen_at": "2026-08-26T00:00:00+00:00",
+  "experiment": "north_star_baseline_v1",
+  "preset_id": "default_companion",
+  "preset_version": "1.0.0",
+  "preset_schema_version": "persona_preset_v1",
+  "gemini_model": "gemini-3.1-flash-lite-preview",
+  "adapter_kind": "StubLLMAdapter",
+  "scenario_count": 10,
+  "target_judgments": 50,
+  "reviewers_per_scenario": 5,
+  "blind_pair_seed": 42,
+  "control": "GeminiDirectClient",
+  "treatment": "PersonaEvalClient",
+  "frozen_fields": [
+    "presets/default_companion.json",
+    "behavior/decide thresholds",
+    "prompt wording",
+    "GEMINI_MODEL"
+  ]
+}

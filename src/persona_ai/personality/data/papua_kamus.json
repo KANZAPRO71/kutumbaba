@@ -1,0 +1,3178 @@
+{
+  "version": 1,
+  "description": "Kamus Bahasa Papua — kata umum percakapan sehari-hari (lintas suku, Melayu Papua urban)",
+  "usage_note": "Pakai saat ko tanya arti kata Papua. Bilang jujur kalau kata suku spesifik (Biak: Aya/Au) vs urban umum.",
+  "sources": [
+    "Kamus referensi umum percakapan Papua",
+    "Warungfiksi",
+    "Korpus Papua AI"
+  ],
+  "entries": [
+    {
+      "word": "Abuti",
+      "meaning": "bohong / berdusta",
+      "keywords": [
+        "abuti",
+        "bohong",
+        "berdusta"
+      ]
+    },
+    {
+      "word": "Ade",
+      "meaning": "adik",
+      "keywords": [
+        "ade",
+        "adik"
+      ]
+    },
+    {
+      "word": "ado",
+      "meaning": "Aduh",
+      "keywords": [
+        "ado",
+        "aduh"
+      ]
+    },
+    {
+      "word": "Adoh",
+      "meaning": "Aduh",
+      "keywords": [
+        "adoh",
+        "aduh"
+      ]
+    },
+    {
+      "word": "adu",
+      "meaning": "Aduh",
+      "keywords": [
+        "adu",
+        "aduh"
+      ]
+    },
+    {
+      "word": "Afker",
+      "meaning": "Kadaluarsa",
+      "keywords": [
+        "afker",
+        "kadaluarsa"
+      ]
+    },
+    {
+      "word": "Afkir",
+      "meaning": "Kadaluarsa",
+      "keywords": [
+        "afkir",
+        "kadaluarsa"
+      ]
+    },
+    {
+      "word": "Alang-Alang",
+      "meaning": "rumput ilalang",
+      "keywords": [
+        "alang-alang",
+        "rumput",
+        "ilalang"
+      ]
+    },
+    {
+      "word": "Ale",
+      "meaning": "Kamu",
+      "keywords": [
+        "ale",
+        "kamu"
+      ]
+    },
+    {
+      "word": "Ambe",
+      "meaning": "Ambil",
+      "keywords": [
+        "ambe",
+        "ambil"
+      ]
+    },
+    {
+      "word": "Amber",
+      "meaning": "Orang berada / pendatang",
+      "keywords": [
+        "amber",
+        "orang",
+        "berada",
+        "pendatang"
+      ]
+    },
+    {
+      "word": "Anakan",
+      "meaning": "anak bayi",
+      "keywords": [
+        "anakan",
+        "anak",
+        "bayi"
+      ]
+    },
+    {
+      "word": "Anana",
+      "meaning": "Anak-anak",
+      "keywords": [
+        "anana",
+        "anak"
+      ]
+    },
+    {
+      "word": "Anjonjeng",
+      "meaning": "anjing (kagum)",
+      "keywords": [
+        "anjonjeng",
+        "anjing"
+      ]
+    },
+    {
+      "word": "Aosiafa",
+      "meaning": "selamat tinggal",
+      "keywords": [
+        "aosiafa",
+        "selamat",
+        "tinggal"
+      ]
+    },
+    {
+      "word": "aro",
+      "meaning": "Aduh",
+      "keywords": [
+        "aro",
+        "aduh"
+      ]
+    },
+    {
+      "word": "arwo bebye",
+      "meaning": "selamat pagi",
+      "keywords": [
+        "arwo bebye",
+        "selamat",
+        "pagi"
+      ]
+    },
+    {
+      "word": "Au",
+      "meaning": "kamu (Biak)",
+      "keywords": [
+        "au",
+        "kamu"
+      ]
+    },
+    {
+      "word": "Aya",
+      "meaning": "saya (Biak)",
+      "keywords": [
+        "aya",
+        "saya"
+      ]
+    },
+    {
+      "word": "Ba-",
+      "meaning": "ber-",
+      "keywords": [
+        "ba-",
+        "ber"
+      ]
+    },
+    {
+      "word": "Babingung",
+      "meaning": "Kebingungan",
+      "keywords": [
+        "babingung",
+        "kebingungan"
+      ]
+    },
+    {
+      "word": "Baek",
+      "meaning": "Baik",
+      "keywords": [
+        "baek",
+        "baik"
+      ]
+    },
+    {
+      "word": "Bage",
+      "meaning": "Bagi",
+      "keywords": [
+        "bage",
+        "bagi"
+      ]
+    },
+    {
+      "word": "Bakalai",
+      "meaning": "Berkelahi",
+      "keywords": [
+        "bakalai",
+        "berkelahi"
+      ]
+    },
+    {
+      "word": "Bakulai",
+      "meaning": "Berkelahi",
+      "keywords": [
+        "bakulai",
+        "berkelahi"
+      ]
+    },
+    {
+      "word": "Bakulipa",
+      "meaning": "Berkelahi",
+      "keywords": [
+        "bakulipa",
+        "berkelahi"
+      ]
+    },
+    {
+      "word": "Bale",
+      "meaning": "Balik",
+      "keywords": [
+        "bale",
+        "balik"
+      ]
+    },
+    {
+      "word": "Balobe",
+      "meaning": "Mencari ikan malam tanpa selam",
+      "keywords": [
+        "balobe",
+        "mencari",
+        "ikan",
+        "malam"
+      ]
+    },
+    {
+      "word": "Balompat",
+      "meaning": "Melompat",
+      "keywords": [
+        "balompat",
+        "melompat"
+      ]
+    },
+    {
+      "word": "Bangkret",
+      "meaning": "Bangsat",
+      "keywords": [
+        "bangkret",
+        "bangsat"
+      ]
+    },
+    {
+      "word": "Bapa",
+      "meaning": "Bapak",
+      "keywords": [
+        "bapa",
+        "bapak"
+      ]
+    },
+    {
+      "word": "Bar",
+      "meaning": "Baru lalu",
+      "keywords": [
+        "bar",
+        "baru",
+        "lalu"
+      ]
+    },
+    {
+      "word": "Baru",
+      "meaning": "Lho / penegas",
+      "keywords": [
+        "baru",
+        "lho"
+      ]
+    },
+    {
+      "word": "Batariaak",
+      "meaning": "Berteriak",
+      "keywords": [
+        "batariaak",
+        "berteriak"
+      ]
+    },
+    {
+      "word": "Baweto",
+      "meaning": "Marah-marah",
+      "keywords": [
+        "baweto",
+        "marah"
+      ]
+    },
+    {
+      "word": "Bayau",
+      "meaning": "Tentara polisi",
+      "keywords": [
+        "bayau",
+        "tentara",
+        "polisi"
+      ]
+    },
+    {
+      "word": "Bee",
+      "meaning": "halo",
+      "keywords": [
+        "bee",
+        "halo"
+      ]
+    },
+    {
+      "word": "Bela",
+      "meaning": "Belah / Pukul",
+      "keywords": [
+        "bela",
+        "belah",
+        "pukul"
+      ]
+    },
+    {
+      "word": "Bera",
+      "meaning": "Berak",
+      "keywords": [
+        "bera",
+        "berak"
+      ]
+    },
+    {
+      "word": "Beranak",
+      "meaning": "Melahirkan",
+      "keywords": [
+        "beranak",
+        "melahirkan"
+      ]
+    },
+    {
+      "word": "Berger",
+      "meaning": "Gelas bertangkai seng / tembaga",
+      "keywords": [
+        "berger",
+        "gelas",
+        "bertangkai",
+        "seng"
+      ]
+    },
+    {
+      "word": "Bes",
+      "meaning": "Bis",
+      "keywords": [
+        "bes",
+        "bis"
+      ]
+    },
+    {
+      "word": "Beso",
+      "meaning": "Besok",
+      "keywords": [
+        "beso",
+        "besok"
+      ]
+    },
+    {
+      "word": "Bilolo",
+      "meaning": "Siput laut",
+      "keywords": [
+        "bilolo",
+        "siput",
+        "laut"
+      ]
+    },
+    {
+      "word": "Bini",
+      "meaning": "Istri",
+      "keywords": [
+        "bini",
+        "istri"
+      ]
+    },
+    {
+      "word": "Binongko",
+      "meaning": "Kampungan",
+      "keywords": [
+        "binongko",
+        "kampungan"
+      ]
+    },
+    {
+      "word": "Bla",
+      "meaning": "Belah / Pukul",
+      "keywords": [
+        "bla",
+        "belah",
+        "pukul"
+      ]
+    },
+    {
+      "word": "Blakang",
+      "meaning": "Belakang",
+      "keywords": [
+        "blakang",
+        "belakang"
+      ]
+    },
+    {
+      "word": "Blom",
+      "meaning": "Belum",
+      "keywords": [
+        "blom",
+        "belum"
+      ]
+    },
+    {
+      "word": "Bobo",
+      "meaning": "Minuman keras lokal bobo",
+      "keywords": [
+        "bobo",
+        "minuman",
+        "keras"
+      ]
+    },
+    {
+      "word": "Bokar",
+      "meaning": "Besar",
+      "keywords": [
+        "bokar",
+        "besar"
+      ]
+    },
+    {
+      "word": "Bokmar",
+      "meaning": "Besar",
+      "keywords": [
+        "bokmar",
+        "besar"
+      ]
+    },
+    {
+      "word": "Bokor",
+      "meaning": "Pinggan besar",
+      "keywords": [
+        "bokor",
+        "pinggan",
+        "besar"
+      ]
+    },
+    {
+      "word": "Bombe",
+      "meaning": "ngambek",
+      "keywords": [
+        "bombe",
+        "ngambek"
+      ]
+    },
+    {
+      "word": "Bon-bon",
+      "meaning": "Permen",
+      "keywords": [
+        "bon-bon",
+        "permen"
+      ]
+    },
+    {
+      "word": "Bore",
+      "meaning": "Merayu / menggoda",
+      "keywords": [
+        "bore",
+        "merayu",
+        "menggoda"
+      ]
+    },
+    {
+      "word": "branak",
+      "meaning": "Melahirkan",
+      "keywords": [
+        "branak",
+        "melahirkan"
+      ]
+    },
+    {
+      "word": "Bus-bus",
+      "meaning": "Semak belukar",
+      "keywords": [
+        "bus-bus",
+        "semak",
+        "belukar"
+      ]
+    },
+    {
+      "word": "Cakadidi",
+      "meaning": "centil / genit",
+      "keywords": [
+        "cakadidi",
+        "centil",
+        "genit"
+      ]
+    },
+    {
+      "word": "Cerek",
+      "meaning": "Tempat air minum",
+      "keywords": [
+        "cerek",
+        "tempat",
+        "air",
+        "minum"
+      ]
+    },
+    {
+      "word": "Co",
+      "meaning": "Coba",
+      "keywords": [
+        "co",
+        "coba"
+      ]
+    },
+    {
+      "word": "CT Cap Tikus",
+      "meaning": "miras lokal",
+      "keywords": [
+        "ct cap tikus",
+        "miras"
+      ]
+    },
+    {
+      "word": "Cuki",
+      "meaning": "bersetubuh",
+      "keywords": [
+        "cuki",
+        "bersetubuh"
+      ]
+    },
+    {
+      "word": "Cukimai",
+      "meaning": "makian",
+      "keywords": [
+        "cukimai"
+      ]
+    },
+    {
+      "word": "Cupen toh",
+      "meaning": "istirahat permainan / balasan epen",
+      "keywords": [
+        "cupen toh",
+        "istirahat",
+        "permainan",
+        "balasan"
+      ]
+    },
+    {
+      "word": "Danggir",
+      "meaning": "enak",
+      "keywords": [
+        "danggir",
+        "enak"
+      ]
+    },
+    {
+      "word": "Danggir fafayafa",
+      "meaning": "enak sekali",
+      "keywords": [
+        "danggir fafayafa",
+        "enak",
+        "sekali"
+      ]
+    },
+    {
+      "word": "Dapa",
+      "meaning": "Dapat",
+      "keywords": [
+        "dapa",
+        "dapat"
+      ]
+    },
+    {
+      "word": "Dara",
+      "meaning": "Darah",
+      "keywords": [
+        "dara",
+        "darah"
+      ]
+    },
+    {
+      "word": "Daranya",
+      "meaning": "ungkapan kaget",
+      "keywords": [
+        "daranya",
+        "ungkapan",
+        "kaget"
+      ]
+    },
+    {
+      "word": "De",
+      "meaning": "Dia",
+      "keywords": [
+        "de",
+        "dia"
+      ]
+    },
+    {
+      "word": "Deng",
+      "meaning": "Dengan",
+      "keywords": [
+        "deng",
+        "dengan"
+      ]
+    },
+    {
+      "word": "Dolo",
+      "meaning": "Dulu",
+      "keywords": [
+        "dolo",
+        "dulu"
+      ]
+    },
+    {
+      "word": "Dong",
+      "meaning": "Mereka",
+      "keywords": [
+        "dong",
+        "mereka"
+      ]
+    },
+    {
+      "word": "Dorang",
+      "meaning": "Mereka",
+      "keywords": [
+        "dorang",
+        "mereka"
+      ]
+    },
+    {
+      "word": "Dusu",
+      "meaning": "Kejar",
+      "keywords": [
+        "dusu",
+        "kejar"
+      ]
+    },
+    {
+      "word": "E",
+      "meaning": "ya?",
+      "keywords": [
+        "e"
+      ]
+    },
+    {
+      "word": "eh",
+      "meaning": "ya?",
+      "keywords": [
+        "eh"
+      ]
+    },
+    {
+      "word": "Epen",
+      "meaning": "Emang Penting? / masa bodoh — singkatan gaul cuek (Epen kah? Cupen toh)",
+      "keywords": [
+        "epen",
+        "emang penting",
+        "cupen",
+        "gaul"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Faiman indo",
+      "meaning": "semangat",
+      "keywords": [
+        "faiman indo",
+        "semangat"
+      ]
+    },
+    {
+      "word": "Farek",
+      "meaning": "Tidak peduli",
+      "keywords": [
+        "farek",
+        "tidak",
+        "peduli"
+      ]
+    },
+    {
+      "word": "Fly",
+      "meaning": "Mabuk",
+      "keywords": [
+        "fly",
+        "mabuk"
+      ]
+    },
+    {
+      "word": "Foya",
+      "meaning": "Tipu",
+      "keywords": [
+        "foya",
+        "tipu"
+      ]
+    },
+    {
+      "word": "Fui-fui",
+      "meaning": "guna-guna",
+      "keywords": [
+        "fui-fui",
+        "guna"
+      ]
+    },
+    {
+      "word": "Gae",
+      "meaning": "bersetubuh",
+      "keywords": [
+        "gae",
+        "bersetubuh"
+      ]
+    },
+    {
+      "word": "Gamas",
+      "meaning": "gemas",
+      "keywords": [
+        "gamas",
+        "gemas"
+      ]
+    },
+    {
+      "word": "Garis",
+      "meaning": "Korek api",
+      "keywords": [
+        "garis",
+        "korek",
+        "api"
+      ]
+    },
+    {
+      "word": "Gatotel",
+      "meaning": "genit",
+      "keywords": [
+        "gatotel",
+        "genit"
+      ]
+    },
+    {
+      "word": "gelu",
+      "meaning": "minuman keras mayang",
+      "keywords": [
+        "gelu",
+        "minuman",
+        "keras",
+        "mayang"
+      ]
+    },
+    {
+      "word": "Gode",
+      "meaning": "gendut",
+      "keywords": [
+        "gode",
+        "gendut"
+      ]
+    },
+    {
+      "word": "Gora",
+      "meaning": "Jambu",
+      "keywords": [
+        "gora",
+        "jambu"
+      ]
+    },
+    {
+      "word": "Gosi",
+      "meaning": "alat kelamin pria makian",
+      "keywords": [
+        "gosi",
+        "alat",
+        "kelamin",
+        "pria"
+      ]
+    },
+    {
+      "word": "Goso",
+      "meaning": "Gosok",
+      "keywords": [
+        "goso",
+        "gosok"
+      ]
+    },
+    {
+      "word": "Goyang",
+      "meaning": "Menari",
+      "keywords": [
+        "goyang",
+        "menari"
+      ]
+    },
+    {
+      "word": "Gula",
+      "meaning": "Tipu / gombal",
+      "keywords": [
+        "gula",
+        "tipu",
+        "gombal"
+      ]
+    },
+    {
+      "word": "Gula-gula",
+      "meaning": "Permen",
+      "keywords": [
+        "gula-gula",
+        "permen"
+      ]
+    },
+    {
+      "word": "Gyawas",
+      "meaning": "Jambu biji",
+      "keywords": [
+        "gyawas",
+        "jambu",
+        "biji"
+      ]
+    },
+    {
+      "word": "Hantam",
+      "meaning": "Pukul / ML",
+      "keywords": [
+        "hantam",
+        "pukul",
+        "ml"
+      ]
+    },
+    {
+      "word": "Hop",
+      "meaning": "Stop",
+      "keywords": [
+        "hop",
+        "stop"
+      ]
+    },
+    {
+      "word": "Hosa",
+      "meaning": "Capek",
+      "keywords": [
+        "hosa",
+        "capek"
+      ]
+    },
+    {
+      "word": "I",
+      "meaning": "dia",
+      "keywords": [
+        "i",
+        "dia"
+      ]
+    },
+    {
+      "word": "Ipyum",
+      "meaning": "bagus",
+      "keywords": [
+        "ipyum",
+        "bagus"
+      ]
+    },
+    {
+      "word": "Istigafar",
+      "meaning": "astaga",
+      "keywords": [
+        "istigafar",
+        "astaga"
+      ]
+    },
+    {
+      "word": "Iyo",
+      "meaning": "Iya",
+      "keywords": [
+        "iyo",
+        "iya"
+      ]
+    },
+    {
+      "word": "Jang",
+      "meaning": "Jangan",
+      "keywords": [
+        "jang",
+        "jangan"
+      ]
+    },
+    {
+      "word": "Jato",
+      "meaning": "Jatuh",
+      "keywords": [
+        "jato",
+        "jatuh"
+      ]
+    },
+    {
+      "word": "Jeskon",
+      "meaning": "kaget kagum",
+      "keywords": [
+        "jeskon",
+        "kaget",
+        "kagum"
+      ]
+    },
+    {
+      "word": "jesnat",
+      "meaning": "kaget kagum",
+      "keywords": [
+        "jesnat",
+        "kaget",
+        "kagum"
+      ]
+    },
+    {
+      "word": "Jlaskan",
+      "meaning": "Jelaskan",
+      "keywords": [
+        "jlaskan",
+        "jelaskan"
+      ]
+    },
+    {
+      "word": "Ka",
+      "meaning": "ke",
+      "keywords": [
+        "ka"
+      ]
+    },
+    {
+      "word": "Kabong",
+      "meaning": "kebun",
+      "keywords": [
+        "kabong",
+        "kebun"
+      ]
+    },
+    {
+      "word": "Kacuping",
+      "meaning": "Kecil",
+      "keywords": [
+        "kacuping",
+        "kecil"
+      ]
+    },
+    {
+      "word": "Kadera",
+      "meaning": "kursi",
+      "keywords": [
+        "kadera",
+        "kursi"
+      ]
+    },
+    {
+      "word": "Kaeng",
+      "meaning": "kain",
+      "keywords": [
+        "kaeng",
+        "kain"
+      ]
+    },
+    {
+      "word": "Kah",
+      "meaning": "-kah dong",
+      "keywords": [
+        "kah"
+      ]
+    },
+    {
+      "word": "Kaka",
+      "meaning": "Kakak",
+      "keywords": [
+        "kaka",
+        "kakak"
+      ]
+    },
+    {
+      "word": "Kakarlak",
+      "meaning": "Kecoak",
+      "keywords": [
+        "kakarlak",
+        "kecoak"
+      ]
+    },
+    {
+      "word": "Kaki tangan haringan",
+      "meaning": "gesit",
+      "keywords": [
+        "kaki tangan haringan",
+        "gesit"
+      ]
+    },
+    {
+      "word": "Kalabur",
+      "meaning": "sembarangan",
+      "keywords": [
+        "kalabur",
+        "sembarangan"
+      ]
+    },
+    {
+      "word": "Kalakuang",
+      "meaning": "kelakuan",
+      "keywords": [
+        "kalakuang",
+        "kelakuan"
+      ]
+    },
+    {
+      "word": "Kaliabo",
+      "meaning": "perempuan jalang",
+      "keywords": [
+        "kaliabo",
+        "perempuan",
+        "jalang"
+      ]
+    },
+    {
+      "word": "Kaluang",
+      "meaning": "kelelawar",
+      "keywords": [
+        "kaluang",
+        "kelelawar"
+      ]
+    },
+    {
+      "word": "Kaluyu",
+      "meaning": "ikan hiu",
+      "keywords": [
+        "kaluyu",
+        "ikan",
+        "hiu"
+      ]
+    },
+    {
+      "word": "Kam",
+      "meaning": "kalian",
+      "keywords": [
+        "kam",
+        "kalian"
+      ]
+    },
+    {
+      "word": "Kamareng",
+      "meaning": "kemarin",
+      "keywords": [
+        "kamareng",
+        "kemarin"
+      ]
+    },
+    {
+      "word": "Kamari",
+      "meaning": "kemari",
+      "keywords": [
+        "kamari",
+        "kemari"
+      ]
+    },
+    {
+      "word": "Kamong",
+      "meaning": "kalian",
+      "keywords": [
+        "kamong",
+        "kalian"
+      ]
+    },
+    {
+      "word": "Kamorang",
+      "meaning": "kalian",
+      "keywords": [
+        "kamorang",
+        "kalian"
+      ]
+    },
+    {
+      "word": "Kampong",
+      "meaning": "kampung",
+      "keywords": [
+        "kampong",
+        "kampung"
+      ]
+    },
+    {
+      "word": "Kanari",
+      "meaning": "kenari",
+      "keywords": [
+        "kanari",
+        "kenari"
+      ]
+    },
+    {
+      "word": "Kanes",
+      "meaning": "kenes genit",
+      "keywords": [
+        "kanes",
+        "kenes",
+        "genit"
+      ]
+    },
+    {
+      "word": "Kantang",
+      "meaning": "kaum sejenis",
+      "keywords": [
+        "kantang",
+        "kaum",
+        "sejenis"
+      ]
+    },
+    {
+      "word": "Kapala",
+      "meaning": "kepala",
+      "keywords": [
+        "kapala",
+        "kepala"
+      ]
+    },
+    {
+      "word": "Kapala batu",
+      "meaning": "keras kepala",
+      "keywords": [
+        "kapala batu",
+        "keras",
+        "kepala"
+      ]
+    },
+    {
+      "word": "Kapista",
+      "meaning": "atraktif seronok",
+      "keywords": [
+        "kapista",
+        "atraktif",
+        "seronok"
+      ]
+    },
+    {
+      "word": "Karaka",
+      "meaning": "kepiting",
+      "keywords": [
+        "karaka",
+        "kepiting"
+      ]
+    },
+    {
+      "word": "Karao",
+      "meaning": "mencuri",
+      "keywords": [
+        "karao",
+        "mencuri"
+      ]
+    },
+    {
+      "word": "Karemos",
+      "meaning": "jorok",
+      "keywords": [
+        "karemos",
+        "jorok"
+      ]
+    },
+    {
+      "word": "Karikil",
+      "meaning": "kerikil",
+      "keywords": [
+        "karikil",
+        "kerikil"
+      ]
+    },
+    {
+      "word": "Karja",
+      "meaning": "kerja",
+      "keywords": [
+        "karja",
+        "kerja"
+      ]
+    },
+    {
+      "word": "Karosi",
+      "meaning": "kursi",
+      "keywords": [
+        "karosi",
+        "kursi"
+      ]
+    },
+    {
+      "word": "Kas",
+      "meaning": "kasih / beri",
+      "keywords": [
+        "kas",
+        "kasih",
+        "beri"
+      ]
+    },
+    {
+      "word": "Kas Tau",
+      "meaning": "Beritahu",
+      "keywords": [
+        "kas tau",
+        "beritahu"
+      ]
+    },
+    {
+      "word": "Kas Tinggal",
+      "meaning": "tinggalkan",
+      "keywords": [
+        "kas tinggal",
+        "tinggalkan"
+      ]
+    },
+    {
+      "word": "Kasbi",
+      "meaning": "singkong",
+      "keywords": [
+        "kasbi",
+        "singkong"
+      ]
+    },
+    {
+      "word": "Kaskado",
+      "meaning": "Kadas",
+      "keywords": [
+        "kaskado",
+        "kadas"
+      ]
+    },
+    {
+      "word": "Kastau",
+      "meaning": "Memberi tahu",
+      "keywords": [
+        "kastau",
+        "memberi",
+        "tahu"
+      ]
+    },
+    {
+      "word": "Kastinggal",
+      "meaning": "Meninggalkan",
+      "keywords": [
+        "kastinggal",
+        "meninggalkan"
+      ]
+    },
+    {
+      "word": "Kasumasa",
+      "meaning": "terima kasih",
+      "keywords": [
+        "kasumasa",
+        "terima",
+        "kasih"
+      ]
+    },
+    {
+      "word": "Katong",
+      "meaning": "kita",
+      "keywords": [
+        "katong",
+        "kita"
+      ]
+    },
+    {
+      "word": "Kawaja",
+      "meaning": "pelit",
+      "keywords": [
+        "kawaja",
+        "pelit"
+      ]
+    },
+    {
+      "word": "Kayu",
+      "meaning": "terangsang metafora",
+      "keywords": [
+        "kayu",
+        "terangsang"
+      ]
+    },
+    {
+      "word": "Kecupling",
+      "meaning": "Kecil",
+      "keywords": [
+        "kecupling",
+        "kecil"
+      ]
+    },
+    {
+      "word": "Keker",
+      "meaning": "Bidik intip",
+      "keywords": [
+        "keker",
+        "bidik",
+        "intip"
+      ]
+    },
+    {
+      "word": "Keku",
+      "meaning": "mengusung kapal",
+      "keywords": [
+        "keku",
+        "mengusung",
+        "kapal"
+      ]
+    },
+    {
+      "word": "Keladi",
+      "meaning": "Talas",
+      "keywords": [
+        "keladi",
+        "talas"
+      ]
+    },
+    {
+      "word": "Kelap",
+      "meaning": "Lapar",
+      "keywords": [
+        "kelap",
+        "lapar"
+      ]
+    },
+    {
+      "word": "kemarin",
+      "meaning": "kemarin",
+      "keywords": [
+        "kemarin"
+      ]
+    },
+    {
+      "word": "Kes",
+      "meaning": "monyet",
+      "keywords": [
+        "kes",
+        "monyet"
+      ]
+    },
+    {
+      "word": "Kewel",
+      "meaning": "pembual bohong",
+      "keywords": [
+        "kewel",
+        "pembual",
+        "bohong"
+      ]
+    },
+    {
+      "word": "Kincing",
+      "meaning": "kencing",
+      "keywords": [
+        "kincing",
+        "kencing"
+      ]
+    },
+    {
+      "word": "Kintal",
+      "meaning": "halaman",
+      "keywords": [
+        "kintal",
+        "halaman"
+      ]
+    },
+    {
+      "word": "Kio",
+      "meaning": "dong / lah",
+      "keywords": [
+        "kio"
+      ]
+    },
+    {
+      "word": "kitong",
+      "meaning": "kita",
+      "keywords": [
+        "kitong",
+        "kita"
+      ]
+    },
+    {
+      "word": "kitorang",
+      "meaning": "kita",
+      "keywords": [
+        "kitorang",
+        "kita"
+      ]
+    },
+    {
+      "word": "Klakuan",
+      "meaning": "kelakuan",
+      "keywords": [
+        "klakuan",
+        "kelakuan"
+      ]
+    },
+    {
+      "word": "Klemaring",
+      "meaning": "kemarin",
+      "keywords": [
+        "klemaring",
+        "kemarin"
+      ]
+    },
+    {
+      "word": "Kler",
+      "meaning": "warna",
+      "keywords": [
+        "kler",
+        "warna"
+      ]
+    },
+    {
+      "word": "Klir",
+      "meaning": "warna",
+      "keywords": [
+        "klir",
+        "warna"
+      ]
+    },
+    {
+      "word": "Ko",
+      "meaning": "Kamu",
+      "keywords": [
+        "ko",
+        "kamu"
+      ]
+    },
+    {
+      "word": "Koi",
+      "meaning": "tempat tidur",
+      "keywords": [
+        "koi",
+        "tempat",
+        "tidur"
+      ]
+    },
+    {
+      "word": "Koliling",
+      "meaning": "keliling",
+      "keywords": [
+        "koliling",
+        "keliling"
+      ]
+    },
+    {
+      "word": "Kombrif",
+      "meaning": "tertawa",
+      "keywords": [
+        "kombrif",
+        "tertawa"
+      ]
+    },
+    {
+      "word": "Kombrov",
+      "meaning": "Gurita",
+      "keywords": [
+        "kombrov",
+        "gurita"
+      ]
+    },
+    {
+      "word": "Komen",
+      "meaning": "Orang asli Papua",
+      "keywords": [
+        "komen",
+        "orang",
+        "asli",
+        "papua"
+      ]
+    },
+    {
+      "word": "komin",
+      "meaning": "Orang asli Papua",
+      "keywords": [
+        "komin",
+        "orang",
+        "asli",
+        "papua"
+      ]
+    },
+    {
+      "word": "Konci",
+      "meaning": "kunci",
+      "keywords": [
+        "konci",
+        "kunci"
+      ]
+    },
+    {
+      "word": "Konci rekeng",
+      "meaning": "akhirnya",
+      "keywords": [
+        "konci rekeng",
+        "akhirnya"
+      ]
+    },
+    {
+      "word": "Konto",
+      "meaning": "kentut",
+      "keywords": [
+        "konto",
+        "kentut"
+      ]
+    },
+    {
+      "word": "Kopo-kopo",
+      "meaning": "kupu-kupu",
+      "keywords": [
+        "kopo-kopo",
+        "kupu"
+      ]
+    },
+    {
+      "word": "Kora-kora",
+      "meaning": "kapal perang",
+      "keywords": [
+        "kora-kora",
+        "kapal",
+        "perang"
+      ]
+    },
+    {
+      "word": "Kore",
+      "meaning": "Mengusik",
+      "keywords": [
+        "kore",
+        "mengusik"
+      ]
+    },
+    {
+      "word": "Kore-Kore",
+      "meaning": "Mengusik",
+      "keywords": [
+        "kore-kore",
+        "mengusik"
+      ]
+    },
+    {
+      "word": "Koteka",
+      "meaning": "cawat tradisional laki-laki",
+      "keywords": [
+        "koteka",
+        "cawat",
+        "tradisional",
+        "laki"
+      ]
+    },
+    {
+      "word": "Krans",
+      "meaning": "Koran",
+      "keywords": [
+        "krans",
+        "koran"
+      ]
+    },
+    {
+      "word": "Kukis",
+      "meaning": "kue",
+      "keywords": [
+        "kukis",
+        "kue"
+      ]
+    },
+    {
+      "word": "Kuskus",
+      "meaning": "hewan tupai",
+      "keywords": [
+        "kuskus",
+        "hewan",
+        "tupai"
+      ]
+    },
+    {
+      "word": "Kusu",
+      "meaning": "kuskus endemik",
+      "keywords": [
+        "kusu",
+        "kuskus",
+        "endemik"
+      ]
+    },
+    {
+      "word": "Kusu kusu",
+      "meaning": "kuskus endemik",
+      "keywords": [
+        "kusu kusu",
+        "kuskus",
+        "endemik"
+      ]
+    },
+    {
+      "word": "Kusu-kusu",
+      "meaning": "ilalang",
+      "keywords": [
+        "kusu-kusu",
+        "ilalang"
+      ]
+    },
+    {
+      "word": "Laen",
+      "meaning": "Lain",
+      "keywords": [
+        "laen",
+        "lain"
+      ]
+    },
+    {
+      "word": "Laken",
+      "meaning": "laki-laki enak sahabat",
+      "keywords": [
+        "laken",
+        "laki",
+        "enak",
+        "sahabat"
+      ]
+    },
+    {
+      "word": "Lalat",
+      "meaning": "Merapat",
+      "keywords": [
+        "lalat",
+        "merapat"
+      ]
+    },
+    {
+      "word": "Langgar",
+      "meaning": "Menyeberang",
+      "keywords": [
+        "langgar",
+        "menyeberang"
+      ]
+    },
+    {
+      "word": "Lao-Lao",
+      "meaning": "Bodoh lambat pikir",
+      "keywords": [
+        "lao-lao",
+        "bodoh",
+        "lambat",
+        "pikir"
+      ]
+    },
+    {
+      "word": "Lapendos",
+      "meaning": "laki penuh dosa",
+      "keywords": [
+        "lapendos",
+        "laki",
+        "penuh",
+        "dosa"
+      ]
+    },
+    {
+      "word": "Lat",
+      "meaning": "terlambat",
+      "keywords": [
+        "lat",
+        "terlambat"
+      ]
+    },
+    {
+      "word": "Let",
+      "meaning": "membiarkan",
+      "keywords": [
+        "let",
+        "membiarkan"
+      ]
+    },
+    {
+      "word": "Liat",
+      "meaning": "Lihat",
+      "keywords": [
+        "liat",
+        "lihat"
+      ]
+    },
+    {
+      "word": "Lombo",
+      "meaning": "lembek",
+      "keywords": [
+        "lombo",
+        "lembek"
+      ]
+    },
+    {
+      "word": "los",
+      "meaning": "membiarkan",
+      "keywords": [
+        "los",
+        "membiarkan"
+      ]
+    },
+    {
+      "word": "Loyo",
+      "meaning": "malas lemas bete",
+      "keywords": [
+        "loyo",
+        "malas",
+        "lemas",
+        "bete"
+      ]
+    },
+    {
+      "word": "Lur",
+      "meaning": "intip",
+      "keywords": [
+        "lur",
+        "intip"
+      ]
+    },
+    {
+      "word": "Macang",
+      "meaning": "macam",
+      "keywords": [
+        "macang",
+        "macam"
+      ]
+    },
+    {
+      "word": "Mace",
+      "meaning": "ibu / perempuan muda",
+      "keywords": [
+        "mace",
+        "ibu",
+        "perempuan",
+        "muda"
+      ]
+    },
+    {
+      "word": "Maitua",
+      "meaning": "istri pacar",
+      "keywords": [
+        "maitua",
+        "istri",
+        "pacar"
+      ]
+    },
+    {
+      "word": "Makan bunuh",
+      "meaning": "Makan banyak",
+      "keywords": [
+        "makan bunuh",
+        "makan",
+        "banyak"
+      ]
+    },
+    {
+      "word": "Makang",
+      "meaning": "makan",
+      "keywords": [
+        "makang",
+        "makan"
+      ]
+    },
+    {
+      "word": "Malele",
+      "meaning": "meleleh",
+      "keywords": [
+        "malele",
+        "meleleh"
+      ]
+    },
+    {
+      "word": "Mama",
+      "meaning": "Mama Ibu",
+      "keywords": [
+        "mama",
+        "ibu"
+      ]
+    },
+    {
+      "word": "Mamayo",
+      "meaning": "ya ampun kaget",
+      "keywords": [
+        "mamayo",
+        "ampun",
+        "kaget"
+      ]
+    },
+    {
+      "word": "Mampos",
+      "meaning": "mampus mati",
+      "keywords": [
+        "mampos",
+        "mampus",
+        "mati"
+      ]
+    },
+    {
+      "word": "Mancari",
+      "meaning": "mata pencaharian",
+      "keywords": [
+        "mancari",
+        "mata",
+        "pencaharian"
+      ]
+    },
+    {
+      "word": "Mandira bebye",
+      "meaning": "selamat sore",
+      "keywords": [
+        "mandira bebye",
+        "selamat",
+        "sore"
+      ]
+    },
+    {
+      "word": "Mangamu",
+      "meaning": "mengamuk",
+      "keywords": [
+        "mangamu",
+        "mengamuk"
+      ]
+    },
+    {
+      "word": "Mangamuk",
+      "meaning": "mengamuk",
+      "keywords": [
+        "mangamuk",
+        "mengamuk"
+      ]
+    },
+    {
+      "word": "Mangarti",
+      "meaning": "mengerti",
+      "keywords": [
+        "mangarti",
+        "mengerti"
+      ]
+    },
+    {
+      "word": "Manggarong",
+      "meaning": "Mendengkur",
+      "keywords": [
+        "manggarong",
+        "mendengkur"
+      ]
+    },
+    {
+      "word": "Manggurebe",
+      "meaning": "Berebutan",
+      "keywords": [
+        "manggurebe",
+        "berebutan"
+      ]
+    },
+    {
+      "word": "Manginte",
+      "meaning": "mengintai",
+      "keywords": [
+        "manginte",
+        "mengintai"
+      ]
+    },
+    {
+      "word": "Mangkali",
+      "meaning": "barangkali",
+      "keywords": [
+        "mangkali",
+        "barangkali"
+      ]
+    },
+    {
+      "word": "Mangkera",
+      "meaning": "bergerak sana kemari",
+      "keywords": [
+        "mangkera",
+        "bergerak",
+        "sana",
+        "kemari"
+      ]
+    },
+    {
+      "word": "Mangkerebe",
+      "meaning": "Berebutan",
+      "keywords": [
+        "mangkerebe",
+        "berebutan"
+      ]
+    },
+    {
+      "word": "Mangko",
+      "meaning": "Mangkuk",
+      "keywords": [
+        "mangko",
+        "mangkuk"
+      ]
+    },
+    {
+      "word": "Manise",
+      "meaning": "manis indah",
+      "keywords": [
+        "manise",
+        "manis",
+        "indah"
+      ]
+    },
+    {
+      "word": "Maniso",
+      "meaning": "sibuk repot",
+      "keywords": [
+        "maniso",
+        "sibuk",
+        "repot"
+      ]
+    },
+    {
+      "word": "Manyao",
+      "meaning": "menyahut",
+      "keywords": [
+        "manyao",
+        "menyahut"
+      ]
+    },
+    {
+      "word": "Manyau",
+      "meaning": "menyahut",
+      "keywords": [
+        "manyau",
+        "menyahut"
+      ]
+    },
+    {
+      "word": "Mar",
+      "meaning": "mari / tapi",
+      "keywords": [
+        "mar",
+        "mari",
+        "tapi"
+      ]
+    },
+    {
+      "word": "Maraju",
+      "meaning": "merajuk ngambek",
+      "keywords": [
+        "maraju",
+        "merajuk",
+        "ngambek"
+      ]
+    },
+    {
+      "word": "Marinyo",
+      "meaning": "polisi",
+      "keywords": [
+        "marinyo",
+        "polisi"
+      ]
+    },
+    {
+      "word": "Maske",
+      "meaning": "meskipun",
+      "keywords": [
+        "maske",
+        "meskipun"
+      ]
+    },
+    {
+      "word": "Masu",
+      "meaning": "masuk",
+      "keywords": [
+        "masu",
+        "masuk"
+      ]
+    },
+    {
+      "word": "Mata jalan",
+      "meaning": "pertigaan",
+      "keywords": [
+        "mata jalan",
+        "pertigaan"
+      ]
+    },
+    {
+      "word": "Mata lomba",
+      "meaning": "jenis lomba",
+      "keywords": [
+        "mata lomba",
+        "jenis",
+        "lomba"
+      ]
+    },
+    {
+      "word": "Mata ruma",
+      "meaning": "keluarga inti",
+      "keywords": [
+        "mata ruma",
+        "keluarga",
+        "inti"
+      ]
+    },
+    {
+      "word": "Matawana",
+      "meaning": "begadang",
+      "keywords": [
+        "matawana",
+        "begadang"
+      ]
+    },
+    {
+      "word": "Medi",
+      "meaning": "giliran pertama kelereng",
+      "keywords": [
+        "medi",
+        "giliran",
+        "pertama",
+        "kelereng"
+      ]
+    },
+    {
+      "word": "Meti",
+      "meaning": "air surut",
+      "keywords": [
+        "meti",
+        "air",
+        "surut"
+      ]
+    },
+    {
+      "word": "Mo",
+      "meaning": "mau / kok penegas",
+      "keywords": [
+        "mo",
+        "mau",
+        "kok"
+      ]
+    },
+    {
+      "word": "Molo",
+      "meaning": "menyelam",
+      "keywords": [
+        "molo",
+        "menyelam"
+      ]
+    },
+    {
+      "word": "Mono",
+      "meaning": "lambat pikir",
+      "keywords": [
+        "mono",
+        "lambat",
+        "pikir"
+      ]
+    },
+    {
+      "word": "Mono-Mono",
+      "meaning": "lambat pikir",
+      "keywords": [
+        "mono-mono",
+        "lambat",
+        "pikir"
+      ]
+    },
+    {
+      "word": "Nae",
+      "meaning": "naik",
+      "keywords": [
+        "nae",
+        "naik"
+      ]
+    },
+    {
+      "word": "nai",
+      "meaning": "naik",
+      "keywords": [
+        "nai",
+        "naik"
+      ]
+    },
+    {
+      "word": "Nan",
+      "meaning": "nanti",
+      "keywords": [
+        "nan",
+        "nanti"
+      ]
+    },
+    {
+      "word": "Nanaku",
+      "meaning": "menandai",
+      "keywords": [
+        "nanaku",
+        "menandai"
+      ]
+    },
+    {
+      "word": "Nao-Nao",
+      "meaning": "Bodoh",
+      "keywords": [
+        "nao-nao",
+        "bodoh"
+      ]
+    },
+    {
+      "word": "Napo",
+      "meaning": "nafsu genit",
+      "keywords": [
+        "napo",
+        "nafsu",
+        "genit"
+      ]
+    },
+    {
+      "word": "Nasikray",
+      "meaning": "Tikus Wamena",
+      "keywords": [
+        "nasikray",
+        "tikus",
+        "wamena"
+      ]
+    },
+    {
+      "word": "Nene",
+      "meaning": "nenek",
+      "keywords": [
+        "nene",
+        "nenek"
+      ]
+    },
+    {
+      "word": "Nodek",
+      "meaning": "tidak peduli",
+      "keywords": [
+        "nodek",
+        "tidak",
+        "peduli"
+      ]
+    },
+    {
+      "word": "Noge",
+      "meaning": "teman makian",
+      "keywords": [
+        "noge",
+        "teman"
+      ]
+    },
+    {
+      "word": "Nona",
+      "meaning": "sapaan gadis",
+      "keywords": [
+        "nona",
+        "sapaan",
+        "gadis"
+      ]
+    },
+    {
+      "word": "Ompai",
+      "meaning": "Lelaki Wandamen",
+      "keywords": [
+        "ompai",
+        "lelaki",
+        "wandamen"
+      ]
+    },
+    {
+      "word": "Oom",
+      "meaning": "Paman",
+      "keywords": [
+        "oom",
+        "paman"
+      ]
+    },
+    {
+      "word": "Pace",
+      "meaning": "laki-laki pemuda",
+      "keywords": [
+        "pace",
+        "laki",
+        "pemuda"
+      ]
+    },
+    {
+      "word": "Paitua",
+      "meaning": "suami pacar lelaki",
+      "keywords": [
+        "paitua",
+        "suami",
+        "pacar",
+        "lelaki"
+      ]
+    },
+    {
+      "word": "Pake",
+      "meaning": "Pakai",
+      "keywords": [
+        "pake",
+        "pakai"
+      ]
+    },
+    {
+      "word": "Paku",
+      "meaning": "Pukul",
+      "keywords": [
+        "paku",
+        "pukul"
+      ]
+    },
+    {
+      "word": "Palungku",
+      "meaning": "tinju",
+      "keywords": [
+        "palungku",
+        "tinju"
+      ]
+    },
+    {
+      "word": "Panako",
+      "meaning": "Penakut",
+      "keywords": [
+        "panako",
+        "penakut"
+      ]
+    },
+    {
+      "word": "Panakut",
+      "meaning": "Penakut",
+      "keywords": [
+        "panakut",
+        "penakut"
+      ]
+    },
+    {
+      "word": "Pangaruh",
+      "meaning": "indah",
+      "keywords": [
+        "pangaruh",
+        "indah"
+      ]
+    },
+    {
+      "word": "Pangkotor",
+      "meaning": "kotor",
+      "keywords": [
+        "pangkotor",
+        "kotor"
+      ]
+    },
+    {
+      "word": "Panta",
+      "meaning": "pantat",
+      "keywords": [
+        "panta",
+        "pantat"
+      ]
+    },
+    {
+      "word": "Pante",
+      "meaning": "Pantai",
+      "keywords": [
+        "pante",
+        "pantai"
+      ]
+    },
+    {
+      "word": "Papang",
+      "meaning": "papan",
+      "keywords": [
+        "papang",
+        "papan"
+      ]
+    },
+    {
+      "word": "Paps",
+      "meaning": "kata ganti dia",
+      "keywords": [
+        "paps",
+        "dia"
+      ]
+    },
+    {
+      "word": "Parampuan",
+      "meaning": "perempuan",
+      "keywords": [
+        "parampuan",
+        "perempuan"
+      ]
+    },
+    {
+      "word": "Paskali",
+      "meaning": "sangat tepat",
+      "keywords": [
+        "paskali",
+        "sangat",
+        "tepat"
+      ]
+    },
+    {
+      "word": "Pastiu",
+      "meaning": "cuek bosan muak",
+      "keywords": [
+        "pastiu",
+        "bosan",
+        "muak"
+      ]
+    },
+    {
+      "word": "Pata",
+      "meaning": "patah petik",
+      "keywords": [
+        "pata",
+        "patah",
+        "petik"
+      ]
+    },
+    {
+      "word": "Petatas",
+      "meaning": "ubi jalar",
+      "keywords": [
+        "petatas",
+        "ubi",
+        "jalar"
+      ]
+    },
+    {
+      "word": "Pi",
+      "meaning": "pergi",
+      "keywords": [
+        "pi",
+        "pergi"
+      ]
+    },
+    {
+      "word": "Pica",
+      "meaning": "pecah",
+      "keywords": [
+        "pica",
+        "pecah"
+      ]
+    },
+    {
+      "word": "Pica bunga",
+      "meaning": "agresif",
+      "keywords": [
+        "pica bunga",
+        "agresif"
+      ]
+    },
+    {
+      "word": "Pigi",
+      "meaning": "pergi",
+      "keywords": [
+        "pigi",
+        "pergi"
+      ]
+    },
+    {
+      "word": "Piso",
+      "meaning": "pisau",
+      "keywords": [
+        "piso",
+        "pisau"
+      ]
+    },
+    {
+      "word": "Plan",
+      "meaning": "perlahan",
+      "keywords": [
+        "plan",
+        "perlahan"
+      ]
+    },
+    {
+      "word": "Plan-Plan",
+      "meaning": "perlahan",
+      "keywords": [
+        "plan-plan",
+        "perlahan"
+      ]
+    },
+    {
+      "word": "Polo",
+      "meaning": "peluk",
+      "keywords": [
+        "polo",
+        "peluk"
+      ]
+    },
+    {
+      "word": "Pono",
+      "meaning": "penuh",
+      "keywords": [
+        "pono",
+        "penuh"
+      ]
+    },
+    {
+      "word": "Poro",
+      "meaning": "perut",
+      "keywords": [
+        "poro",
+        "perut"
+      ]
+    },
+    {
+      "word": "Potar",
+      "meaning": "putar",
+      "keywords": [
+        "potar",
+        "putar"
+      ]
+    },
+    {
+      "word": "Pu",
+      "meaning": "punya",
+      "keywords": [
+        "pu",
+        "punya"
+      ]
+    },
+    {
+      "word": "Pukol",
+      "meaning": "pukul",
+      "keywords": [
+        "pukol",
+        "pukul"
+      ]
+    },
+    {
+      "word": "pung",
+      "meaning": "punya",
+      "keywords": [
+        "pung",
+        "punya"
+      ]
+    },
+    {
+      "word": "Punggul",
+      "meaning": "pungut",
+      "keywords": [
+        "punggul",
+        "pungut"
+      ]
+    },
+    {
+      "word": "Puti",
+      "meaning": "Putih",
+      "keywords": [
+        "puti",
+        "putih"
+      ]
+    },
+    {
+      "word": "Rabe",
+      "meaning": "Sobek",
+      "keywords": [
+        "rabe",
+        "sobek"
+      ]
+    },
+    {
+      "word": "Rabik",
+      "meaning": "Sobek",
+      "keywords": [
+        "rabik",
+        "sobek"
+      ]
+    },
+    {
+      "word": "Ref",
+      "meaning": "terumbu karang",
+      "keywords": [
+        "ref",
+        "terumbu",
+        "karang"
+      ]
+    },
+    {
+      "word": "Reken",
+      "meaning": "hitung",
+      "keywords": [
+        "reken",
+        "hitung"
+      ]
+    },
+    {
+      "word": "Rep",
+      "meaning": "terumbu karang",
+      "keywords": [
+        "rep",
+        "terumbu",
+        "karang"
+      ]
+    },
+    {
+      "word": "Rob bebye",
+      "meaning": "selamat malam",
+      "keywords": [
+        "rob bebye",
+        "selamat",
+        "malam"
+      ]
+    },
+    {
+      "word": "Rosaiso",
+      "meaning": "mengapa",
+      "keywords": [
+        "rosaiso",
+        "mengapa"
+      ]
+    },
+    {
+      "word": "Ruma",
+      "meaning": "Rumah",
+      "keywords": [
+        "ruma",
+        "rumah"
+      ]
+    },
+    {
+      "word": "Rwa beyo",
+      "meaning": "mau kemana",
+      "keywords": [
+        "rwa beyo",
+        "mau",
+        "kemana"
+      ]
+    },
+    {
+      "word": "Sa",
+      "meaning": "saya / aku",
+      "keywords": [
+        "sa",
+        "saya",
+        "aku"
+      ]
+    },
+    {
+      "word": "Sagero",
+      "meaning": "minuman keras mayang",
+      "keywords": [
+        "sagero",
+        "minuman",
+        "keras",
+        "mayang"
+      ]
+    },
+    {
+      "word": "saguer",
+      "meaning": "minuman keras mayang",
+      "keywords": [
+        "saguer",
+        "minuman",
+        "keras",
+        "mayang"
+      ]
+    },
+    {
+      "word": "Saham",
+      "meaning": "kangguru",
+      "keywords": [
+        "saham",
+        "kangguru"
+      ]
+    },
+    {
+      "word": "Sebla",
+      "meaning": "Sebelah",
+      "keywords": [
+        "sebla",
+        "sebelah"
+      ]
+    },
+    {
+      "word": "Sei",
+      "meaning": "Menghindar",
+      "keywords": [
+        "sei",
+        "menghindar"
+      ]
+    },
+    {
+      "word": "Sekola",
+      "meaning": "Sekolah",
+      "keywords": [
+        "sekola",
+        "sekolah"
+      ]
+    },
+    {
+      "word": "Seno-Seno",
+      "meaning": "Bodoh",
+      "keywords": [
+        "seno-seno",
+        "bodoh"
+      ]
+    },
+    {
+      "word": "Sko",
+      "meaning": "mereka",
+      "keywords": [
+        "sko",
+        "mereka"
+      ]
+    },
+    {
+      "word": "Skola",
+      "meaning": "Sekolah",
+      "keywords": [
+        "skola",
+        "sekolah"
+      ]
+    },
+    {
+      "word": "Slep",
+      "meaning": "terpeleset",
+      "keywords": [
+        "slep",
+        "terpeleset"
+      ]
+    },
+    {
+      "word": "Smangat",
+      "meaning": "Semangat",
+      "keywords": [
+        "smangat",
+        "semangat"
+      ]
+    },
+    {
+      "word": "Soa-soa",
+      "meaning": "biawak",
+      "keywords": [
+        "soa-soa",
+        "biawak"
+      ]
+    },
+    {
+      "word": "Sono",
+      "meaning": "nyenyak tidur",
+      "keywords": [
+        "sono",
+        "nyenyak",
+        "tidur"
+      ]
+    },
+    {
+      "word": "Sopi",
+      "meaning": "minuman keras sagero",
+      "keywords": [
+        "sopi",
+        "minuman",
+        "keras",
+        "sagero"
+      ]
+    },
+    {
+      "word": "Su",
+      "meaning": "Sudah",
+      "keywords": [
+        "su",
+        "sudah"
+      ]
+    },
+    {
+      "word": "Suanggi",
+      "meaning": "setan hantu",
+      "keywords": [
+        "suanggi",
+        "setan",
+        "hantu"
+      ]
+    },
+    {
+      "word": "suda",
+      "meaning": "Sudah",
+      "keywords": [
+        "suda",
+        "sudah"
+      ]
+    },
+    {
+      "word": "Sudah",
+      "meaning": "-lah",
+      "keywords": [
+        "sudah"
+      ]
+    },
+    {
+      "word": "Swara",
+      "meaning": "Suara",
+      "keywords": [
+        "swara",
+        "suara"
+      ]
+    },
+    {
+      "word": "Syambae",
+      "meaning": "selamat pagi",
+      "keywords": [
+        "syambae",
+        "selamat",
+        "pagi"
+      ]
+    },
+    {
+      "word": "Ta-",
+      "meaning": "ter-",
+      "keywords": [
+        "ta-",
+        "ter"
+      ]
+    },
+    {
+      "word": "Tabale",
+      "meaning": "terbalik",
+      "keywords": [
+        "tabale",
+        "terbalik"
+      ]
+    },
+    {
+      "word": "Tabea",
+      "meaning": "sampai jumpa",
+      "keywords": [
+        "tabea",
+        "sampai",
+        "jumpa"
+      ]
+    },
+    {
+      "word": "Tabuka",
+      "meaning": "Terbuka",
+      "keywords": [
+        "tabuka",
+        "terbuka"
+      ]
+    },
+    {
+      "word": "Tafiaro",
+      "meaning": "jalan-jalan",
+      "keywords": [
+        "tafiaro",
+        "jalan"
+      ]
+    },
+    {
+      "word": "Tagae",
+      "meaning": "Terjepit",
+      "keywords": [
+        "tagae",
+        "terjepit"
+      ]
+    },
+    {
+      "word": "Tagoyang",
+      "meaning": "Bergoyang",
+      "keywords": [
+        "tagoyang",
+        "bergoyang"
+      ]
+    },
+    {
+      "word": "Tahan mata",
+      "meaning": "begadang",
+      "keywords": [
+        "tahan mata",
+        "begadang"
+      ]
+    },
+    {
+      "word": "Talipa",
+      "meaning": "Terlipat sakit",
+      "keywords": [
+        "talipa",
+        "terlipat",
+        "sakit"
+      ]
+    },
+    {
+      "word": "tara",
+      "meaning": "tidak",
+      "keywords": [
+        "tara",
+        "tidak"
+      ]
+    },
+    {
+      "word": "Tatoki",
+      "meaning": "Membentur",
+      "keywords": [
+        "tatoki",
+        "membentur"
+      ]
+    },
+    {
+      "word": "Tatutup",
+      "meaning": "Tertutup",
+      "keywords": [
+        "tatutup",
+        "tertutup"
+      ]
+    },
+    {
+      "word": "Tempo",
+      "meaning": "Cepat",
+      "keywords": [
+        "tempo",
+        "cepat"
+      ]
+    },
+    {
+      "word": "Testa",
+      "meaning": "Dahi",
+      "keywords": [
+        "testa",
+        "dahi"
+      ]
+    },
+    {
+      "word": "Tete",
+      "meaning": "kakek",
+      "keywords": [
+        "tete",
+        "kakek"
+      ]
+    },
+    {
+      "word": "Teteruga",
+      "meaning": "penyu",
+      "keywords": [
+        "teteruga",
+        "penyu"
+      ]
+    },
+    {
+      "word": "Tidor",
+      "meaning": "Tidur",
+      "keywords": [
+        "tidor",
+        "tidur"
+      ]
+    },
+    {
+      "word": "Tlamburan",
+      "meaning": "Berhamburan",
+      "keywords": [
+        "tlamburan",
+        "berhamburan"
+      ]
+    },
+    {
+      "word": "To",
+      "meaning": "kan penegas",
+      "keywords": [
+        "to",
+        "kan"
+      ]
+    },
+    {
+      "word": "toh",
+      "meaning": "kan penegas",
+      "keywords": [
+        "toh",
+        "kan"
+      ]
+    },
+    {
+      "word": "Toher",
+      "meaning": "Tuli",
+      "keywords": [
+        "toher",
+        "tuli"
+      ]
+    },
+    {
+      "word": "Tokar",
+      "meaning": "Besar",
+      "keywords": [
+        "tokar",
+        "besar"
+      ]
+    },
+    {
+      "word": "Toki",
+      "meaning": "ketuk / minum miras",
+      "keywords": [
+        "toki",
+        "ketuk",
+        "minum",
+        "miras"
+      ]
+    },
+    {
+      "word": "tong",
+      "meaning": "kita",
+      "keywords": [
+        "tong",
+        "kita"
+      ]
+    },
+    {
+      "word": "torang",
+      "meaning": "kita",
+      "keywords": [
+        "torang",
+        "kita"
+      ]
+    },
+    {
+      "word": "Tra",
+      "meaning": "tidak",
+      "keywords": [
+        "tra",
+        "tidak"
+      ]
+    },
+    {
+      "word": "trabaik",
+      "meaning": "jelek",
+      "keywords": [
+        "trabaik",
+        "jelek"
+      ]
+    },
+    {
+      "word": "Trakos",
+      "meaning": "tidak kosong pujian",
+      "keywords": [
+        "trakos",
+        "tidak",
+        "kosong",
+        "pujian"
+      ]
+    },
+    {
+      "word": "Tralaku",
+      "meaning": "jelek",
+      "keywords": [
+        "tralaku",
+        "jelek"
+      ]
+    },
+    {
+      "word": "Tramau",
+      "meaning": "Tidak mau",
+      "keywords": [
+        "tramau",
+        "tidak",
+        "mau"
+      ]
+    },
+    {
+      "word": "Trus",
+      "meaning": "Terus",
+      "keywords": [
+        "trus",
+        "terus"
+      ]
+    },
+    {
+      "word": "Tu",
+      "meaning": "itu",
+      "keywords": [
+        "tu",
+        "itu"
+      ]
+    },
+    {
+      "word": "tum",
+      "meaning": "menyelam",
+      "keywords": [
+        "tum",
+        "menyelam"
+      ]
+    },
+    {
+      "word": "Ulhat",
+      "meaning": "ulu hati ancaman",
+      "keywords": [
+        "ulhat",
+        "ulu",
+        "hati",
+        "ancaman"
+      ]
+    },
+    {
+      "word": "Urip",
+      "meaning": "burung nuri",
+      "keywords": [
+        "urip",
+        "burung",
+        "nuri"
+      ]
+    },
+    {
+      "word": "Wabur",
+      "meaning": "pulang",
+      "keywords": [
+        "wabur",
+        "pulang"
+      ]
+    },
+    {
+      "word": "Wamuma",
+      "meaning": "ke sini kemari",
+      "keywords": [
+        "wamuma",
+        "sini",
+        "kemari"
+      ]
+    },
+    {
+      "word": "Wang",
+      "meaning": "Uang",
+      "keywords": [
+        "wang",
+        "uang"
+      ]
+    },
+    {
+      "word": "Wemf baime",
+      "meaning": "belum tidurkah",
+      "keywords": [
+        "wemf baime",
+        "belum",
+        "tidurkah"
+      ]
+    },
+    {
+      "word": "Yakis",
+      "meaning": "monyet makian",
+      "keywords": [
+        "yakis",
+        "monyet"
+      ]
+    },
+    {
+      "word": "Yaklep",
+      "meaning": "kurang disukai",
+      "keywords": [
+        "yaklep",
+        "kurang",
+        "disukai"
+      ]
+    },
+    {
+      "word": "Yakob",
+      "meaning": "burung kakaktua",
+      "keywords": [
+        "yakob",
+        "burung",
+        "kakaktua"
+      ]
+    },
+    {
+      "word": "Yoi",
+      "meaning": "Iya",
+      "keywords": [
+        "yoi",
+        "iya"
+      ]
+    },
+    {
+      "word": "Yoksna",
+      "meaning": "kaget heran",
+      "keywords": [
+        "yoksna",
+        "kaget",
+        "heran"
+      ]
+    },
+    {
+      "word": "Yombex",
+      "meaning": "sombong, bergaya berlebihan, belagu, cool sok keren (slang Jayapura/Port Numbay) — ejek teman pamer",
+      "keywords": [
+        "yombex",
+        "yombeks",
+        "sombong",
+        "berlagak",
+        "belagu",
+        "pamer",
+        "gaul jayapura"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Kalkota",
+      "meaning": "asal bicara, membual, omong kosong",
+      "keywords": [
+        "kalkota",
+        "mbual",
+        "omong kosong",
+        "gaul",
+        "asal bicara"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Kombas",
+      "meaning": "teman akrab / komplotan / geng nongkrong",
+      "keywords": [
+        "kombas",
+        "geng",
+        "tongkrong",
+        "komplotan",
+        "gaul"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Sakar",
+      "meaning": "pelit sekali / tra mau berbagi",
+      "keywords": [
+        "sakar",
+        "pelit",
+        "gaul"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Yongkru Yoi",
+      "meaning": "Iya",
+      "keywords": [
+        "yongkru yoi",
+        "iya"
+      ]
+    },
+    {
+      "word": "Kasi Menyala!",
+      "meaning": "ekspresi gaul — membakar semangat atau memulai sesuatu yang keren",
+      "keywords": [
+        "kasi menyala",
+        "menyala",
+        "semangat",
+        "gaul",
+        "viral"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Berlagak",
+      "meaning": "sombong atau sok tahu",
+      "keywords": [
+        "berlagak",
+        "sombong",
+        "sok tahu",
+        "gaul"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Tongko",
+      "meaning": "menipu atau membual (gaul Papua)",
+      "keywords": [
+        "tongko",
+        "tongko sa",
+        "bohong",
+        "mbual",
+        "menipu",
+        "gaul"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Toki (gaul)",
+      "meaning": "menipu atau membual — jangan campur dengan toki/minum miras",
+      "keywords": [
+        "toki gaul",
+        "tongko toki",
+        "mbual",
+        "menipu",
+        "gaul"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Spen",
+      "meaning": "jalan-jalan sore atau habiskan waktu (spend time)",
+      "keywords": [
+        "spen",
+        "jalan-jalan",
+        "nongkrong",
+        "gaul"
+      ],
+      "category": "gaul"
+    },
+    {
+      "word": "Trada Lawan!",
+      "meaning": "yang terbaik atau tidak ada tandingannya",
+      "keywords": [
+        "trada lawan",
+        "trada",
+        "terbaik",
+        "gaul",
+        "mantap"
+      ],
+      "category": "gaul"
+    }
+  ]
+}

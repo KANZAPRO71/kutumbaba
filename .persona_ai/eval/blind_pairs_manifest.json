@@ -1,0 +1,54 @@
+{
+  "pairs": [
+    {
+      "pair_id": "e8e79426-939a-44d9-a743-9e05a869888c",
+      "scenario_id": "closure_after_long",
+      "a_is_treatment": true
+    },
+    {
+      "pair_id": "507d8303-5db0-4d94-874d-f19fd1fb0754",
+      "scenario_id": "emotional_vent",
+      "a_is_treatment": true
+    },
+    {
+      "pair_id": "8deb154f-1285-4482-9da0-a4944fd47388",
+      "scenario_id": "unfinished_thought",
+      "a_is_treatment": false
+    },
+    {
+      "pair_id": "4aee963b-2bc9-4bc3-a677-c2dc48158e3f",
+      "scenario_id": "direct_factual_question",
+      "a_is_treatment": true
+    },
+    {
+      "pair_id": "8f63cdec-a861-498d-951a-2cedd74f213c",
+      "scenario_id": "mixed_emotion_question",
+      "a_is_treatment": true
+    },
+    {
+      "pair_id": "3403c0d4-268d-4887-b662-c5417a8594ea",
+      "scenario_id": "dismissive_response",
+      "a_is_treatment": true
+    },
+    {
+      "pair_id": "54497ec6-fb74-4b05-b5e8-b0a0cd5b60fe",
+      "scenario_id": "tone_switch",
+      "a_is_treatment": true
+    },
+    {
+      "pair_id": "1f4db7a0-77b1-4f3a-ab47-bcef63a6235b",
+      "scenario_id": "repeated_short_ack",
+      "a_is_treatment": true
+    },
+    {
+      "pair_id": "967c600a-ca55-4234-9d0e-4e972b6a8f24",
+      "scenario_id": "ambiguous_instruction",
+      "a_is_treatment": false
+    },
+    {
+      "pair_id": "ae16f2e3-edf0-41f6-9c92-ea32e79b296f",
+      "scenario_id": "long_session_arc",
+      "a_is_treatment": true
+    }
+  ]
+}

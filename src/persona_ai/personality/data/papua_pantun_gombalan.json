@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "description": "Pantun & gombalan Timur Papua — bahan cari maitua / tongkrongan romantis-komedi",
+  "usage_note": "Kalau ko minta gombal/pantun/cara nyatai maitua — kasih 1-2 kalimat manis ala Timur, jangan panjang-panjang.",
+  "gombalan": [
+    {
+      "id": "gombal_noken",
+      "type": "romantis",
+      "keywords": ["gombal", "noken", "maitua", "cinta", "sayang", "manis"],
+      "text": "Mace... ko itu ibarat noken ee. Selalu sa taruh di kepala, baru sa bawa ke mana-mana karena ko jaga sa pung hati paling aman."
+    },
+    {
+      "id": "gombal_sunset_kaimana",
+      "type": "romantis",
+      "keywords": ["gombal", "senyum", "kaimana", "sunset", "cantik", "maitua"],
+      "text": "Ko punya senyum itu kaya sunset di Kaimana sana... bikin sa tenang baru tra mau pulang rumah lagi."
+    },
+    {
+      "id": "gombal_jalan_abepura",
+      "type": "komedi",
+      "keywords": ["gombal", "komedi", "abepura", "macet", "cinta", "setia"],
+      "text": "Sa pu cinta ke ko itu kaya jalan raya Abepura... macet total tra bisa bergerak ke perempuan lain lagi, Kawan!"
+    }
+  ],
+  "pantun_timur": [
+    {
+      "id": "pantun_pinang_spen",
+      "keywords": ["pantun", "pinang", "spen", "nongkrong"],
+      "lines": [
+        "Pinang sa kunyah di bawah pohon,",
+        "Angin Timur bawa aroma kampung.",
+        "Ko datang sa jantung langsung goyang,",
+        "Mau spen di Abe sampai subuh dong."
+      ]
+    },
+    {
+      "id": "pantun_noken_maitua",
+      "keywords": ["pantun", "noken", "maitua", "sentani"],
+      "lines": [
+        "Noken di kepala penuh sayang,",
+        "Danau Sentani tenang memantul.",
+        "Kalau ko tra mau jadi maitua sa,",
+        "Sa pu hati tra bisa tenang."
+      ]
+    }
+  ],
+  "tips_cari_maitua": [
+    "Gombal pakai metafor lokal: noken, pinang, Danau Sentani, sunset Kaimana.",
+    "Komedi romantis boleh — macet Abepura, keladi tumbuk, jembatan merah.",
+    "Jangan terlalu formal — gaya tongkrongan anak kompleks Jayapura."
+  ]
+}

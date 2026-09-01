@@ -1,0 +1,122 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.chaquo.python'
+
+def loadGeminiApiKeyFromEnv() {
+    def envFile = rootProject.file("../.env")
+    if (!envFile.exists()) {
+        return ""
+    }
+    def key = ""
+    envFile.eachLine { line ->
+        def trimmed = line.trim()
+        if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+            return
+        }
+        if (trimmed.startsWith("GEMINI_API_KEY=")) {
+            key = trimmed.substring("GEMINI_API_KEY=".length()).trim()
+            if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+                key = key.substring(1, key.length() - 1)
+            }
+        }
+    }
+    return key.replace("\\", "\\\\").replace("\"", "\\\"")
+}
+
+// Copy persona_ai package into Chaquopy source tree before each build
+tasks.register('syncPersonaPython', Copy) {
+    from("../../src/persona_ai")
+    into("src/main/python/persona_ai")
+    include("**/*")
+    exclude("**/__pycache__/**", "**/*.pyc", "**/.pytest_cache/**")
+}
+preBuild.dependsOn(tasks.named('syncPersonaPython'))
+tasks.configureEach { task ->
+    if (task.name.startsWith('merge') && task.name.endsWith('PythonSources')) {
+        task.dependsOn(tasks.named('syncPersonaPython'))
+    }
+}
+
+android {
+    namespace 'com.persona.ai'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.persona.ai"
+        minSdk 24
+        targetSdk 34
+        versionCode 91
+        versionName "2.9.3-barge-fix"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "GEMINI_API_KEY", "\"${loadGeminiApiKeyFromEnv()}\""
+
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding false
+        buildConfig true
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging true
+        }
+    }
+}
+
+// HP = backend di HP (default). Web dev di PC pakai start_server.bat terpisah.
+def personaEmbedPython = project.hasProperty("embedPython")
+        ? project.property("embedPython").toString().toBoolean()
+        : true
+
+chaquopy {
+    defaultConfig {
+        version "3.13"
+        if (personaEmbedPython) {
+            pip {
+                options "--extra-index-url", "https://chaquo.com/pypi-13.1"
+                options "--extra-index-url", "https://ririv.github.io/android-wheels/"
+                // Install Android wheels first so pip skips ujson (orjson satisfies fastapi)
+                install "orjson==3.11.4"
+                install "pydantic-core==2.41.5"
+                install "-r", "../requirements-chaquopy.txt"
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.activity:activity-ktx:1.8.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'androidx.webkit:webkit:1.10.0'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+}

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Papua AI</string>
+    <string name="byok_title">Gemini API Key (BYOK)</string>
+    <string name="byok_desc">Papua AI jalan sepenuhnya di HP ko. Masukkan Gemini API key ko sendiri — disimpan aman di HP.</string>
+    <string name="byok_key_hint">GEMINI_API_KEY</string>
+    <string name="byok_privacy_note">Ambil key gratis di aistudio.google.com/apikey. Backend &amp; data sesi disimpan lokal di HP ko.</string>
+    <string name="btn_save_start">Simpan &amp; Mulai</string>
+    <string name="btn_change_key">Ubah API Key</string>
+    <string name="btn_api_key">API Key</string>
+    <string name="btn_enter_key">Masukkan API Key</string>
+    <string name="error_no_key_startup">API key belum dimasukkan. Tekan tombol API Key di kanan atas.</string>
+    <string name="status_local_backend">Backend otomatis di HP</string>
+    <string name="status_ready">Siap</string>
+    <string name="server_starting">Menjalankan backend lokal…</string>
+    <string name="server_running">Backend lokal aktif</string>
+    <string name="server_failed">Backend lokal gagal — cek API key</string>
+    <string name="server_channel_name">Papua AI Backend</string>
+    <string name="error_loading">Gagal memuat Papua AI</string>
+    <string name="key_saved">API key tersimpan di HP</string>
+    <string name="error_server_start">Backend di HP belum siap. Tunggu 1–2 menit (pertama kali lebih lama), lalu coba lagi.</string>
+    <string name="btn_retry">Coba Lagi</string>
+    <string name="btn_ngobrol">Ngobrol</string>
+    <string name="btn_settings">Pengaturan</string>
+    <string name="btn_cancel">Batal</string>
+    <string name="permission_mic_rationale">Papua AI membutuhkan izin mikrofon untuk panggilan suara.</string>
+</resources>

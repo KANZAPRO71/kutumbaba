@@ -1,0 +1,36 @@
+session=web-97421f04
+source=terminals/412739.txt
+final ASR lines=0 (none logged)
+
+01. L36 PARTIAL  'Halo.'
+    bdv=RESPOND fallback=True reason=suppressed_audio interrupt=True gate_seen=False
+02. L55 PARTIAL  'semuanya'
+    bdv=ACK_ONLY fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+03. L77 PARTIAL  'Ada 100 pertanyaan.'
+    bdv=ACK_ONLY fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+04. L96 PARTIAL  'nomor satu'
+    bdv=ACK_ONLY fallback=True reason=turn_complete interrupt=False gate_seen=False
+05. L125 PARTIAL  'Namamu siapa?'
+    bdv=RESPOND fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+06. L143 PARTIAL  'Jam berapa sekarang?'
+    bdv=RESPOND fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+07. L165 PARTIAL  '100 saja langsung.'
+    bdv=ACK_ONLY fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+08. L186 PARTIAL  'nomor berapa lagi?'
+    bdv=RESPOND fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+09. L308 PARTIAL  'Berapa lagi?'
+    bdv=RESPOND fallback=True reason=suppressed_audio interrupt=True gate_seen=False
+10. L386 PARTIAL  'No.'
+    bdv=ACK_ONLY fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+11. L409 PARTIAL  'Gimana masa depan AI?'
+    bdv=RESPOND fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+12. L488 PARTIAL  ', pesan tiket, cari hotel.'
+    bdv=ACK_ONLY fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+13. L530 PARTIAL  'Tapi Play Store belum mengizinkan.'
+    bdv=ACK_ONLY fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+14. L559 PARTIAL  'Coba kamu cari dulu kenapa masalahnya.'
+    bdv=RESPOND fallback=True reason=suppressed_audio interrupt=True gate_seen=True
+
+# transcripts without governance line
+L465 partial: Kalau saya sih lebih lebih pengen AI itu bisa order Grab
+L472 partial: , Gojek

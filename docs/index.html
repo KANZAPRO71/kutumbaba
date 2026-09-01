@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Papua AI — Download Beta</title>
+  <meta name="description" content="Teman ngobrol suara Android. Voice-first, logat Melayu Papua, BYOK Gemini." />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --accent: #c45c26;
+      --gold: #d4a017;
+      --text: #e8e6e3;
+      --muted: #9aa5b1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--gold);
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      margin-bottom: 1rem;
+    }
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .tagline { color: var(--muted); font-size: 1.05rem; margin-bottom: 2rem; }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background: linear-gradient(135deg, var(--accent), #a04020);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      margin: 1rem 0;
+      box-shadow: 0 4px 20px rgba(196, 92, 38, 0.35);
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--muted);
+      box-shadow: none;
+      font-size: 0.95rem;
+      padding: 0.75rem;
+      color: var(--text);
+    }
+    ol { padding-left: 1.25rem; }
+    li { margin-bottom: 0.5rem; }
+    .note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 1rem;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 2rem;
+    }
+    a { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="badge">Beta · Android</span>
+    <h1>Papua AI</h1>
+    <p class="tagline">Teman ngobrol suara. Ko buka app, tekan, cerita aja.</p>
+
+    <div class="card">
+      <p>Voice-first · Logat Melayu Papua · BYOK Gemini · Jalan di HP sendiri</p>
+      <a class="btn" href="https://github.com/KANZAPRO71/kutumbaba/releases/latest/download/papua-ai-latest.apk">
+        Download APK
+      </a>
+      <a class="btn btn-secondary" href="https://github.com/KANZAPRO71/kutumbaba/releases/latest">
+        Lihat semua versi di GitHub
+      </a>
+      <p class="note">Butuh Android 7+, internet, dan Gemini API key (<a href="https://aistudio.google.com">Google AI Studio</a>).</p>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:1.1rem;margin-bottom:0.75rem;">Cara install</h2>
+      <ol>
+        <li>Download APK di atas</li>
+        <li>Izinkan <em>Install from unknown sources</em> jika diminta</li>
+        <li>Install → buka Papua AI</li>
+        <li>Masukkan Gemini API key saat onboarding</li>
+        <li>Izinkan mikrofon → tekan tombol → cerita aja</li>
+      </ol>
+      <p class="note">Ganti API key kapan saja lewat tombol ⚙ di pojok kanan atas.</p>
+    </div>
+
+    <footer>
+      <a href="https://github.com/KANZAPRO71/kutumbaba">GitHub</a> · Feedback welcome 🙏
+    </footer>
+  </div>
+</body>
+</html>

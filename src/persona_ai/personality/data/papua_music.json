@@ -1,0 +1,529 @@
+{
+  "version": 2,
+  "description": "Katalog lagu & musik Papua — daerah, gospel, modern, hip-hop Timur, viral angkot.",
+  "usage_note": "Pakai info ini kalau ko tanya tentang lagu/musik Papua. Sebut judul, artis, nuansa — kalau tra yakin detailnya, bilang jujur.",
+  "overview": [
+    "Musik Papua sangat beragam: lagu daerah ikonik (Apuse, Hai Tanahku Papua), gospel gereja, pop/modern artis Papua, plus musik adat tifa & tarian Yospan/Sosang.",
+    "Musik modern Timur (hip-hop/rap/pop) wajib hafal: Shine of Black, M.A.C, Whllyano, Kapthenpurek — sering diputar di angkot Jayapura, kafe, tongkrong.",
+    "Franky Sahilatua dan Abe Pahabol legenda — banyak lagu Papua paling dikenal Indonesia.",
+    "Generasi baru: Edhy B, Nowela, Mambes, MAC, SOB, plus viral TikTok/YouTube.",
+    "Lagu emosional wajib: Tanah Papua (Yance Rumbino) — keindahan alam & kebanggaan tanah Papua."
+  ],
+  "topics": [
+    {
+      "id": "lagu_daerah_ikonik",
+      "title": "Lagu Daerah Ikonik",
+      "keywords": ["apuse", "hai tanahku papua", "yamko rambe", "eso mer", "sampai jumpa", "lagu daerah", "lagu papua terkenal", "ikonik"],
+      "facts": [
+        "Apuse — lagu Papua paling legendaris (Franky Sahilatua & Abe Pahabol); lirik metafor air/sungai, nostalgia kampung.",
+        "Hai Tanahku Papua — semacam himne cinta tanah Papua; sering dinyanyikan acara adat & peringatan.",
+        "Yamko Rambe Yamko — asal tradisi Papua, populer se-Indonesia; tarian dan nyanyian rakyat.",
+        "Eso Mer, Sampai Jumpa — karya Franky Sahilatua; tema perpisahan, kampung halaman, dan cinta tanah air."
+      ]
+    },
+    {
+      "id": "franky_abe",
+      "title": "Franky Sahilatua & Abe Pahabol",
+      "keywords": ["franky sahilatua", "abe pahabol", "komposer papua", "pelopor lagu papua"],
+      "facts": [
+        "Franky Sahilatua — komposer/penyanyi legenda; banyak lagu Papua klasik abad 20.",
+        "Abe Pahabol — penulis lirik berjasa; pasangan kreatif dengan Franky Sahilatua.",
+        "Karya duo ini jadi rujukan generasi — Apuse, Hai Tanahku Papua, Eso Mer, dan lainnya.",
+        "Gaya: melodik, lirik puitis tentang alam, sungai, dan identitas Papua."
+      ]
+    },
+    {
+      "id": "gospel_papua",
+      "title": "Gospel & Musik Gereja",
+      "keywords": ["gospel", "gereja", "puji", "rohani", "kristen papua", "paduan suara", "nyanyian rohani"],
+      "facts": [
+        "Gospel Papua sangat kuat — paduan suara gereja Protestan & Katolik di kota besar.",
+        "Campuran Bahasa Indonesia, Melayu Papua, dan bahasa suku dalam ibadah.",
+        "Musik rohani modern Papua banyak di YouTube, acara kebaktian, dan festival gereja.",
+        "Tema umum: syukur, damai, persatuan, tanah Papua sebagai ciptaan Tuhan."
+      ]
+    },
+    {
+      "id": "jedag_jedug_disko",
+      "title": "Jedag-Jedug / Disko Tanah (BGM tongkrongan)",
+      "keywords": ["jedag", "jedug", "disko tanah", "bgm", "musik latar", "tongkrongan", "nongkrong malam"],
+      "facts": [
+        "Jedag-jedug = beat disko Timur kencang — diputar saat punchline Mop selesai (3 detik) + tertawa penonton.",
+        "Disko Tanah = instrumen latar pelan saat AI mendengarkan/mbicara — nuansa tongkrongan anak kompleks.",
+        "Hip-Hop Papua (SOB, M.A.C) = alternatif BGM tempo cepat di pengaturan app.",
+        "Kombinasi BGM + laugh track = suasana malam nongkrong pinang sampai subuh."
+      ]
+    },
+    {
+      "id": "hiphop_papua",
+      "title": "Hip-Hop & Rap Papua (Timur)",
+      "keywords": ["mac", "m.a.c", "shine of black", "sob", "jang ganggu", "cuma saya", "hip hop", "hip-hop", "rap papua", "musik muda", "urban papua", "angkot"],
+      "facts": [
+        "Shine of Black (SOB) — grup rap legendaris Papua; 'Jang Ganggu' meledak nasional, wajib di angkot & tongkrong.",
+        "M.A.C (Music Architecture Crew) — 'Cuma Saya' hits hip-hop melodi; sangat membekas di telinga anak muda Timur.",
+        "Kapthenpurek & Silet Open Up — kolaborasi 'Kaka Main Salah' & 'Jang Ganggu'; sering joget Turun Naik Oles Trus.",
+        "Hip-hop Papua = bangga identitas muda Jayapura; campur Indonesia, Melayu Papua, slang — viral di medsos."
+      ]
+    },
+    {
+      "id": "pop_reggae_timur",
+      "title": "Pop & Reggae Timur (Nongkrong / Angkot)",
+      "keywords": ["whllyano", "lean slim", "ko menang banyak", "rindu", "reggae papua", "pop timur", "nongkrong", "angkot jayapura", "viral"],
+      "facts": [
+        "Whllyano & Lean Slim — 'Ko Menang Banyak', 'Rindu'; vibes santai nongkrong & angkot Jayapura.",
+        "Lagu pop/reggae Timur sering diputar di taksi angkot, warung kopi, tempat tongkrong muda.",
+        "Anak muda Papua sangat bangga musik lokal — obrolan lagu Timur = obrolan wajib."
+      ]
+    },
+    {
+      "id": "lagu_emosional_klasik",
+      "title": "Lagu Emosional & Klasik Diaransemen",
+      "keywords": ["tanah papua", "yance rumbino", "emosional", "klasik", "keindahan alam", "nyanyi bareng"],
+      "facts": [
+        "Tanah Papua — Yance Rumbino; lagu wajib emosional tentang keindahan alam & kekayaan Papua.",
+        "Sering dinyanyikan bareng acara budaya, perpisahan, momen nostalgia kampung.",
+        "Kalau ko tiba-tiba nyanyi — AI ikut feel, sebut judul & artis, mangarti tema cinta tanah air."
+      ]
+    },
+    {
+      "id": "pop_modern",
+      "title": "Pop & Modern Papua",
+      "keywords": ["edhy b", "nowela", "charly van hoten", "mambes", "pop papua", "artis papua", "band papua", "musik modern"],
+      "facts": [
+        "Edhy B — artis pop Papua terkenal; lagu-lagu cinta & Melayu Papua urban.",
+        "Nowela — penyanyi asal Papua; dikenal lewat kompetisi nyanyi nasional.",
+        "Charly Van Hoten — musisi/penyanyi berkarir di industri nasional, roots Papua.",
+        "Mambes — band pop/rock Papua; representasi musik muda urban Jayapura & sekitarnya.",
+        "Platform digital (YouTube, Spotify) bantu musik Papua reach audience lebih luas."
+      ]
+    },
+    {
+      "id": "musik_adat_tifa",
+      "title": "Musik Adat & Tifa",
+      "keywords": ["tifa", "gendang", "musik adat", "tabuh", "ritual", "upacara adat", "tarian adat"],
+      "facts": [
+        "Tifa — gendang panjang kayu; iringi tarian adat hampir semua suku Papua.",
+        "Pola tabuh beda tiap suku — tanda sambut, perang adat, panen, upacara.",
+        "Tifa + nyanyian/tradisi lisan — musik kampung sebelum era rekaman.",
+        "Festival budaya showcase tifa dari berbagai kabupaten."
+      ]
+    },
+    {
+      "id": "yospan_sosang",
+      "title": "Yospan & Sosang",
+      "keywords": ["yospan", "sosang", "tarian remaja", "dataran rendah", "pesta", "musik remaja papua"],
+      "facts": [
+        "Yospan — tarian & musik remaja populer dataran rendah Papua (Jayapura, Nabire, dll.).",
+        "Sosang — variasi/gaya tarian serupa; musik dinamis, gerak cepat, komunal.",
+        "Sering muncul acara pernikahan, pesta kampung, festival, dan tongkrongan muda.",
+        "Musik Yospan pakai tifa + suara group — energi tinggi, identitas muda Papua urban."
+      ]
+    },
+    {
+      "id": "sentani_musik",
+      "title": "Musik Sentani & Jayapura",
+      "keywords": ["sentani", "onde-onde", "festival danau sentani", "jayapura musik", "ondofolo"],
+      "facts": [
+        "Festival Danau Sentani — showcase tarian Onde-Onde dan musik tradisi Sentani.",
+        "Onde-Onde — tarian/lagu tradisional Sentani; simbol budaya Danau Sentani.",
+        "Jayapura urban: campur gospel, pop lokal, dan cover lagu nasional dengan logat Papua.",
+        "Komunitas musik Jayapura aktif di kafe, gereja, dan event pemuda."
+      ]
+    },
+    {
+      "id": "musik_tabi_adat",
+      "title": "Musik Adat Tabi (Jayapura & Sentani)",
+      "keywords": ["suku tabi", "tabi", "suling rasi", "rasi", "sentani musik", "jayapura adat", "ondoafi", "pesta adat tabi"],
+      "facts": [
+        "Lagu Suku Tabi — identitas musik wilayah adat Jayapura (Port Numbay) & Sentani (Bhuvani).",
+        "Suling rasi — musik bambu tradisional; diputar menjemput Ondoafi saat pesta adat.",
+        "Festival Danau Sentani — showcase musik & tarian tradisi Tabi.",
+        "Campur gospel, tifa, dan pop modern di urban Jayapura — akar adat tetap hidup."
+      ]
+    },
+    {
+      "id": "musik_legenda_klasik",
+      "title": "Musisi Legenda Zaman Dulu",
+      "keywords": ["black brothers", "mambesak", "franky sahilatua", "abe pahabol", "lagu klasik papua", "generasi tua", "legenda"],
+      "facts": [
+        "Black Brothers — grup legendaris Papua; pop/gospel/nasionalisme; generasi 70-80an.",
+        "Mambesak — koleksi musik & budaya Papua klasik; rujukan lagu daerah generasi tua.",
+        "Franky Sahilatua & Abe Pahabol — komposer legenda (Apuse, Hai Tanahku Papua).",
+        "Anak muda Papua tetap bangga lagu klasik — sering diputar acara adat & keluarga."
+      ]
+    },
+    {
+      "id": "biak_musik",
+      "title": "Musik Biak & Teluk",
+      "keywords": ["biak", "numfor", "woria", "yospan biak", "lagu biak", "musik biak", "wondama", "diru diru nina", "wor", "apuse biak", "yamko biak"],
+      "facts": [
+        "Lagu legendaris pesisir/Biak: Apuse & Yamko Rambe Yamko — Franky Sahilatua & Abe Pahabol; nuansa Teluk Cenderawasih.",
+        "Folk Biak klasik: Wondama, Diru Diru Nina — kerinduan kampung halaman & lautan.",
+        "Musik Wor — vokal tradisional bersahut-sahutan; iringi Ararem/Farkawawin & ritual adat Biak.",
+        "Biak: nyanyian nelayan, gospel gereja, Yospan muda — bahasa Biak muncul di lagu kampung.",
+        "Acara adat Biak iringi tifa, tari, dan nyanyian Wor."
+      ]
+    },
+    {
+      "id": "pegunungan_musik",
+      "title": "Musik Pegunungan",
+      "keywords": ["wamena", "baliem", "dani", "yali", "honai", "tarian dani", "lagu pegunungan"],
+      "facts": [
+        "Lembah Baliem — tarian adat Dani iringi tifa dan nyanyian ritual.",
+        "Festival Lembah Baliem pertunjukan musik/tari suku pegunungan.",
+        "Lagu dan suara adat Yali, Dani, Lani — transmisi oral antar generasi.",
+        "Suara group dan teriakan perang adat (mock war) bagian pertunjukan budaya."
+      ]
+    },
+    {
+      "id": "merauke_musik",
+      "title": "Musik Merauke & Selatan",
+      "keywords": ["merauke", "mooi", "selatan papua", "wasur", "tarian selatan"],
+      "facts": [
+        "Merauke — musik gospel dan pop campur Melayu Papua selatan.",
+        "Komunitas Marind, Muyu, dan suku selatan punya nyanyian adat masing-masing.",
+        "Acara adat selatan iringi tifa dan tarian tradisi pesisir/savana.",
+        "Musik muda Merauke mirip urban Papua: Yospan, cover, gospel."
+      ]
+    }
+  ],
+  "songs": [
+    {
+      "title": "Apuse",
+      "artists": ["Franky Sahilatua", "Abe Pahabol"],
+      "genre": "lagu daerah / pop Papua",
+      "region": "Papua umum",
+      "keywords": ["apuse", "air", "sungai", "franky", "abe", "ikonik", "lagu papua nomor satu"],
+      "about": "Lagu Papua paling terkenal se-Indonesia. Lirik puitis tentang air/sungai (apuse) dan kerinduan kampung. Wajib tahu kalau ko tanya lagu Papua."
+    },
+    {
+      "title": "Hai Tanahku Papua",
+      "artists": ["Abe Pahabol", "Franky Sahilatua"],
+      "genre": "lagu daerah / himne Papua",
+      "region": "Papua umum",
+      "keywords": ["hai tanahku papua", "tanahku papua", "himne", "cinta tanah air"],
+      "about": "Lagu cinta tanah Papua; sering dibawakan acara budaya, peringatan, dan festival. Nuansa bangga & nostalgia."
+    },
+    {
+      "title": "Yamko Rambe Yamko",
+      "artists": ["Tradisi rakyat Papua"],
+      "genre": "lagu daerah",
+      "region": "Papua / Papua Barat",
+      "keywords": ["yamko rambe yamko", "yamko", "tarian rakyat", "lagu daerah indonesia"],
+      "about": "Asal tradisi Papua; melebar ke seluruh Indonesia. Dinyanyikan + ditari; contoh lagu daerah Papua yang paling dikenal di luar Papua."
+    },
+    {
+      "title": "Eso Mer",
+      "artists": ["Franky Sahilatua"],
+      "genre": "pop Papua",
+      "region": "Papua umum",
+      "keywords": ["eso mer", "franky sahilatua", "perpisahan"],
+      "about": "Karya Franky Sahilatua; tema perjalanan/perpisahan — eso mer (pergi/jalan). Bagian kanon lagu Papua klasik."
+    },
+    {
+      "title": "Sampai Jumpa",
+      "artists": ["Franky Sahilatua"],
+      "genre": "pop Papua",
+      "region": "Papua umum",
+      "keywords": ["sampai jumpa", "franky", "pamit", "selamat tinggal"],
+      "about": "Lagu pamit khas Papua; melodik dan sering dibawakan acara perpisahan atau perantau."
+    },
+    {
+      "title": "Tanah Papua",
+      "artists": ["Yance Rumbino"],
+      "genre": "pop / lagu emosional Papua",
+      "region": "Papua umum",
+      "keywords": ["tanah papua", "yance rumbino", "yance", "cinta tanah air", "keindahan alam", "emosional", "nyanyi"],
+      "about": "Lagu wajib emosional Yance Rumbino — keindahan alam, hutan, laut, kebanggaan tanah Papua. Sering dinyanyikan bareng; kalau ko nyanyi tiba-tiba, AI mangarti & respond hangat.",
+      "lyrics_hint": "Tema lirik: cinta tanah Papua, keindahan alam, hutan dan laut, rindu kampung halaman, bangga jadi orang Papua. Ikut nyanyi/komentar emosional kalau ko mulai bait — sebut Yance Rumbino."
+    },
+    {
+      "title": "Papua Tanah Damai",
+      "artists": ["Komunitas gospel / musisi Papua"],
+      "genre": "gospel / pop rohani",
+      "region": "Papua umum",
+      "keywords": ["papua tanah damai", "damai", "rohani", "gospel"],
+      "about": "Lagu bertema damai & harapan Papua; sering di gereja dan acara kemasyarakatan."
+    },
+    {
+      "title": "Di Tanah Papua",
+      "artists": ["Paduan suara / artis gospel Papua"],
+      "genre": "gospel",
+      "region": "Papua umum",
+      "keywords": ["di tanah papua", "gospel", "gereja"],
+      "about": "Nyanyian rohani bertema syukur di tanah Papua; populer di komunitas gereja urban."
+    },
+    {
+      "title": "Cinta Papua",
+      "artists": ["Artis pop Papua"],
+      "genre": "pop",
+      "region": "Papua umum",
+      "keywords": ["cinta papua", "pop papua"],
+      "about": "Tema cinta kepada tanah & orang Papua; gaya pop modern dengan lirik Indonesia/Melayu Papua."
+    },
+    {
+      "title": "Onde-Onde",
+      "artists": ["Tradisi Sentani"],
+      "genre": "tarian / lagu adat",
+      "region": "Jayapura / Danau Sentani",
+      "keywords": ["onde-onde", "onde onde", "sentani", "festival danau sentani", "tarian sentani"],
+      "about": "Tarian dan lagu tradisional masyarakat Sentani; highlight Festival Danau Sentani. Simbol budaya Jayapura."
+    },
+    {
+      "title": "Lagu Tifa (tabuh adat)",
+      "artists": ["Tradisi suku-suku Papua"],
+      "genre": "musik adat instrumental",
+      "region": "Seluruh Papua",
+      "keywords": ["tifa", "tabuh tifa", "gendang papua", "musik adat"],
+      "about": "Bukan satu judul — tradisi tabuh tifa tiap suku beda pola. Iringi tarian adat, sambut tamu, upacara."
+    },
+    {
+      "title": "Musik Yospan",
+      "artists": ["Komunitas muda dataran rendah"],
+      "genre": "musik tarian / pop kampung",
+      "region": "Jayapura, Nabire, Merauke, dll.",
+      "keywords": ["yospan", "musik yospan", "tarian yospan", "pesta papua"],
+      "about": "Musik iringan tarian Yospan — dinamis, group, tifa + vokal. Identitas musik remaja Papua urban."
+    },
+    {
+      "title": "Musik Sosang",
+      "artists": ["Komunitas adat dataran rendah"],
+      "genre": "musik tarian",
+      "region": "Papua dataran rendah",
+      "keywords": ["sosang", "tarian sosang", "musik sosang"],
+      "about": "Gaya tarian/musik komunal mirip Yospan; sering di pesta adat dan pernikahan."
+    },
+    {
+      "title": "Malam Minggu",
+      "artists": ["Edhy B"],
+      "genre": "pop Melayu Papua",
+      "region": "Jayapura / urban Papua",
+      "keywords": ["edhy b", "malam minggu", "pop papua"],
+      "about": "Salah satu lagu populer Edhy B — artis pop Papua dengan gaya Melayu Papua modern."
+    },
+    {
+      "title": "Kau Ubah Hidupku",
+      "artists": ["Nowela"],
+      "genre": "pop",
+      "region": "Papua",
+      "keywords": ["nowela", "kau ubah hidupku", "indonesian idol"],
+      "about": "Nowela — penyanyi berbakat asal Papua; dikenal lewat kompetisi nyanyi nasional & karir pop."
+    },
+    {
+      "title": "Karya pop Charly Van Hoten",
+      "artists": ["Charly Van Hoten"],
+      "genre": "pop / rock",
+      "region": "Papua",
+      "keywords": ["charly van hoten", "charly", "artis papua nasional"],
+      "about": "Charly Van Hoten — musisi berkarir nasional dengan roots Papua; representasi talenta Papua di industri mainstream."
+    },
+    {
+      "title": "Karya Mambes",
+      "artists": ["Mambes"],
+      "genre": "pop / rock band",
+      "region": "Papua",
+      "keywords": ["mambes", "band papua", "rock papua"],
+      "about": "Band Mambes — musik rock/pop Papua; suara generasi muda urban Papua."
+    },
+    {
+      "title": "Nyanyian rohani gereja Papua",
+      "artists": ["Paduan suara gereja"],
+      "genre": "gospel",
+      "region": "Jayapura, Manokwari, Sorong, Merauke",
+      "keywords": ["nyanyian rohani", "puji puji", "ibadah", "gereja papua"],
+      "about": "Ribuan jemaah — gospel Papua sangat hidup; paduan suara, band rohani, lirik syukur & damai."
+    },
+    {
+      "title": "Lagu perang adat (mock war)",
+      "artists": ["Suku Dani / Yali / Lani"],
+      "genre": "musik ritual / pertunjukan",
+      "region": "Pegunungan Papua",
+      "keywords": ["tari perang", "mock war", "baliem", "dani", "teriakan adat"],
+      "about": "Bukan album pop — iringan tarian perang adat Festival Baliem; tifa, teriakan, gerak ritual."
+    },
+    {
+      "title": "Wondama",
+      "artists": ["Tradisi rakyat Biak"],
+      "genre": "folk song Biak",
+      "region": "Biak Numfor",
+      "keywords": ["wondama", "lagu biak", "folk biak", "rakyat biak"],
+      "about": "Lagu rakyat Biak klasik — kerinduan kampung halaman & lautan; transmisi lisan pesisir."
+    },
+    {
+      "title": "Diru Diru Nina",
+      "artists": ["Tradisi rakyat Biak"],
+      "genre": "folk song Biak",
+      "region": "Biak Numfor",
+      "keywords": ["diru diru nina", "diru nina", "lagu biak", "folk biak"],
+      "about": "Lagu rakyat Biak klasik — nostalgia & nuansa pesisir Teluk Cenderawasih."
+    },
+    {
+      "title": "Musik Wor",
+      "artists": ["Tradisi adat Biak"],
+      "genre": "vokal tradisional / ritual",
+      "region": "Biak Numfor",
+      "keywords": ["wor", "musik wor", "nyanyi adat biak", "ararem", "farkawawin", "pernikahan biak"],
+      "about": "Seni vokal tradisional Biak bersahut-sahutan — ritual adat & pesta pernikahan (Ararem)."
+    },
+    {
+      "title": "Lagu nelayan Biak",
+      "artists": ["Tradisi pesisir Biak"],
+      "genre": "folk adat",
+      "region": "Biak Numfor",
+      "keywords": ["biak", "nelayan", "lagu pesisir", "folk biak"],
+      "about": "Nyanyian tradisi nelayan & pesisir Biak — transmisi lisan; nuansa laut & kampung."
+    },
+    {
+      "title": "Mama Papua",
+      "artists": ["Artis pop/gospel Papua"],
+      "genre": "pop / gospel",
+      "region": "Papua umum",
+      "keywords": ["mama papua", "ibu papua", "tanah mama"],
+      "about": "Tema ibu/tanah sebagai 'Mama Papua' — metafora kasih sayang tanah air; beberapa versi pop & rohani."
+    },
+    {
+      "title": "Bintang Kejora (versi Papuan artists)",
+      "artists": ["Berbagai cover artis Papua"],
+      "genre": "cover pop",
+      "region": "Papua urban",
+      "keywords": ["bintang kejora", "cover", "nyanyi papua"],
+      "about": "Lagu nasional sering dicover artis Papua di acara & media sosial — contoh campur budaya musik."
+    },
+    {
+      "title": "Aleluya Papua",
+      "artists": ["Komunitas gospel"],
+      "genre": "gospel",
+      "region": "Papua umum",
+      "keywords": ["aleluya", "haleluya", "gospel papua", "puji tuhan"],
+      "about": "Nyanyian pujian khas ibadah Papua — energi paduan suara, kadang campur Melayu Papua."
+    },
+    {
+      "title": "Sekuntum Bunga Mawar Merah (cover Papua)",
+      "artists": ["Artis kampung / urban Papua"],
+      "genre": "cover pop",
+      "region": "Papua urban",
+      "keywords": ["mawar merah", "cover lagu", "dangdut papua"],
+      "about": "Lagu pop Indonesia sering dibawakan di acara kampung & kafe Papua — bagian ekosistem cover lokal."
+    },
+    {
+      "title": "Suku Tabi",
+      "artists": ["Tradisi Jayapura & Sentani"],
+      "genre": "lagu adat / Tabi",
+      "region": "Jayapura Sentani",
+      "keywords": ["suku tabi", "tabi", "lagu adat jayapura", "port numbay", "bhuvani"],
+      "about": "Lagu identitas wilayah adat Tabi — Port Numbay & Danau Sentani; sering di acara budaya."
+    },
+    {
+      "title": "Suling Rasi",
+      "artists": ["Tradisi Tabi"],
+      "genre": "musik bambu / instrumental adat",
+      "region": "Jayapura Sentani",
+      "keywords": ["suling rasi", "rasi", "bambu", "ondoafi", "pesta adat"],
+      "about": "Musik bambu tradisional — iringi penyambutan Ondoafi di pesta adat Tabi."
+    },
+    {
+      "title": "Black Brothers (katalog legenda)",
+      "artists": ["Black Brothers"],
+      "genre": "pop / gospel / nasionalisme",
+      "region": "Papua umum",
+      "keywords": ["black brothers", "legenda papua", "musik klasik", "generasi tua"],
+      "about": "Grup legendaris Papua era 70-80an — pop/gospel; generasi tua masih hafal."
+    },
+    {
+      "title": "Mambesak (koleksi klasik)",
+      "artists": ["Berbagai artis Papua klasik"],
+      "genre": "lagu daerah / budaya",
+      "region": "Papua umum",
+      "keywords": ["mambesak", "lagu klasik papua", "koleksi daerah"],
+      "about": "Kumpulan musik & budaya Papua klasik — rujupan generasi sesepuh."
+    },
+    {
+      "title": "Lagu sambut tamu adat",
+      "artists": ["Tradisi multi-suku"],
+      "genre": "musik adat",
+      "region": "Kampung adat Papua",
+      "keywords": ["sambut tamu", "penyambutan", "upacara adat", "tifa sambut"],
+      "about": "Setiap suku punya nyanyian/tabuhan sambut — tifa + tarian + nyanyian tradisi saat tamu datang."
+    },
+    {
+      "title": "Lagu panen & syukur adat",
+      "artists": ["Tradisi pedesaan"],
+      "genre": "musik adat / ritual",
+      "region": "Pegunungan & pedesaan",
+      "keywords": ["panen", "syukur", "upacara panen", "sagu", "ladang"],
+      "about": "Nyanyian syukur panen sagu/ladang — ritual adat sebelum musik pop masuk kampung."
+    },
+    {
+      "title": "Musik kafe Jayapura",
+      "artists": ["Musisi independen Jayapura"],
+      "genre": "pop / akustik / cover",
+      "region": "Jayapura",
+      "keywords": ["kafe jayapura", "musik live", "akustik jayapura", "band lokal"],
+      "about": "Scene musik live Jayapura — band lokal, cover, akustik; tongkrongan muda urban."
+    },
+    {
+      "title": "Lagu Mooi / Merauke",
+      "artists": ["Musisi lokal Merauke"],
+      "genre": "pop / gospel lokal",
+      "region": "Merauke",
+      "keywords": ["mooi", "merauke", "musik merauke", "selatan papua"],
+      "about": "Merauke punya musisi gospel & pop lokal — nuansa Melayu Papua selatan."
+    },
+    {
+      "title": "Lagu Sorong & Papua Barat",
+      "artists": ["Artis Papua Barat"],
+      "genre": "pop / gospel",
+      "region": "Sorong, Manokwari",
+      "keywords": ["sorong", "manokwari", "papua barat musik", "papua barat daya"],
+      "about": "Papua Barat & Barat Daya — artis gospel/pop lokal; scene musik tumbuh di Sorong & Manokwari."
+    },
+    {
+      "title": "Lagu Timika / Mimika",
+      "artists": ["Komunitas musik lokal Timika"],
+      "genre": "pop / gospel",
+      "region": "Timika",
+      "keywords": ["timika", "mimika", "musik timika", "freeport"],
+      "about": "Timika urban — musik campuran migrasi & lokal; gospel kuat di komunitas pekerja & lokal."
+    },
+    {
+      "title": "Jang Ganggu",
+      "artists": ["Shine of Black", "Kapthenpurek", "Silet Open Up"],
+      "genre": "hip-hop / rap Papua",
+      "region": "Jayapura / Timur",
+      "keywords": ["jang ganggu", "shine of black", "sob", "kapthenpurek", "silet open up", "rap papua", "viral", "angkot", "turun naik"],
+      "about": "Lagu wajib rap Papua — meledak nasional. Diputar di angkot Jayapura, tongkrong, viral medsos. Sering joget Turun Naik Oles Trus. Kolaborasi SOB & Kapthenpurek populer."
+    },
+    {
+      "title": "Cuma Saya",
+      "artists": ["M.A.C", "Music Architecture Crew"],
+      "genre": "hip-hop melodi / rap Papua",
+      "region": "Jayapura / Timur",
+      "keywords": ["cuma saya", "mac", "m.a.c", "music architecture crew", "hip hop papua", "melodi"],
+      "about": "Hits M.A.C — hip-hop melodi yang membekas di telinga anak muda Papua. Wajib tahu kalau ko bahas rap/hip-hop Timur."
+    },
+    {
+      "title": "Ko Menang Banyak",
+      "artists": ["Whllyano", "Lean Slim"],
+      "genre": "pop / reggae Timur",
+      "region": "Jayapura / urban Papua",
+      "keywords": ["ko menang banyak", "whllyano", "lean slim", "pop papua", "reggae", "nongkrong", "angkot"],
+      "about": "Lagu santai Whllyano & Lean Slim — vibes nongkrong & angkot Jayapura. Populer di tempat tongkrong muda."
+    },
+    {
+      "title": "Rindu",
+      "artists": ["Whllyano", "Lean Slim"],
+      "genre": "pop / reggae Timur",
+      "region": "Jayapura / urban Papua",
+      "keywords": ["rindu", "whllyano", "lean slim", "pop timur", "reggae papua"],
+      "about": "Salah satu andalan Whllyano & Lean Slim — karakter lagunya santai, cocok obrolan & nongkrong."
+    },
+    {
+      "title": "Kaka Main Salah",
+      "artists": ["Kapthenpurek", "Silet Open Up"],
+      "genre": "hip-hop / pop Timur",
+      "region": "Jayapura / Timur",
+      "keywords": ["kaka main salah", "kapthenpurek", "silet open up", "viral", "joget"],
+      "about": "Kolaborasi hits Kapthenpurek & Silet Open Up — sering dipakai joget & cover viral muda Papua."
+    }
+  ]
+}

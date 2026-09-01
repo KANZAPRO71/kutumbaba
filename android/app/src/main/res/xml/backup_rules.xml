@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Jangan backup API key ke cloud restore -->
+    <exclude domain="sharedpref" path="persona_byok_secure.xml"/>
+    <exclude domain="sharedpref" path="persona_byok_backup.xml"/>
+    <include domain="sharedpref" path="persona_ai_prefs.xml"/>
+</full-backup-content>

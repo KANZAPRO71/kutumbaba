@@ -1,0 +1,46 @@
+# Secrets — never commit API keys
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Android / Gradle
+android/.gradle/
+android/**/build/
+android/local.properties
+*.apk
+*.aab
+*.keystore
+!android/app/debug.keystore
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local runtime data — never commit
+.persona_ai/sessions.db
+.persona_ai/sessions.db-*
+.persona_ai/certs/
+.persona_ai/*.json
+!.persona_ai/eval/
+
+# Cursor IDE (optional local)
+.cursor/
+
+# Release artifacts (upload via GitHub Releases, not git)
+releases/
