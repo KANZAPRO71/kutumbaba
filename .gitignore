@@ -44,3 +44,7 @@ desktop.ini
 
 # Release artifacts (upload via GitHub Releases, not git)
 releases/
+
+# Legacy Ada (old repo)
+*.o
+*.ali

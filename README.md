@@ -12,6 +12,8 @@ Teman ngobrol suara di Android — voice-first, logat Melayu Papua urban, BYOK G
 
 **Link langsung:** https://github.com/KANZAPRO71/kutumbaba/releases/latest
 
+**Situs download:** https://kanzapro71.github.io/kutumbaba/
+
 > Versi beta — sideload (belum Play Store). Butuh Android 7+ (API 24), koneksi internet, dan Gemini API key milik sendiri.
 
 ### Cara install
