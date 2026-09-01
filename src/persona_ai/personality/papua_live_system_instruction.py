@@ -44,38 +44,8 @@ def master_system_instruction_lines(
     language: str = "id",
     display_name: str = "Papua AI",
 ) -> list[str]:
-    if not is_papua_dialect(dialect) or language != "id":
-        return []
-    data = _load_master()
-    sections = data.get("sections")
-    if not isinstance(sections, dict):
-        return []
-
-    name = display_name or str(data.get("display_name_default") or "Papua AI")
-    lines = [
-        f"=== PAPUA AI — MASTER SYSTEM INSTRUCTION ({name}) ===",
-        "Ikuti blok ini sebagai konstitusi suara — natural, bukan baca bullet.",
-    ]
-
-    order = (
-        "role_identity",
-        "developer_credit",
-        "raja_mop",
-        "tone_language",
-        "mop_humor",
-        "knowledge_priorities",
-        "vowel_prosody",
-        "full_duplex",
-        "ondo_wibawa",
-        "gaul_trendsetter",
-    )
-    for key in order:
-        block = _section_lines(sections.get(key))
-        if block:
-            lines.append("")
-            lines.extend(block)
-
-    return lines
+    """Disabled — master JSON contained scripted lines that caused verbatim repetition."""
+    return []
 
 
 def master_system_instruction_text(

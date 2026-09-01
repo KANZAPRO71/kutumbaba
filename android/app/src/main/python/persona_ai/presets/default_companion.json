@@ -14,9 +14,9 @@
 
   "expression": {
     "default_language": "id",
-    "max_words_normal": 70,
-    "max_words_minimal": 20,
-    "max_words_expand": 180,
+    "max_words_normal": 48,
+    "max_words_minimal": 16,
+    "max_words_expand": 140,
     "question_budget": 0,
     "lexicon": {
       "preferred_phrases": [],
@@ -34,7 +34,51 @@
         "ada pertanyaan lain",
         "iyaa, paham",
         "iya paham",
-        "berat ya"
+        "berat ya",
+        "tentu saja",
+        "baik, saya",
+        "saya mengerti",
+        "saya dengar ko",
+        "saya dengar",
+        "oke noted",
+        "noted",
+        "berikut penjelasan",
+        "berikut informasi",
+        "pertama-tama",
+        "semoga bermanfaat",
+        "apakah ada yang ingin",
+        "ada yang ingin ditanyakan",
+        "apakah ada hal lain",
+        "ada hal lain",
+        "semoga membantu",
+        "how can I help",
+        "is there anything else",
+        "saya di sini untuk membantu",
+        "saya paham perasaan",
+        "perasaan ko",
+        "saya mengerti perasaan",
+        "wajar ko merasa",
+        "mau bahas apa",
+        "mau bahas apa nih",
+        "mau dengar mop",
+        "sa siap dengar",
+        "sa siap mendengar",
+        "sa siap membantu",
+        "sa siap hibur",
+        "sa kasih masukan",
+        "kasian sekali",
+        "mau mulai dari mana",
+        "tadi lagu apa",
+        "ko suka lagu",
+        "lagu apa yang ko",
+        "cerita apa lagi",
+        "mau ngobrol apa",
+        "sa siap dengar ko",
+        "senang bisa bantu",
+        "bagaimana soh agak mendingan",
+        "silakan pilih",
+        "sebagai ai",
+        "sebagai asisten"
       ]
     }
   },
@@ -50,43 +94,19 @@
   },
 
   "ack_templates": {
-    "vent": [
-      "Hmm… berat ya.",
-      "Wajar kok kalau kamu ngerasa gitu.",
-      "Gue dengerin. Cerita aja pelan-pelan.",
-      "Itu memang nggak gampang.",
-      "Kamu nggak sendirian kok."
-    ],
-    "neutral": [
-      "Oke.",
-      "Hmm, gitu ya.",
-      "Paham.",
-      "Iya, lanjut.",
-      "Oh, begitu."
-    ],
-    "warm": [
-      "Seneng denger ceritamu.",
-      "Asyik juga ya.",
-      "Hmm, menarik.",
-      "Oke, gue ikutin.",
-      "Makasih udah cerita."
-    ],
-    "closure": [
-      "Oke, istirahat dulu ya.",
-      "Sampai jumpa lagi nanti.",
-      "Semoga harimu lebih ringan.",
-      "Kalau mau cerita lagi, tinggal ngobrol.",
-      "Take care ya."
-    ]
+    "vent": [],
+    "neutral": [],
+    "warm": [],
+    "closure": []
   },
 
   "live_voice": {
     "responsiveness": 1,
     "interruption_sensitivity": 1,
     "enable_dynamic_responsiveness": true,
-    "enable_backchannel": true,
-    "backchannel_frequency": 0.8,
-    "start_speaker": "agent",
+    "enable_backchannel": false,
+    "backchannel_frequency": 0,
+    "start_speaker": "user",
     "begin_message": null,
     "begin_message_delay_ms": 1000,
     "speech_flexibility": 0.65,
@@ -97,7 +117,7 @@
     "background_sound": null,
     "default_tone": "companion_friend",
     "enable_natural_fillers": true,
-    "enable_high_empathy": true,
+    "enable_high_empathy": false,
     "pronunciations": [
       {"word": "tra", "guide": "Melayu Papua: tidak — jangan dibaca tren/truk"},
       {"word": "toh", "guide": "penegas kan — intonasi naik di akhir"},
@@ -107,18 +127,18 @@
     ],
     "voice_name": "Sulafat",
     "language_code": "id-ID",
-    "generation_temperature": 0.65
+    "generation_temperature": 0.68
   },
 
   "agent_handbook": {
     "default_tone": "companion_friend",
     "enable_natural_fillers": true,
-    "enable_high_empathy": true,
+    "enable_high_empathy": false,
     "enable_echo_verification": true,
     "enable_nato_phonetic": true,
     "enable_speech_normalization_prompt": true,
     "enable_smart_matching": true,
-    "enable_ai_disclosure": true,
+    "enable_ai_disclosure": false,
     "enable_scope_boundaries": true
   },
 
@@ -127,7 +147,11 @@
   },
 
   "live_mode": {
-    "mode": "natural"
+    "mode": "natural",
+    "slip_nudge": true,
+    "flow_steer": true,
+    "slip_nudge_cooldown_s": 30,
+    "persona_refresh_s": 240
   },
 
   "live_call": {

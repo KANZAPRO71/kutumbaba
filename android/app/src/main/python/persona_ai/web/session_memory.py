@@ -57,17 +57,14 @@ def memory_rules_lines(*, dialect: str | None = None) -> list[str]:
     papua = dialect and dialect.strip().lower() in {"papua", "papuan", "logat_papua", "papua_id"}
     if papua:
         return [
-            "INGATAN PERCAKAPAN (wajib — ko HARUS ingat obrolan sebelumnya):",
-            "- Ko punya riwayat di bawah — gunakan untuk melanjutkan natural, jangan bilang ko tra ingat.",
-            "- Sebut kembali nama, tempat, topik, atau detail yang ko sudah bilang kalau relevan.",
-            "- Kalau ko tanya hal yang sudah dibahas, jawab konsisten dengan riwayat — jangan mengarang baru.",
-            "- Gaya: teman yang duduk bareng lagi, bukan bot yang reset setiap kalimat.",
+            "Konteks obrolan (internal — jangan bacakan ke user):",
+            "- Lanjutkan natural dari riwayat di bawah; jawab konsisten kalau topik sama.",
+            "- Jangan sebut 'ingatan', 'daftar', atau konfirmasi 'siap ingat'.",
         ]
     return [
-        "CONVERSATION MEMORY (mandatory — use prior turns below):",
-        "- Continue naturally from the transcript — do not claim you forgot prior context.",
-        "- Reuse names, topics, and details the user already shared when relevant.",
-        "- Stay consistent with earlier answers; do not contradict prior turns.",
+        "Conversation context (internal — do not read aloud):",
+        "- Continue naturally from the transcript below; stay consistent when topics repeat.",
+        "- Do not mention memory lists or say you will remember unless the user asks.",
     ]
 
 
@@ -111,7 +108,7 @@ def format_live_history_block(
     post_call: dict | None = None,
     dialect: str | None = None,
     user_memories: list[UserMemoryRecord] | None = None,
-    include_user_memory: bool = True,
+    include_user_memory: bool = False,
 ) -> str:
     """Two-tier recap: older digest + recent verbatim turns."""
     user_block = (

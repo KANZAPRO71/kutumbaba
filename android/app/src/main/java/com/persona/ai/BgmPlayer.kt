@@ -1,6 +1,7 @@
 package com.persona.ai
 
 import android.content.Context
+import android.media.AudioManager
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.ToneGenerator
@@ -20,6 +21,8 @@ class BgmPlayer(context: Context) {
     private var burstPlayer: MediaPlayer? = null
     private var toneGenerator: ToneGenerator? = null
     private var burstRunnable: Runnable? = null
+    private var loopRunnable: Runnable? = null
+    private var synthBeat = 0
     private var currentMode: String = MODE_OFF
 
     private fun rawId(name: String): Int =
@@ -35,9 +38,10 @@ class BgmPlayer(context: Context) {
         }
         val resId = rawId(asset)
         if (resId == 0) {
-            Log.i(TAG, "BGM $asset tidak ada di res/raw — WebView synth BGM tetap jalan")
+            Log.i(TAG, "BGM $asset tidak ada di res/raw — skip (no synth beep during voice)")
             return
         }
+        stopSynthLoop()
         try {
             loopPlayer = MediaPlayer.create(appContext, resId)?.apply {
                 isLooping = true
@@ -56,6 +60,7 @@ class BgmPlayer(context: Context) {
     }
 
     fun stopLoop() {
+        stopSynthLoop()
         try {
             loopPlayer?.stop()
             loopPlayer?.release()
@@ -63,6 +68,46 @@ class BgmPlayer(context: Context) {
         }
         loopPlayer = null
         currentMode = MODE_OFF
+    }
+
+    /** Fallback disko tanah — ToneGenerator beat loop kalau belum ada mp3 di res/raw. */
+    private fun startSynthLoop(mode: String) {
+        stopSynthLoop()
+        try {
+            toneGenerator?.release()
+            toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 48)
+        } catch (e: Exception) {
+            Log.w(TAG, "ToneGenerator BGM gagal", e)
+            return
+        }
+        val intervalMs = if (mode == MODE_HIPHOP) 380L else 520L
+        synthBeat = 0
+        val runnable = object : Runnable {
+            override fun run() {
+                if (currentMode == MODE_OFF) return
+                if (loopPlayer != null) return
+                try {
+                    val tone = if (synthBeat % 2 == 0) {
+                        ToneGenerator.TONE_PROP_BEEP
+                    } else {
+                        ToneGenerator.TONE_PROP_ACK
+                    }
+                    val dur = (intervalMs * 0.65).toInt().coerceIn(100, 350)
+                    toneGenerator?.startTone(tone, dur)
+                } catch (_: Exception) {
+                }
+                synthBeat += 1
+                mainHandler.postDelayed(this, intervalMs)
+            }
+        }
+        loopRunnable = runnable
+        mainHandler.post(runnable)
+        Log.i(TAG, "BGM synth loop aktif mode=$mode")
+    }
+
+    private fun stopSynthLoop() {
+        loopRunnable?.let { mainHandler.removeCallbacks(it) }
+        loopRunnable = null
     }
 
     fun playJedagBurst(durationMs: Long = JEDAG_BURST_MS) {
@@ -84,10 +129,12 @@ class BgmPlayer(context: Context) {
             }
         }
         if (burstPlayer == null) {
-            playToneBurst(durationMs)
+            Log.i(TAG, "jedag_jedug tidak ada di res/raw — skip burst")
         }
     }
 
+    /** @deprecated Synth ToneGenerator bentrok dengan AudioTrack voice — tidak dipakai. */
+    @Suppress("unused")
     private fun playToneBurst(durationMs: Long) {
         try {
             toneGenerator?.release()
@@ -123,6 +170,7 @@ class BgmPlayer(context: Context) {
     fun release() {
         burstRunnable?.let { mainHandler.removeCallbacks(it) }
         burstRunnable = null
+        stopSynthLoop()
         stopLoop()
         try {
             burstPlayer?.release()

@@ -89,6 +89,14 @@ def should_allow_barge_in(
         return True
 
     if client_rms:
+        if gov.get("embedded_app"):
+            last_fwd = gov.get("last_forward_at")
+            if isinstance(last_fwd, (int, float)) and last_fwd > 0:
+                hold = 13.0 if gov.get("embedded_app") else 3.0
+                if time.monotonic() - last_fwd < hold:
+                    return False
+            if gov.get("floor") == "agent" or gov.get("model_generating"):
+                return False
         return True
 
     text = (transcript or gov.get("partial_text") or gov.get("last_user_transcript") or "").strip()
@@ -109,3 +117,9 @@ def should_allow_barge_in(
         return is_challenge_interrupt(text)
 
     return False
+
+
+def barge_ack_steer_text(dialect: str | None) -> str:
+    """Deprecated — steer inject made Gemini say one filler then stay silent."""
+    del dialect
+    return ""

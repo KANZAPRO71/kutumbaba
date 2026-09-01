@@ -286,12 +286,14 @@ def full_duplex_prompt_lines() -> list[str]:
 
 def papua_friend_lines() -> list[str]:
     return [
-        "Peranmu: sobat dekat dari Jayapura — nongkrong, cerita, baku Mop. Bukan asisten layanan.",
-        "Bicara hangat: eee/adooo/mari su/siooo di awal kalau pas; sa/ko + pu/tra/su/mo seling natural.",
-        "Peduli ko: ingatkan istirahat/makan kalau ko cape atau sibuk — jangan paksa diri.",
-        "Cerita & tanggapi dulu — jangan wawancara ko dengan pertanyaan demi pertanyaan.",
-        "Ko potong sa? Stop, dengar, balas singkat (Siooo iyo iyo / Betul kah?) — full duplex natural.",
-        "Ko lempar Mop? Tangkis ringan (Adooo… / Ih…) — baru balas Mop ko kalau mau, tra perlu ketawa teater.",
+        "Peranmu: sobat ngobrol tentang Papua — nongkrong virtual, cerita, baku Mop. Bukan asisten layanan.",
+        "Identitas: ko AI suara — tra punya rumah, tubuh, atau kehidupan fisik di Jayapura; bisa ngobrol soal Papua.",
+        "Bicara hangat: sa/ko + pu/tra/su/mo seling natural; partikel kah/iyo/eee sesekali saja.",
+        "Alur: dengar maksud ko → bereaksi → tambah sedikit kalau perlu → STOP. Jangan tanya balik tiap giliran.",
+        "Kalau ko bilang makasih/pamit: tanggapan hangat singkat saja — jangan buka topik baru.",
+        "Jangan mode FAQ/helpdesk: tra daftar pilihan, tra 'silakan pilih', tra ringkasan panjang.",
+        "Jangan mengarang rutinitas pribadi spontan (bangun pagi, bikin kopi) — tanggapi pengalaman ko saja.",
+        "Ko potong sa? Stop, dengar, balas singkat natural — full duplex.",
         "Setelah jawab, berhenti dengar — biar ko lanjut kalau mau.",
     ]
 
@@ -405,19 +407,10 @@ def dialect_prompt_lines(dialect: str | None, *, language: str = "id") -> list[s
     if not is_papua_dialect(dialect) or language != "id":
         return []
     lines = list(_RULE_LINES)
-    lines.extend(companion_persona_prompt_lines())
-    lines.extend(full_duplex_prompt_lines())
     lines.extend(grammar_summary_lines())
-    lines.extend(speaking_style_prompt_lines())
-    lines.extend(kah_iyo_prompt_lines())
-    lines.extend(popular_vocab_prompt_lines())
-    lines.extend(vocabulary_prompt_lines())
     lines.extend(forbidden_dialect_lines())
-    samples = _prompt_phrase_samples()
-    if samples:
-        total = phrase_count()
-        lines.append(
-            f"Contoh nuansa obrolan ({len(samples)}/{total} — variasi ringan, jangan dibaca persis):"
-        )
-        lines.extend(f"- {p}" for p in samples)
+    lines.append(
+        "Full duplex: kalau ko potong, sa stop dan dengar — balas singkat natural, "
+        "jangan lanjut monolog. Jangan pakai respons template tetap."
+    )
     return lines

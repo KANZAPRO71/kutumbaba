@@ -22,3 +22,19 @@ def test_from_profile_reads_preset() -> None:
     profile = PersonalityProfile(id="t", preset_id="default_companion", display_name="Persona")
     cfg = LiveModeConfig.from_profile(profile)
     assert cfg.mode == "natural"
+    assert cfg.slip_nudge is True
+    assert cfg.slip_nudge_cooldown_s == 90.0
+    assert cfg.persona_refresh_s == 240.0
+
+
+def test_persona_refresh_from_dict() -> None:
+    cfg = LiveModeConfig.from_dict({"mode": "natural", "persona_refresh_s": 0})
+    assert cfg.persona_refresh_s == 0.0
+
+
+def test_slip_nudge_from_dict() -> None:
+    cfg = LiveModeConfig.from_dict(
+        {"mode": "natural", "slip_nudge": False, "slip_nudge_cooldown_s": 120}
+    )
+    assert cfg.slip_nudge is False
+    assert cfg.slip_nudge_cooldown_s == 120.0

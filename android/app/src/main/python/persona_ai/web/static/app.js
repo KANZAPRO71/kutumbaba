@@ -11,7 +11,9 @@ const btnSend = document.getElementById("btnSend");
 const btnClose = document.getElementById("btnClose");
 const btnCall = document.getElementById("btnCall");
 const voiceSelect = document.getElementById("voiceSelect");
+const voicePickerList = document.getElementById("voicePickerList");
 const bgmSelect = document.getElementById("bgmSelect");
+const bgmPickerList = document.getElementById("bgmPickerList");
 const btnEndCall = document.getElementById("btnEndCall");
 const panel = document.getElementById("panel");
 const statusDot = document.getElementById("statusDot");
@@ -50,11 +52,6 @@ const settingsMopCount = document.getElementById("settingsMopCount");
 const settingsMopPreview = document.getElementById("settingsMopPreview");
 const settingsKamusCount = document.getElementById("settingsKamusCount");
 const settingsKamusPreview = document.getElementById("settingsKamusPreview");
-const settingsDeveloperCredit = document.getElementById("settingsDeveloperCredit");
-const settingsMemoryCount = document.getElementById("settingsMemoryCount");
-const settingsMemoryList = document.getElementById("settingsMemoryList");
-const settingsMemoryInput = document.getElementById("settingsMemoryInput");
-const btnMemoryAdd = document.getElementById("btnMemoryAdd");
 /* PROSODY_SIM_STORAGE_KEY + BGM_STORAGE_KEY — dari live.js (load lebih dulu) */
 const simPitch = document.getElementById("simPitch");
 const simMopFreq = document.getElementById("simMopFreq");
@@ -64,6 +61,14 @@ const simMopVal = document.getElementById("simMopVal");
 
 const SESSION_STORAGE_KEY = "persona_session_id";
 const VOICE_STORAGE_KEY = "persona_live_voice";
+/* BGM_STORAGE_KEY — dari live.js (load lebih dulu) */
+const BGM_OPTIONS = [
+  { value: "off", label: "Mati — tanpa BGM (disarankan untuk voice)" },
+  { value: "disko_tanah", label: "Disko Tanah — pelan ala tongkrongan" },
+  { value: "hiphop_papua", label: "Hip-Hop Papua — tempo cepat" },
+];
+let cachedLiveVoices = null;
+let cachedDefaultVoice = "Sulafat";
 const BYOK_STORAGE_KEY = "persona_gemini_api_key";
 const ONBOARDING_KEY = "persona_onboarding_v2";
 const ONBOARDING_STEPS = 4;
@@ -303,6 +308,8 @@ function setVoiceUi(active) {
   voiceBars.classList.remove("agent-talking", "user-turn");
   if (voiceTimer) voiceTimer.textContent = "0:00";
   if (voiceSelect) voiceSelect.disabled = active;
+  voicePickerList?.classList.toggle("is-disabled", active);
+  bgmPickerList?.classList.toggle("is-disabled", active);
   if (!active) {
     statusDot.classList.remove("call-active");
     setCompanionOrbState("idle");
@@ -611,84 +618,6 @@ async function loadKamusPreview() {
   }
 }
 
-const MEMORY_TYPE_LABELS = {
-  semantic: "fakta",
-  preference: "suka/tidak suka",
-  episodic: "obrolan lalu",
-  manual: "ko simpan",
-};
-
-function renderMemoryList(items) {
-  if (!settingsMemoryList) return;
-  settingsMemoryList.innerHTML = "";
-  if (!items.length) {
-    const li = document.createElement("li");
-    li.className = "settings-memory-empty";
-    li.textContent = "Belum ada ingatan — bilang \"ingat ya, …\" pas ngobrol atau tambah manual.";
-    settingsMemoryList.appendChild(li);
-    return;
-  }
-  for (const item of items) {
-    const li = document.createElement("li");
-    li.className = "settings-memory-item";
-    const label = MEMORY_TYPE_LABELS[item.memory_type] || item.memory_type;
-    const text = document.createElement("span");
-    text.className = "settings-memory-text";
-    text.textContent = `[${label}] ${item.content}`;
-    const del = document.createElement("button");
-    del.type = "button";
-    del.className = "btn-memory-delete";
-    del.setAttribute("aria-label", "Hapus ingatan");
-    del.textContent = "×";
-    del.dataset.memoryId = item.id;
-    li.appendChild(text);
-    li.appendChild(del);
-    settingsMemoryList.appendChild(li);
-  }
-}
-
-async function loadUserMemories() {
-  if (!settingsMemoryCount && !settingsMemoryList) return;
-  try {
-    const res = await fetch("/api/memory");
-    const data = await res.json();
-    if (!res.ok) throw new Error("memory failed");
-    const items = Array.isArray(data.memories) ? data.memories : [];
-    if (settingsMemoryCount) {
-      settingsMemoryCount.textContent = items.length
-        ? `${items.length} ingatan tersimpan di HP ko`
-        : "Belum ada ingatan tersimpan";
-    }
-    renderMemoryList(items);
-  } catch {
-    if (settingsMemoryCount) settingsMemoryCount.textContent = "Tra bisa muat ingatan sekarang";
-    if (settingsMemoryList) {
-      settingsMemoryList.innerHTML = "<li class=\"settings-memory-empty\">Coba buka lagi nanti.</li>";
-    }
-  }
-}
-
-async function addUserMemory(content) {
-  const trimmed = (content || "").trim();
-  if (trimmed.length < 2) return false;
-  const res = await fetch("/api/memory", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content: trimmed, memory_type: "manual" }),
-  });
-  if (!res.ok) return false;
-  if (settingsMemoryInput) settingsMemoryInput.value = "";
-  await loadUserMemories();
-  return true;
-}
-
-async function deleteUserMemory(memoryId) {
-  if (!memoryId) return;
-  const res = await fetch(`/api/memory/${encodeURIComponent(memoryId)}`, { method: "DELETE" });
-  if (!res.ok) return;
-  await loadUserMemories();
-}
-
 function loadProsodySimSettings() {
   try {
     const raw = localStorage.getItem(PROSODY_SIM_STORAGE_KEY);
@@ -749,10 +678,13 @@ function openSettings() {
   }
   initProsodySimControls();
   populateBgmOptions();
+  if (cachedLiveVoices?.length) {
+    renderVoicePickerList();
+  } else {
+    void loadHealth();
+  }
+  renderBgmPickerList();
   updateSettingsKeyStatus();
-  void loadMopPreview();
-  void loadKamusPreview();
-  void loadUserMemories();
   settingsError?.classList.add("hidden");
   if (settingsError) {
     settingsError.textContent = "Key tra valid — cek lagi ya ko.";
@@ -777,6 +709,14 @@ async function saveSettings() {
   if (voiceSelect?.value) {
     try {
       localStorage.setItem(VOICE_STORAGE_KEY, voiceSelect.value);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  if (bgmSelect?.value) {
+    try {
+      localStorage.setItem(BGM_STORAGE_KEY, bgmSelect.value);
     } catch {
       /* ignore */
     }
@@ -812,6 +752,8 @@ function selectedVoiceName() {
 
 function populateVoiceOptions(voices, defaultVoice) {
   if (!voiceSelect || !Array.isArray(voices) || !voices.length) return;
+  cachedLiveVoices = voices;
+  cachedDefaultVoice = defaultVoice || voices[0]?.name || "Sulafat";
   const saved = localStorage.getItem(VOICE_STORAGE_KEY);
   voiceSelect.innerHTML = "";
   for (const v of voices) {
@@ -820,21 +762,102 @@ function populateVoiceOptions(voices, defaultVoice) {
     opt.textContent = `${v.name} — ${v.style.toLowerCase()}`;
     voiceSelect.appendChild(opt);
   }
-  const pick = saved || defaultVoice || voices[0].name;
+  const pick = saved || cachedDefaultVoice || voices[0].name;
   if ([...voiceSelect.options].some((o) => o.value === pick)) {
     voiceSelect.value = pick;
+  }
+  renderVoicePickerList();
+}
+
+function setSelectedVoice(name) {
+  if (!name) return;
+  if (voiceSelect && [...voiceSelect.options].some((o) => o.value === name)) {
+    voiceSelect.value = name;
+  }
+  try {
+    localStorage.setItem(VOICE_STORAGE_KEY, name);
+  } catch {
+    /* ignore */
+  }
+  voicePickerList?.querySelectorAll(".settings-picker-option[data-voice]").forEach((el) => {
+    el.classList.toggle("is-selected", el.dataset.voice === name);
+    el.setAttribute("aria-selected", el.dataset.voice === name ? "true" : "false");
+  });
+}
+
+function renderVoicePickerList() {
+  if (!voicePickerList) return;
+  const voices = cachedLiveVoices;
+  if (!Array.isArray(voices) || !voices.length) {
+    voicePickerList.innerHTML =
+      '<p class="settings-picker-empty">Memuat daftar suara…</p>';
+    return;
+  }
+  const current = selectedVoiceName();
+  voicePickerList.innerHTML = "";
+  for (const v of voices) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "settings-picker-option";
+    btn.dataset.voice = v.name;
+    btn.textContent = `${v.name} — ${v.style.toLowerCase()}`;
+    btn.setAttribute("role", "option");
+    btn.setAttribute("aria-selected", v.name === current ? "true" : "false");
+    if (v.name === current) btn.classList.add("is-selected");
+    btn.addEventListener("click", () => setSelectedVoice(v.name));
+    voicePickerList.appendChild(btn);
   }
 }
 
 function selectedBgmMode() {
-  return bgmSelect?.value || localStorage.getItem(BGM_STORAGE_KEY) || "disko_tanah";
+  return bgmSelect?.value || localStorage.getItem(BGM_STORAGE_KEY) || "off";
 }
 
 function populateBgmOptions() {
   if (!bgmSelect) return;
-  const saved = localStorage.getItem(BGM_STORAGE_KEY) || "disko_tanah";
+  const saved = localStorage.getItem(BGM_STORAGE_KEY) || "off";
   if ([...bgmSelect.options].some((o) => o.value === saved)) {
     bgmSelect.value = saved;
+  }
+  try {
+    localStorage.setItem(BGM_STORAGE_KEY, bgmSelect.value || saved);
+  } catch {
+    /* ignore */
+  }
+  renderBgmPickerList();
+}
+
+function setSelectedBgm(mode) {
+  if (!mode) return;
+  if (bgmSelect && [...bgmSelect.options].some((o) => o.value === mode)) {
+    bgmSelect.value = mode;
+  }
+  try {
+    localStorage.setItem(BGM_STORAGE_KEY, mode);
+  } catch {
+    /* ignore */
+  }
+  bgmPickerList?.querySelectorAll(".settings-picker-option[data-bgm]").forEach((el) => {
+    el.classList.toggle("is-selected", el.dataset.bgm === mode);
+    el.setAttribute("aria-selected", el.dataset.bgm === mode ? "true" : "false");
+  });
+}
+
+function renderBgmPickerList() {
+  if (!bgmPickerList) return;
+  const current = selectedBgmMode();
+  bgmPickerList.innerHTML = "";
+  for (const opt of BGM_OPTIONS) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "settings-picker-option";
+    btn.dataset.bgm = opt.value;
+    btn.textContent = opt.label;
+    btn.setAttribute("role", "option");
+    btn.setAttribute("aria-selected", opt.value === current ? "true" : "false");
+    if (opt.value === current) btn.classList.add("is-selected");
+    btn.addEventListener("click", () => setSelectedBgm(opt.value));
+    bgmPickerList.appendChild(btn);
   }
 }
 
@@ -843,7 +866,11 @@ voiceSelect?.addEventListener("change", () => {
 });
 
 bgmSelect?.addEventListener("change", () => {
-  localStorage.setItem(BGM_STORAGE_KEY, bgmSelect.value);
+  try {
+    localStorage.setItem(BGM_STORAGE_KEY, bgmSelect.value);
+  } catch {
+    /* ignore */
+  }
 });
 
 function setLiveIndicator(on) {
@@ -1112,9 +1139,6 @@ function bindPanelActions() {
     btnEndCall() {
       void endCallUi();
     },
-    btnMemoryAdd() {
-      void addUserMemory(settingsMemoryInput?.value || "");
-    },
   };
   const pending = window.__personaPendingTaps;
   if (Array.isArray(pending) && pending.length) {
@@ -1160,20 +1184,6 @@ settings?.addEventListener("click", (e) => {
   if (e.target === settings) closeSettings();
 });
 
-btnMemoryAdd?.addEventListener("click", () => {
-  void addUserMemory(settingsMemoryInput?.value || "");
-});
-settingsMemoryInput?.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    void addUserMemory(settingsMemoryInput?.value || "");
-  }
-});
-settingsMemoryList?.addEventListener("click", (e) => {
-  const btn = e.target.closest(".btn-memory-delete");
-  if (!btn?.dataset?.memoryId) return;
-  void deleteUserMemory(btn.dataset.memoryId);
-});
 settingsApiKey?.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
@@ -1228,10 +1238,6 @@ async function loadHealth() {
     defaultLanguage = data.default_language || "id-ID";
     populateVoiceOptions(data.live_voices, data.default_voice);
     populateBgmOptions();
-    if (settingsDeveloperCredit && data.developer_name) {
-      const role = data.developer_role ? ` — ${data.developer_role}` : "";
-      settingsDeveloperCredit.textContent = `${data.developer_name}${role}`;
-    }
     if (!serverReady && clientReady && isEmbeddedApp) {
       await ensureByokFromStorage();
     }

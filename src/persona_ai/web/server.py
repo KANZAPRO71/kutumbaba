@@ -53,7 +53,6 @@ from persona_ai.web.webhook_config import LiveWebhookConfig
 from persona_ai.web.webhook_delivery import deliver_webhook_event, sample_test_call
 from persona_ai.memory.engine import (
     add_memory,
-    commit_from_text,
     delete_memory,
     list_memories,
     memory_storage_path,
@@ -440,7 +439,6 @@ def chat(body: ChatRequest) -> ChatResponse:
             channel="text",
             response_policy=LIVE_RESPONSE_POLICY,
         )
-        commit_from_text(body.message, session_id=body.session_id)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 

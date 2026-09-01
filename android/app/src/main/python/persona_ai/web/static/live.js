@@ -9,7 +9,7 @@ const WS_TIMEOUT_MS = 30000;
 /** ~100 ms PCM @ 16 kHz — keeps WS/Gemini load sane vs AudioWorklet 128-sample quanta. */
 const MIC_BATCH_SAMPLES = 1600;
 /** Playback safety margin — absorbs WS/network jitter between audio chunks. */
-const PLAYBACK_LOOKAHEAD_S = 0.18;
+const PLAYBACK_LOOKAHEAD_S = 0.10;
 const PLAYBACK_UNDERRUN_SLIP_S = 0.012;
 const MIN_PLAYABLE_PCM_BYTES = 480; // ~10 ms @ 24 kHz mono s16le
 const BARGE_IN_SUSTAINED_FRAMES = 36;
@@ -29,6 +29,8 @@ const MOBILE_BARGE_TIGHTEN = {
   cooldown_add_ms: 120,
   min_rms: 0.052,
 };
+const MOBILE_MIC_TAIL_MS = 700;
+const SOFT_BARGE_DUCK_MS = 480;
 const DROP_AGENT_AUDIO_MS = 450;
 const IGNORE_AGENT_FLOOR_MS = 900;
 const SMART_BARGE_MIN_MS = 800;
@@ -115,7 +117,7 @@ class TongkronganBgm {
     if (!this.ctx) return;
     if (!this.loopGain) {
       this.loopGain = this.ctx.createGain();
-      this.loopGain.gain.value = 0.08;
+      this.loopGain.gain.value = 0.15;
       this.loopGain.connect(this.ctx.destination);
     }
     if (!this.burstGain) {
@@ -184,7 +186,7 @@ class TongkronganBgm {
     if (!this.ctx || !gainNode) return;
     const osc = this.ctx.createOscillator();
     const env = this.ctx.createGain();
-    osc.type = "square";
+    osc.type = "sine";
     osc.frequency.value = freq;
     env.gain.setValueAtTime(0.0001, when);
     env.gain.exponentialRampToValueAtTime(Math.max(volume, 0.001), when + 0.008);
@@ -217,9 +219,9 @@ function loadBgmMode() {
     const raw = localStorage.getItem(BGM_STORAGE_KEY);
     if (raw === BGM_MODES.disko || raw === BGM_MODES.hiphop) return raw;
     if (raw === "off") return BGM_MODES.off;
-    return BGM_MODES.disko;
+    return BGM_MODES.off;
   } catch {
-    return BGM_MODES.disko;
+    return BGM_MODES.off;
   }
 }
 
@@ -310,10 +312,12 @@ class GeminiLiveCall {
     this._micBatch = new Float32Array(0);
     this._micFallbackTimer = null;
     this._micAfterPlaybackTimer = null;
+    this._duckTimer = null;
     this._inputRate = INPUT_RATE;
     this._dropAgentAudioUntil = 0;
     this._ignoreAgentFloorUntil = 0;
     this._floor = "user";
+    this._naturalS2S = true;
     this._callTimer = null;
     this._callSeconds = 0;
     this._agentTalking = false;
@@ -410,6 +414,7 @@ class GeminiLiveCall {
         };
         if (IS_EMBEDDED_APP) {
           sessionPayload.dialect = "papua";
+          sessionPayload.embedded_app = true;
           const sim = loadProsodySim();
           if (sim) sessionPayload.papua_prosody_sim = sim;
         }
@@ -486,12 +491,35 @@ class GeminiLiveCall {
     this._keypadListener = null;
   }
 
-  _flushPlayback() {
+  _restorePlaybackGain() {
+    if (this._duckTimer) {
+      clearTimeout(this._duckTimer);
+      this._duckTimer = null;
+    }
+    if (!this.playGain || !this.audioCtx) return;
+    const t = this.audioCtx.currentTime;
+    this.playGain.gain.cancelScheduledValues(t);
+    this.playGain.gain.setValueAtTime(1, t);
+    this.playGain.gain.value = 1;
+  }
+
+  _ensureFullPlaybackGain() {
+    if (!this.playGain || !this.audioCtx) return;
+    const v = this.playGain.gain.value;
+    if (v >= 0.98 && !this._duckTimer) return;
+    this._restorePlaybackGain();
+  }
+
+  _flushPlayback({ soft = false } = {}) {
     this.playTime = 0;
     this._bargeInHighFrames = 0;
     this._bargeSpeechSince = 0;
     this._audioQueue = [];
-    this._dropAgentAudioUntil = performance.now() + DROP_AGENT_AUDIO_MS;
+    if (!soft) {
+      this._dropAgentAudioUntil = performance.now() + DROP_AGENT_AUDIO_MS;
+    } else {
+      this._dropAgentAudioUntil = 0;
+    }
     for (const src of this._playbackSources) {
       try {
         src.stop();
@@ -500,10 +528,38 @@ class GeminiLiveCall {
       }
     }
     this._playbackSources.clear();
-    this._agentSpeaking = false;
-    this._agentSpeakingSince = 0;
+    if (!soft) {
+      this._agentSpeaking = false;
+      this._agentSpeakingSince = 0;
+      this._setAgentTalking(false);
+    }
     this._playbackChain = Promise.resolve();
-    this._setAgentTalking(false);
+    this._restorePlaybackGain();
+  }
+
+  _duckPlayback(ms = SOFT_BARGE_DUCK_MS, onDone, { hardCut = false } = {}) {
+    if (this._duckTimer) {
+      clearTimeout(this._duckTimer);
+      this._duckTimer = null;
+    }
+    if (!this.audioCtx || !this.playGain) {
+      if (hardCut) this._flushPlayback({ soft: true });
+      onDone?.();
+      return;
+    }
+    const duckMs = Math.max(120, ms);
+    const t0 = this.audioCtx.currentTime;
+    const duckLevel = hardCut ? 0.05 : 0.35;
+    this.playGain.gain.cancelScheduledValues(t0);
+    this.playGain.gain.setValueAtTime(Math.max(this.playGain.gain.value, 0.2), t0);
+    this.playGain.gain.linearRampToValueAtTime(duckLevel, t0 + duckMs / 2000);
+    this.playGain.gain.linearRampToValueAtTime(1, t0 + duckMs / 1000 + 0.06);
+    this._duckTimer = setTimeout(() => {
+      this._duckTimer = null;
+      if (hardCut) this._flushPlayback({ soft: true });
+      this._restorePlaybackGain();
+      onDone?.();
+    }, duckMs + 80);
   }
 
   _setAgentTalking(active) {
@@ -543,11 +599,17 @@ class GeminiLiveCall {
     this._bargeInHighFrames = 0;
     this._bargeSpeechSince = 0;
     this._ignoreAgentFloorUntil = now + IGNORE_AGENT_FLOOR_MS;
-    this._flushPlayback();
-    this._applyFloor("user", "barge_in");
+    const hasTranscript = Boolean(String(transcript || "").trim());
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({ type: "barge_in", transcript: transcript || "" }));
     }
+    const finish = () => this._applyFloor("user", "barge_in");
+    // HP: echo speaker sering picu RMS barge-in — jangan duck/cut kecuali ada teks jelas.
+    if (IS_EMBEDDED_APP && !hasTranscript) {
+      finish();
+      return;
+    }
+    this._duckPlayback(SOFT_BARGE_DUCK_MS, finish, { hardCut: hasTranscript });
   }
 
   _maybeSmartBargeIn(text, finished) {
@@ -564,17 +626,12 @@ class GeminiLiveCall {
         console.info("[persona smart barge-in]", { text: q.slice(0, 80), duration });
       }
       this._executeBargeIn(q);
-      return;
-    }
-    if (IS_EMBEDDED_APP && finished && words.length >= 3) {
-      if (typeof console !== "undefined" && console.info) {
-        console.info("[persona natural barge-in]", { text: q.slice(0, 80), words: words.length });
-      }
-      this._executeBargeIn(q);
     }
   }
 
   _maybeBargeIn(input) {
+    // HP WebView: RMS barge-in hampir selalu echo speaker — hanya transcript smart barge.
+    if (IS_EMBEDDED_APP) return;
     if (this._floor !== "agent" && !this._agentSpeaking && !this._playbackBusy()) return;
     const now = performance.now();
     const grace = this._voiceConfig.barge_in_grace_ms ?? BARGE_IN_GRACE_MS;
@@ -651,6 +708,7 @@ class GeminiLiveCall {
       await this._connectMicPipeline();
       this._audioReady = true;
       await this._flushAudioQueue();
+      this._enableMicSend("call_started");
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify({ type: "client_ready", session_id: this.sessionId }));
       }
@@ -734,14 +792,17 @@ class GeminiLiveCall {
         }, WS_TIMEOUT_MS);
         this.ws.onopen = () => {
           clearTimeout(timer);
-          this.ws.send(
-            JSON.stringify({
-              type: "session",
-              session_id: this.sessionId,
-              voice_name: this.voiceName,
-              language_code: this.languageCode,
-            })
-          );
+          const sessionPayload = {
+            type: "session",
+            session_id: this.sessionId,
+            voice_name: this.voiceName,
+            language_code: this.languageCode,
+          };
+          if (IS_EMBEDDED_APP) {
+            sessionPayload.dialect = "papua";
+            sessionPayload.embedded_app = true;
+          }
+          this.ws.send(JSON.stringify(sessionPayload));
           resolve();
         };
         this.ws.onerror = () => {
@@ -812,18 +873,30 @@ class GeminiLiveCall {
     this.playGain.gain.value = 1;
     this.playGain.connect(this.audioCtx.destination);
     await this._unlockAudioOutput();
-    this._bgm = new TongkronganBgm(this.audioCtx);
+    this._applyBgmSettings();
+  }
+
+  _applyBgmSettings() {
+    if (!this.audioCtx) return;
     const bgmMode = loadBgmMode();
-    if (bgmMode !== BGM_MODES.off) {
-      this._bgm.setMode(bgmMode);
-      this._bgm.startLoop(bgmMode);
-      if (
-        typeof PersonaAndroid !== "undefined" &&
-        PersonaAndroid.startBgm
-      ) {
-        PersonaAndroid.startBgm(bgmMode);
+    const useNative =
+      typeof PersonaAndroid !== "undefined" && PersonaAndroid.startBgm;
+    if (bgmMode === BGM_MODES.off) {
+      if (this._bgm) this._bgm.setMode(BGM_MODES.off);
+      if (useNative && PersonaAndroid.stopBgm) {
+        PersonaAndroid.stopBgm();
       }
+      return;
     }
+    // Android: one layer only — native mp3 when res/raw has assets (no ToneGenerator).
+    if (useNative) {
+      if (this._bgm) this._bgm.setMode(BGM_MODES.off);
+      PersonaAndroid.startBgm(bgmMode);
+      return;
+    }
+    if (!this._bgm) this._bgm = new TongkronganBgm(this.audioCtx);
+    this._bgm.setMode(bgmMode);
+    this._bgm.startLoop(bgmMode);
   }
 
   async _unlockAudioOutput() {
@@ -879,6 +952,18 @@ class GeminiLiveCall {
       clearTimeout(this._micAfterPlaybackTimer);
       this._micAfterPlaybackTimer = null;
     }
+    if (this._duckTimer) {
+      clearTimeout(this._duckTimer);
+      this._duckTimer = null;
+    }
+    const finish = () => {
+      this._micAfterPlaybackTimer = null;
+      if (!this.active || !this.audioCtx) return;
+      this._agentSpeaking = false;
+      this._agentSpeakingSince = 0;
+      this._setAgentTalking(false);
+      this._enableMicSend("playback_drained");
+    };
     const wait = () => {
       this._micAfterPlaybackTimer = null;
       if (!this.active || !this.audioCtx) return;
@@ -886,10 +971,12 @@ class GeminiLiveCall {
         this._micAfterPlaybackTimer = setTimeout(wait, 40);
         return;
       }
-      this._agentSpeaking = false;
-      this._agentSpeakingSince = 0;
-      this._setAgentTalking(false);
-      this._enableMicSend("playback_drained");
+      if (IS_EMBEDDED_APP) {
+        // One tail delay after agent audio — then re-enable mic (was looping forever).
+        this._micAfterPlaybackTimer = setTimeout(finish, MOBILE_MIC_TAIL_MS);
+        return;
+      }
+      finish();
     };
     wait();
   }
@@ -899,8 +986,9 @@ class GeminiLiveCall {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this._isActive) return;
     // Floor=agent is the echo gate. After barge-in the client yields to user
     // immediately so this speech reaches Gemini instead of being dropped.
-    if (this._floor === "agent") return;
-    if (this._playbackBusy() && this._floor !== "user") return;
+    if (!this._naturalS2S && this._floor === "agent") return;
+    if (IS_EMBEDDED_APP && this._agentSpeaking && this._floor === "agent") return;
+    if (this._playbackBusy()) return;
     const down = downsample(input, this._inputRate, INPUT_RATE);
     if (!down.length) return;
 
@@ -1010,7 +1098,15 @@ class GeminiLiveCall {
   }
 
   _queueOrPlayAudio(msg) {
+    if (!msg?.data) return;
     if (performance.now() < this._dropAgentAudioUntil) return;
+    this._dropAgentAudioUntil = 0;
+    this._ensureFullPlaybackGain();
+    if (!this._agentSpeaking) {
+      this._agentSpeakingSince = performance.now();
+      this._agentSpeaking = true;
+      this._setAgentTalking(true);
+    }
     if (!this._audioReady || !this.audioCtx) {
       this._audioQueue.push(msg);
       return;
@@ -1030,22 +1126,24 @@ class GeminiLiveCall {
       }
       return;
     }
-    this._floor = speaker;
-    if (typeof console !== "undefined" && console.info) {
-      console.info("[persona floor]", speaker, reason || "");
-    }
     if (speaker === "agent") {
-      this._micEnabled = false;
+      this._floor = speaker;
+      if (!this._naturalS2S) {
+        this._micEnabled = false;
+      }
       if (!this._agentSpeaking) this._agentSpeakingSince = performance.now();
       this._agentSpeaking = true;
-      this._setAgentTalking(true);
       return;
     }
-    if (!this._playbackBusy()) {
-      this._agentSpeaking = false;
-      this._agentSpeakingSince = 0;
-      this._setAgentTalking(false);
+    // Keep floor=agent until playback drains — prevents echo ASR on mobile.
+    if (this._playbackBusy()) {
+      this._armMicAfterPlayback();
+      return;
     }
+    this._floor = speaker;
+    this._agentSpeaking = false;
+    this._agentSpeakingSince = 0;
+    this._setAgentTalking(false);
     this._armMicAfterPlayback();
   }
 
@@ -1072,6 +1170,11 @@ class GeminiLiveCall {
         if (msg.voice_config) {
           this._applyVoiceConfig(msg.voice_config);
         }
+        if (msg.live_mode?.mode === "natural") {
+          this._naturalS2S = true;
+        } else if (msg.live_mode?.mode === "governed") {
+          this._naturalS2S = false;
+        }
         if (msg.call_config) {
           this._applyCallConfig(msg.call_config);
         }
@@ -1091,7 +1194,13 @@ class GeminiLiveCall {
         this._applyFloor(msg.speaker, msg.reason);
         break;
       case "interrupt":
-        this._flushPlayback();
+        if (msg.soft) {
+          if (!this._duckTimer) {
+            this._duckPlayback(msg.duck_ms || SOFT_BARGE_DUCK_MS);
+          }
+        } else {
+          this._flushPlayback();
+        }
         break;
       case "mic_enable":
         this._armMicAfterPlayback();
@@ -1136,22 +1245,29 @@ class GeminiLiveCall {
         break;
       case "turn_complete":
         this._bargeInHighFrames = 0;
-    this._bargeSpeechSince = 0;
-        if (this._floor !== "user") this._applyFloor("user", msg.reason || "turn_complete");
-        else this._armMicAfterPlayback();
+        this._bargeSpeechSince = 0;
+        if (this._playbackBusy()) {
+          this._armMicAfterPlayback();
+        } else if (this._floor !== "user") {
+          this._applyFloor("user", msg.reason || "turn_complete");
+        } else {
+          this._armMicAfterPlayback();
+        }
         if (
           msg.laugh_track &&
+          loadBgmMode() !== BGM_MODES.off &&
           typeof PersonaAndroid !== "undefined" &&
           PersonaAndroid.playLaughTrack
         ) {
           PersonaAndroid.playLaughTrack();
         }
-        if (msg.jedag_jedug) {
-          this._bgm?.playJedagBurst(JEDAG_BURST_MS);
+        if (msg.jedag_jedug && loadBgmMode() !== BGM_MODES.off) {
           if (
-            typeof PersonaAndroid !== "undefined" &&
-            PersonaAndroid.playJedagJedug
+            typeof PersonaAndroid === "undefined" ||
+            !PersonaAndroid.playJedagJedug
           ) {
+            this._bgm?.playJedagBurst(JEDAG_BURST_MS);
+          } else {
             PersonaAndroid.playJedagJedug();
           }
         }
@@ -1185,9 +1301,10 @@ class GeminiLiveCall {
 
   async _playPcm(base64, rate) {
     if (!this.audioCtx || !this.playGain || !base64) return;
+    this._ensureFullPlaybackGain();
+    await this._ensureAudioReady();
     const bytes = base64ToArrayBuffer(base64);
     if (bytes.byteLength < MIN_PLAYABLE_PCM_BYTES) return;
-    await this._ensureAudioReady();
     const samples = new Int16Array(bytes);
     const floats = new Float32Array(samples.length);
     for (let i = 0; i < samples.length; i++) {
@@ -1257,6 +1374,10 @@ class GeminiLiveCall {
     if (this._micAfterPlaybackTimer) {
       clearTimeout(this._micAfterPlaybackTimer);
       this._micAfterPlaybackTimer = null;
+    }
+    if (this._duckTimer) {
+      clearTimeout(this._duckTimer);
+      this._duckTimer = null;
     }
     this._flushPlayback();
 

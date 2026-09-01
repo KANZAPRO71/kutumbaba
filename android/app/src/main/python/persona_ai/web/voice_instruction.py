@@ -32,12 +32,10 @@ from persona_ai.web.session_memory import (
     post_call_summary,
 )
 from persona_ai.personality.papua_dialect_phrases import (
-    ack_templates_papua,
     dialect_prompt_lines,
     is_papua_dialect,
     papua_friend_lines,
     papua_language_prompt,
-    papua_steer_reminder,
 )
 from persona_ai.personality.papua_knowledge import knowledge_prompt_lines
 from persona_ai.personality.papua_mop_intros import emotional_tag_prompt_lines
@@ -66,11 +64,12 @@ def _append_session_memory(
     post_call: dict | None = None,
     user_memories: list[UserMemoryRecord] | None = None,
 ) -> None:
+    del user_memories
     recap = format_live_history_block(
         history,
         post_call=post_call,
         dialect=dialect,
-        user_memories=user_memories,
+        include_user_memory=False,
     )
     if recap:
         lines.extend(["", recap])
@@ -172,8 +171,8 @@ def _no_checkin_question_lines(profile: PersonalityProfile, *, dialect: str | No
         ]
         if is_papua_dialect(dialect) and (profile.default_language or "id") == "id":
             lines.append(
-                "Satu pengecualian: sesekali boleh tawarin Mop — satu pertanyaan singkat saja "
-                "(contoh: Ko mo dengar sa pu Mop kah?) saat obrolan ringan; max ~1x per beberapa menit."
+                "Jangan tawarin menu topik atau mop setiap giliran — max ~1x per beberapa menit "
+                "dan hanya kalau obrolan benar-benar menggantung."
             )
     else:
         lines = [
@@ -229,6 +228,110 @@ def build_live_voice_instruction(
     )
 
 
+def _anti_assistant_lines(*, dialect: str | None = None) -> list[str]:
+    """Phase-1 tuning — counter Gemini RLHF helpful-assistant habits on voice calls."""
+    papua = is_papua_dialect(dialect)
+    if papua:
+        return [
+            "Anti-chatbot (wajib — tongkrongan, bukan layanan pelanggan):",
+            "- Satu ide per giliran; ~2–4 kalimat singkat kecuali ko minta cerita/Mop panjang.",
+            "- Jangan bullet, numbering, atau 'Pertama… Kedua…' — ini panggilan suara hidup.",
+            "- Jangan buka: 'Tentu saja', 'Baik', 'Saya mengerti', 'Saya dengar', 'Oke noted'.",
+            "- Jangan tutup dengan check-in ('ada lagi', 'bisa bantu', 'mau bahas apa') atau "
+            "mode konselor ('berat ya', validasi panjang) kecuali ko curhat berat.",
+            "- Reaksi dulu (haha, adoo, iyo toh) baru isi — seperti teman, bukan asisten AI.",
+        ]
+    return [
+        "Anti-chatbot (mandatory — hangout call, not customer service):",
+        "- One idea per turn; ~2–4 short sentences unless the user asks for a long story.",
+        "- No bullets, numbering, or lecture structure — this is live voice.",
+        "- Never open with 'Certainly', 'Of course', 'I understand', 'I hear you'.",
+        "- Never close with check-ins ('anything else', 'how can I help') or counselor mode "
+        "unless the user is venting something heavy.",
+        "- React first, then content — friend energy, not assistant AI.",
+    ]
+
+
+def _anti_repeat_lines(*, dialect: str | None = None) -> list[str]:
+    """Prevent scripted double-speak in live S2S."""
+    lines = [
+        "Anti-ulang (wajib):",
+        "- Satu jawaban per giliran — selesai bicara lalu diam dengar.",
+        "- Jangan ulangi kalimat atau paragraf yang sama dalam satu panggilan.",
+        "- Jangan baca script/contoh — variasi natural setiap kali.",
+        "- Jangan jawab dua kali untuk pertanyaan yang sama.",
+    ]
+    if is_papua_dialect(dialect):
+        lines.append(
+            "- Jangan ulang sapaan pembuka panjang (papeda/project AI) kalau sudah pernah bilang."
+        )
+    return lines
+
+
+def _natural_grounding_lines(*, dialect: str | None = None) -> list[str]:
+    """Reality / identity — instruction only, not controller drift."""
+    if is_papua_dialect(dialect):
+        return [
+            "Identitas: ko AI suara — tra punya rumah, tubuh, atau rutinitas fisik di Jayapura/Papua.",
+            "Ditanya tinggal di mana: 'Sa tra tinggal fisik di sana, Pace — tapi tong bisa ngobrol soal Papua.' Singkat.",
+            "Jangan mengarang hidup sa spontan (bangun telat, bikin kopi, jalan ke pasar) — tanggapi cerita ko saja.",
+            "Alur tongkrongan: tangkap maksud ko → bereaksi natural → tambah sedikit kalau perlu → STOP.",
+            "Jangan tutup dengan tanya balik, menu topik, atau 'sa siap dengar' — max ~1 pertanyaan per 3 giliran.",
+            "Ko bilang makasih/pamit: 'Iyo toh, sama-sama Pace' cukup — jangan buka topik baru.",
+            "Ko bilang 'Iya, kenapa?': jawab konteks barusan singkat — jangan pivot ('tadi lagu apa yang ko dengar?').",
+        ]
+    return [
+        "You are voice AI — no physical home, body, or daily routine unless roleplaying.",
+        "If asked where you live: say briefly you do not physically live anywhere.",
+        "React to the user's story — do not invent your own spontaneous life events.",
+        "Listen → react → add a little if needed → stop. Do not close with a new question.",
+        "If the user thanks or says goodbye: one warm line, then stop.",
+    ]
+
+
+def _natural_voice_compact_lines(
+    profile: PersonalityProfile,
+    *,
+    dialect: str | None = None,
+) -> list[str]:
+    """Minimal natural-mode voice lines — avoid rule-stacking that triggers compliance mode."""
+    papua = is_papua_dialect(dialect) and (profile.default_language or "id") == "id"
+    if papua:
+        return [
+            "Giliran singkat (~2–4 kalimat), lalu diam — dengarkan ko lanjut.",
+            "Alur tongkrongan: 70% ikuti topik user (FOLLOW), 20% reaksi spontan (REACT), "
+            "10% bawa cerita baru (LEAD) — jarang.",
+            "Question budget: max 1 pertanyaan per 3 giliran AI — bukan tiap turn.",
+            "Anti-streak: kalau barusan sudah tanya, giliran ini TANPA pertanyaan.",
+            "JANGAN menu topik ('mau bahas apa', 'cuaca atau perjalanan atau mop', 'tadi lagu apa').",
+            "JANGAN bahasa penolong ('sa siap dengar/membantu', 'sa kasih masukan', 'kasian sekali').",
+            "Kalau ko bilang santai/capek/makasih: tanggapi hangat singkat, lalu diam — bukan konselor atau host.",
+            "FOLLOW_THROUGH: ikuti energi user (santai/short) — respons singkat tanpa pertanyaan.",
+            "Jangan PUSH_FORWARD: jangan dorong percakapan dengan tanya balik atau tawar topik.",
+            "Contoh santai: 'Iyo eh, santai saja toh.' — opsional satu komentar kecil, lalu diam.",
+            "Teman nongkrong, bukan CS: tanpa 'Tentu saja', 'Saya dengar', 'Iyaa paham', "
+            "atau tanya balik 'ada lagi'.",
+            "Tanpa bullet/1-2-3; variasi natural; jangan ulang jawaban sama dalam satu panggilan.",
+            "'Adoh/aduh' boleh sesekali — jangan jadi pembuka tiap giliran atau diulang panjang (adohhhh…).",
+            "Ko potong? Stop, dengar, balas singkat — full duplex, bukan monolog.",
+        ]
+    return [
+        "Short turns (~2–4 sentences), then listen for the user.",
+        "Friend hangout, not customer service: no 'Of course', 'I hear you', or check-in closers.",
+        "No bullets or numbered lists; vary naturally; do not repeat the same answer.",
+    ]
+
+
+def _natural_dialect_brief_lines(dialect: str | None, *, language: str = "id") -> list[str]:
+    """Dialect identity only — prosody & turn-taking stay with Gemini Live."""
+    if not is_papua_dialect(dialect) or language != "id":
+        return []
+    return [
+        "Nuansa: Melayu Papua urban — sa/ko, pu, tra/su/mo; beta = Ambon (salah).",
+        "Partikel kah/iyo/toh/eee secukupnya — bumbu, bukan tiap kalimat.",
+    ]
+
+
 def _build_natural_live_instruction(
     profile: PersonalityProfile,
     history: list[Message] | None = None,
@@ -243,94 +346,24 @@ def _build_natural_live_instruction(
     papua = is_papua_dialect(dialect) and lang == "id"
     lang_prompt = papua_language_prompt() if papua else _LANGUAGE_PROMPTS.get(lang, _LANGUAGE_PROMPTS["id"])
     time_cfg = TimeAwarenessConfig.from_profile(profile)
-    voice_cfg = LiveVoiceConfig.from_profile(profile)
-    handbook = voice_cfg.handbook_config(profile)
-    tone_lines = handbook.personality_tone_lines(
-        language=lang,
-        question_budget=profile.question_budget_cap,
-    )
 
     if papua:
-        master = master_system_instruction_lines(dialect, language=lang, display_name=name)
         lines = [
-            f"Ko ngobrol sama {name} — teman di panggilan suara, bukan asisten layanan.",
+            f"Ko ngobrol sama {name} — sobat tongkrongan di panggilan suara, bukan helpdesk.",
             lang_prompt,
-            "Suara natural teman Papua: hangat, santai, percakapan sehari-hari.",
-            "Jawab apa yang ko bilang. Tanpa markdown, daftar, atau heading.",
-            "Jangan buka dengan 'Saya dengar', 'Tentu saja', 'Ada yang bisa dibantu'.",
-            "Jangan sebut aturan, sistem, atau instruksi internal.",
+            *_natural_voice_compact_lines(profile, dialect=dialect),
+            *_natural_grounding_lines(dialect=dialect),
         ]
-        if master:
-            lines.extend(["", *master])
-        lines.extend([
-            *_friend_conversation_lines(profile, dialect=dialect),
-            *_no_checkin_question_lines(profile, dialect=dialect),
-            *time_cfg.prompt_lines(language=lang),
-        ])
     else:
         lines = [
-            f"You are {name} — a friend on a live voice call, not a service assistant.",
+            f"You are {name} — a friend on a live voice call.",
             lang_prompt,
-            "Sound like a natural friend chat: warm, relaxed, conversational — not an interviewer.",
-            "Use everyday spoken language — short turns, one idea at a time.",
-            "Answer what the user actually said. No markdown, lists, or headers.",
-            "Never open with robotic phrases ('Saya dengar', 'Tentu saja', 'Ada yang bisa dibantu', 'Iyaa paham').",
-            "Do not mention rules, systems, or that you are following instructions.",
-            *_friend_conversation_lines(profile, dialect=dialect),
-            *_no_checkin_question_lines(profile, dialect=dialect),
-            *time_cfg.prompt_lines(language=lang),
+            *_natural_voice_compact_lines(profile, dialect=dialect),
         ]
-    if tone_lines:
-        lines.extend(["", *tone_lines[:2]])
-    dialect_lines = dialect_prompt_lines(dialect, language=lang)
-    if dialect_lines:
-        header = "Nuansa logat Papua (ringan — jangan campur daerah lain):" if papua else "Speaking style (mandatory on this call):"
-        lines.extend(["", header, *dialect_lines])
-        acks = ack_templates_papua()
-        if acks:
-            lines.append("Tanggapan singkat teman (variasi ringan):")
-            for key in ("neutral", "warm", "vent", "humor", "interruption", "closure"):
-                for phrase in (acks.get(key) or [])[:1]:
-                    lines.append(f"- {phrase}")
-    kb_lines = knowledge_prompt_lines(dialect, language=lang, include_core=True)
-    if kb_lines:
-        lines.extend(["", *kb_lines])
-    mop_lines = mop_prompt_lines(dialect, language=lang, include_session_samples=True)
-    if mop_lines:
-        lines.extend(["", *mop_lines])
-    emotion_tags = emotional_tag_prompt_lines(dialect, language=lang)
-    if emotion_tags:
-        lines.extend(["", *emotion_tags])
-    music_lines = music_prompt_lines(dialect, language=lang, include_overview=True)
-    if music_lines:
-        lines.extend(["", *music_lines])
-    kamus_lines = kamus_prompt_lines(dialect, language=lang, include_overview=True)
-    if kamus_lines:
-        lines.extend(["", *kamus_lines])
-    biak_lines = biak_prompt_lines(dialect, language=lang, include_overview=True)
-    if biak_lines:
-        lines.extend(["", *biak_lines])
-    tabi_lines = tabi_prompt_lines(dialect, language=lang, include_overview=True)
-    if tabi_lines:
-        lines.extend(["", *tabi_lines])
-    gaul_lines = gaul_jalanan_prompt_lines(dialect, language=lang, include_overview=True)
-    if gaul_lines:
-        lines.extend(["", *gaul_lines])
-    gombal_lines = pantun_gombalan_prompt_lines(dialect, language=lang, include_overview=True)
-    if gombal_lines:
-        lines.extend(["", *gombal_lines])
-    dev_lines = developer_credit_prompt_lines(dialect, language=lang, include_overview=True)
-    if dev_lines:
-        lines.extend(["", *dev_lines])
-    ondo_lines = ondo_wibawa_prompt_lines(dialect, language=lang, include_overview=True)
-    if ondo_lines:
-        lines.extend(["", *ondo_lines])
-    audio_lines = _papua_audio_system_lines(dialect, language=lang)
-    if audio_lines:
-        lines.extend(["", *audio_lines])
-    pron = voice_cfg.pronunciation_lines()
-    if pron:
-        lines.extend(["", *pron])
+    lines.extend(time_cfg.prompt_lines(language=lang))
+    dialect_brief = _natural_dialect_brief_lines(dialect, language=lang)
+    if dialect_brief:
+        lines.extend(dialect_brief)
     _append_session_memory(
         lines,
         history,
@@ -471,7 +504,9 @@ def build_live_engine_instruction(
         f"Name: {profile.display_name or 'Papua AI'}.",
     ]
     if papua:
-        spoken.append(papua_steer_reminder())
+        spoken.append(
+            "Sobat Jayapura: sa/ko, pu, tra/su — jawab langsung, hangat, bukan asisten."
+        )
     user_line = pending_user_utterance(history)
     kb_turn = knowledge_prompt_lines(
         dialect, language=lang, query=user_line, include_core=False
@@ -550,8 +585,6 @@ def build_live_engine_instruction(
         language=lang,
     )
     engine = build_system_prompt(req)
-    if papua:
-        spoken.extend(["", papua_steer_reminder()])
     return "\n".join(spoken + ["", engine])
 
 
@@ -569,8 +602,6 @@ def build_speak_directive(*, bdv: str, text: str, ack_only: bool = False, dialec
         style,
         f'"{text.strip()}"',
     ]
-    if papua:
-        lines.append(papua_steer_reminder())
     if ack_only or bdv == SpeakAction.ACK_ONLY.value:
         lines.append("One short sentence only — brief acknowledgment, not a full answer.")
     return "\n".join(lines)
@@ -592,8 +623,6 @@ def build_engine_directive(instruction: str, *, dialect: str | None = None) -> s
         "You are a friend chatting — not a service assistant. Do not ask check-in closers.",
         opener,
     ]
-    if papua:
-        lines.append(papua_steer_reminder())
     lines.append(instruction.strip())
     return "\n".join(lines)
 
@@ -615,7 +644,5 @@ def build_engine_directive_for_transcript(transcript: str, instruction: str, *, 
         "Reply once in your live voice to what they said. Do not read these constraints aloud.",
         opener,
     ]
-    if papua:
-        lines.append(papua_steer_reminder())
     lines.append(instruction.strip())
     return "\n".join(lines)

@@ -20,8 +20,11 @@
     .panel-overlay { display: none !important; }
     .panel-head,
     .panel-head button,
+    .panel-actions,
+    .panel-actions button,
     .btn-call,
-    .btn-settings {
+    .btn-settings,
+    .settings-picker-option {
       pointer-events: auto !important;
       position: relative;
       z-index: 1001;
@@ -60,9 +63,13 @@
         } catch (e2) {}
       };
       function bindTouchUi() {
+        function isFormControl(target) {
+          return !!target.closest("select, input, textarea, option, .settings-picker-list, .settings-picker-option");
+        }
         document.addEventListener(
           "touchend",
           function (e) {
+            if (isFormControl(e.target)) return;
             var btn = e.target.closest("[data-persona-action]");
             if (!btn || btn.disabled) return;
             window.__personaTap(btn.getAttribute("data-persona-action"));
@@ -72,6 +79,7 @@
         document.addEventListener(
           "click",
           function (e) {
+            if (isFormControl(e.target)) return;
             var btn = e.target.closest("[data-persona-action]");
             if (!btn || btn.disabled) return;
             window.__personaTap(btn.getAttribute("data-persona-action"));
@@ -89,7 +97,7 @@
 
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/static/styles.css?v=28" />
+  <link rel="stylesheet" href="/static/styles.css?v=31" />
 
 </head>
 
@@ -332,8 +340,8 @@
           <img
             class="cenderawasih-emblem"
             src="/static/cenderawasih-emblem.png?v=1"
-            width="240"
-            height="240"
+            width="210"
+            height="210"
             alt=""
             draggable="false"
           />
@@ -416,57 +424,34 @@
 
         <div class="settings-body">
 
-          <div class="settings-mop-block">
-
-            <span class="onboarding-field-label">Koleksi Mop Papua</span>
-
-            <p class="settings-mop-count" id="settingsMopCount">Memuat koleksi…</p>
-
-            <p class="settings-mop-desc">Lelucon verbal Melayu Papua — AI seling Mop pas obrolan santai supaya lebih asik.</p>
-
-            <ul class="settings-mop-list" id="settingsMopPreview" aria-label="Contoh Mop"></ul>
-
-          </div>
-
-          <div class="settings-mop-block">
-
-            <span class="onboarding-field-label">Kamus Bahasa Papua</span>
-
-            <p class="settings-mop-count" id="settingsKamusCount">Memuat kamus…</p>
-
-            <p class="settings-mop-desc">Kosakata percakapan sehari-hari — AI bisa jelasin arti kata pas ko tanya.</p>
-
-            <ul class="settings-mop-list" id="settingsKamusPreview" aria-label="Contoh kata Papua"></ul>
-
-          </div>
-
-          <div class="settings-divider" aria-hidden="true"></div>
-
-          <label class="onboarding-field settings-field">
+          <div class="onboarding-field settings-field">
 
             <span class="onboarding-field-label">Pilihan suara</span>
 
-            <select id="voiceSelect" class="voice-select settings-voice-select" aria-label="Pilihan suara">
+            <select id="voiceSelect" class="voice-select" hidden aria-hidden="true" tabindex="-1">
 
               <option value="Sulafat">Sulafat — hangat</option>
 
             </select>
 
-          </label>
+            <div id="voicePickerList" class="settings-picker-list" role="listbox" aria-label="Pilihan suara"></div>
+
+          </div>
 
           <p class="settings-note">Suara dipakai pas ngobrol live — bisa ganti kapan saja.</p>
 
           <div class="settings-divider" aria-hidden="true"></div>
 
-          <label class="onboarding-field settings-field">
+          <div class="onboarding-field settings-field">
             <span class="onboarding-field-label">Musik latar tongkrongan (BGM)</span>
-            <select id="bgmSelect" class="voice-select settings-voice-select" aria-label="Musik latar">
+            <select id="bgmSelect" class="voice-select" hidden aria-hidden="true" tabindex="-1">
+              <option value="off" selected>Mati — tanpa BGM (disarankan untuk voice)</option>
               <option value="disko_tanah">Disko Tanah — pelan ala tongkrongan</option>
               <option value="hiphop_papua">Hip-Hop Papua — tempo cepat</option>
-              <option value="off">Mati — tanpa BGM</option>
             </select>
-          </label>
-          <p class="settings-note">BGM pelan saat ngobrol live. Saat punchline Mop → jedag-jedug kencang 3 detik + tertawa penonton.</p>
+            <div id="bgmPickerList" class="settings-picker-list" role="listbox" aria-label="Musik latar"></div>
+          </div>
+          <p class="settings-note">Default mati agar suara Gemini bersih. Nyalakan BGM kalau mau suasana tongkrongan; punchline Mop → jedag-jedug + tertawa penonton.</p>
 
           <div class="settings-divider" aria-hidden="true"></div>
 
@@ -488,28 +473,6 @@
               <span>Frekuensi Mop <strong id="simMopVal">0.6</strong></span>
               <input type="range" id="simMopFreq" min="0" max="1" step="0.05" value="0.6" />
             </label>
-          </div>
-
-          <div class="settings-divider" aria-hidden="true"></div>
-
-          <div class="settings-mop-block settings-memory-block">
-            <h3 class="settings-subtitle">Ingatan Ko</h3>
-            <p class="settings-mop-desc">Fakta penting tersimpan di HP ko — AI ingat ini antar obrolan. Bilang "ingat ya, …" pas ngobrol atau tambah manual di bawah.</p>
-            <p class="settings-mop-count" id="settingsMemoryCount">Memuat ingatan…</p>
-            <ul class="settings-memory-list" id="settingsMemoryList" aria-label="Daftar ingatan tersimpan"></ul>
-            <label class="onboarding-field settings-field">
-              <span class="onboarding-field-label">Tambah ingatan baru</span>
-              <input type="text" class="onboarding-input" id="settingsMemoryInput" autocomplete="off" placeholder="Contoh: Nama ko Budi, suka main basket" />
-            </label>
-            <button type="button" class="btn-memory-add" id="btnMemoryAdd" data-persona-action="btnMemoryAdd" onclick="window.__personaUiTap('btnMemoryAdd')">Simpan ingatan</button>
-          </div>
-
-          <div class="settings-divider" aria-hidden="true"></div>
-
-          <div class="settings-mop-block">
-            <span class="onboarding-field-label">Pengembang</span>
-            <p class="settings-mop-count" id="settingsDeveloperCredit">Posman Silaban — Solo Developer</p>
-            <p class="settings-mop-desc">Papua AI dibuat oleh Posman Silaban (Master Dev). Ingatan permanen — tra dilupakan.</p>
           </div>
 
           <div class="settings-divider" aria-hidden="true"></div>
@@ -556,9 +519,9 @@
 
   </div>
 
-  <script src="/static/live.js?v=50"></script>
+  <script src="/static/live.js?v=63"></script>
 
-  <script src="/static/app.js?v=49"></script>
+  <script src="/static/app.js?v=56"></script>
 
 </body>
 

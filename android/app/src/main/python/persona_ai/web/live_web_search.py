@@ -188,16 +188,13 @@ async def fetch_live_web_context(query: str, api_key: str) -> str | None:
 
 
 def format_web_context_for_steer(context: str, *, dialect: str | None = None) -> str:
-    from persona_ai.personality.papua_dialect_phrases import is_papua_dialect, papua_steer_reminder
-
-    lines = [
-        "[KONTEKS WEB TERBARU — wajib dipakai, jangan mengarang]",
-        context.strip(),
-        "Jawab user pakai info di atas. Kalau kurang lengkap, bilang jujur ko belum nemu detailnya.",
-    ]
-    if is_papua_dialect(dialect):
-        lines.append(papua_steer_reminder())
-    return "\n".join(lines)
+    return "\n".join(
+        [
+            "[KONTEKS WEB TERBARU — wajib dipakai, jangan mengarang]",
+            context.strip(),
+            "Jawab user pakai info di atas. Kalau kurang lengkap, bilang jujur ko belum nemu detailnya.",
+        ]
+    )
 
 
 SEARCH_TIMEOUT_S = _SEARCH_TIMEOUT_S

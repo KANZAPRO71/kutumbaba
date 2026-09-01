@@ -16,17 +16,17 @@ class TestVoiceInstruction:
     def test_baseline_from_preset(self):
         profile = load_default_preset()
         text = build_live_voice_instruction(profile)
-        assert "Persona" in text
-        assert "Indonesian" in text or "Bahasa Indonesia" in text
+        assert "Bahasa Indonesia" in text
         assert "ChatGPT voice" not in text
         assert "teman ngobrol" in text.lower() or "friend" in text.lower()
         assert "Current Time Awareness:" in text
         assert "PERSONA_GOVERNANCE" not in text
         assert "Agent Handbook" not in text
         assert "Turn protocol" not in text
-        assert "conversational" in text.lower()
-        assert "ada yang mau ditanyakan" in text
-        assert "Never end with a question mark" in text
+        assert len(text) < 3500
+        assert "Anti-ulang" not in text
+        assert "Anti-chatbot" not in text
+        assert "Suara & prosody" not in text
 
     def test_instruction_includes_prior_conversation(self):
         profile = load_default_preset()
@@ -79,17 +79,10 @@ class TestVoiceInstruction:
         profile = load_default_preset()
         text = build_live_voice_instruction(profile, dialect="papua")
         assert "Papua" in text
-        assert " sa " in f" {text.lower()} " or "'sa'" in text.lower()
-        assert "maluku" in text.lower()
-        assert "ringan" in text.lower()
-        assert "eee" in text.lower()
-        assert "ke sana kah" in text.lower()
-        assert "Pengetahuan Papua" in text
-        assert "Jayapura" in text
-        assert "Kata populer Papua" in text
-        assert "stecu" in text.lower()
-        assert "Gaya berbicara" in text
-        assert "sa pu rumah" in text.lower()
+        assert "sobat jayapura" in text.lower()
+        assert " sa/ko" in text.lower() or "sa/ko" in text.lower()
+        assert len(text) < 3500
+        assert "Pengetahuan Papua" not in text
         assert build_live_voice_instruction(profile, dialect=None) != text
 
     def test_papua_phrase_corpus_size(self):

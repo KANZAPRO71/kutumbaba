@@ -90,11 +90,11 @@ class LiveVoiceConfig:
     # Retell Speech Style / tone modifiers
     default_tone: str = "professional_conversational"  # professional | professional_conversational
     enable_natural_fillers: bool = True
-    enable_high_empathy: bool = True
+    enable_high_empathy: bool = False
     pronunciations: tuple[PronunciationGuide, ...] = ()
     voice_name: str = DEFAULT_LIVE_VOICE_NAME
     language_code: str = DEFAULT_LIVE_LANGUAGE_CODE
-    generation_temperature: float = 0.65
+    generation_temperature: float = 0.68
 
     def __post_init__(self) -> None:
         if not 0.0 <= self.responsiveness <= 1.0:
@@ -437,16 +437,8 @@ class LiveVoiceConfig:
         return cls(**kwargs)
 
     def opening_greeting_prompt(self, display_name: str) -> str | None:
-        if self.start_speaker != "agent":
-            return None
-        if self.begin_message is not None:
-            return self.begin_message if self.begin_message else None
-        return (
-            f"[call connected] Sapa user singkat dan natural sebagai {display_name} "
-            "dalam Bahasa Indonesia (1 kalimat, tanpa pertanyaan). "
-            "Jangan tanya butuh bantuan apa atau ada yang mau ditanyakan. "
-            "Lalu diam dan dengarkan."
-        )
+        """No scripted opener — S2S uses system instruction only (avoids double greeting)."""
+        return None
 
     def opening_or_resume_prompt(self, display_name: str, *, has_history: bool) -> str | None:
         """Greet only on a first meeting. An existing thread has no scripted opener."""

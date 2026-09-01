@@ -15,6 +15,7 @@ import json
 import logging
 import time
 import uuid
+from collections.abc import Callable
 
 from contextlib import asynccontextmanager
 from dataclasses import replace
@@ -26,7 +27,6 @@ from google.genai import types
 
 from persona_ai.llm.gemini_models import gemini_live_model
 from persona_ai.runtime import PersonaRuntime
-from persona_ai.memory.engine import commit_episodic, commit_from_text
 from persona_ai.web.persona_live import (
     LiveSteerMode,
     decide_live_action,
@@ -34,7 +34,6 @@ from persona_ai.web.persona_live import (
     load_session_messages,
     load_session_context,
     load_session_post_call,
-    load_user_memories,
     live_response_policy,
     plan_live_governance,
     session_overrides,
@@ -53,9 +52,8 @@ from persona_ai.web.security_config import LiveSecurityConfig
 from persona_ai.web.voice_config import LiveVoiceConfig
 from persona_ai.web.webhook_config import LiveWebhookConfig
 from persona_ai.web.webhook_delivery import build_call_object, deliver_webhook_event
-from persona_ai.personality.papua_dialect_phrases import is_papua_dialect, papua_opening_greeting_prompt
+from persona_ai.personality.papua_dialect_phrases import is_papua_dialect
 from persona_ai.personality.papua_stt_lexicon import enrich_voice_config_for_papua, normalize_papua_transcript
-from persona_ai.personality.papua_mop_balasan import is_user_funny_mop, mop_challenge_steering_text
 from persona_ai.personality.papua_smart_barge_in import (
     clear_user_speech_start,
     mark_user_speech_start,
@@ -63,6 +61,8 @@ from persona_ai.personality.papua_smart_barge_in import (
     speech_duration_s,
 )
 from persona_ai.personality.papua_laugh_track import mark_humor_turn, should_play_laugh_track, should_play_jedag_jedug
+from persona_ai.web.conversation_controller import ConversationController
+from persona_ai.web.conversation_flow_controller import ConversationFlowController
 from persona_ai.web.voice_instruction import (
     build_engine_directive_for_transcript,
     build_live_voice_instruction,
@@ -79,6 +79,13 @@ GEMINI_KEEPALIVE_IDLE_S = 12.0
 GEMINI_KEEPALIVE_PCM = b"\x00" * 3200  # 100 ms silence @ 16 kHz mono s16le
 # Gemini Live WS lifetime is ~10 minutes; refresh before GoAway/1008 abort.
 GEMINI_LIVE_REFRESH_S = 420.0
+# Natural S2S must not lock the mic pipeline — only governed/steered turns do.
+NATURAL_TURN_STUCK_S = 12.0
+# Natural S2S: gap between activity_end and next activity_start.
+NATURAL_GAP_AFTER_END_S = 0.18
+# Natural S2S silence endpoint — faster than governed VAD; no partial_stable spam.
+NATURAL_SILENCE_COMMIT_S = 0.85
+
 GEMINI_RESUME_COOLDOWN_S = 8.0
 GEMINI_SESSION_EXPIRED_MSG = "Sesi voice Gemini habis. Sambungkan ulang panggilan."
 MIC_CHUNK_DURATION_S = 0.1  # 1600 samples @ 16 kHz
@@ -86,6 +93,7 @@ MAX_AUDIO_QUEUE_CHUNKS = 8  # drop backlog beyond ~0.8 s
 LOUD_MIC_RMS = 0.05
 # Speaker echo after agent playback — ignore until the tail dies.
 ECHO_HOLD_AFTER_AGENT_S = 2.0
+ECHO_HOLD_AFTER_AGENT_MOBILE_S = 12.0
 ECHO_OPEN_RMS = 0.10
 # Force-clear ASR recovery when Gemini stops returning transcripts.
 ASR_STUCK_RECOVERY_S = 5.0
@@ -106,14 +114,11 @@ _PHANTOM_ASR_PHRASES = frozenset(
     }
 )
 # Extra wait only when there is no ASR yet — stable partials skip this grace.
-STT_GRACE_AFTER_SILENCE_S = 0.40
-# People pause mid-sentence. Raised from 1.10s — natural clause pauses in Indonesian
-# regularly exceed 1.0s and were causing premature commits mid-sentence.
-PERSONA_COMMIT_MIN_SILENCE_S = 1.35
+STT_GRACE_AFTER_SILENCE_S = 0.25
+# People pause mid-sentence — balance between responsiveness and mid-clause cuts.
+PERSONA_COMMIT_MIN_SILENCE_S = 1.0
 # Partials must be unchanged for this long before being considered stable.
-# Raised from 0.22s — too-eager commit caused AI to grab the mic while user was
-# still forming the next clause.
-PARTIAL_STABILITY_S = 0.50
+PARTIAL_STABILITY_S = 0.38
 FINAL_TRANSCRIPT_TIMEOUT_S = 0.55
 MAX_ACTIVITY_WITHOUT_TRANSCRIPT_S = 3.0
 # Gemini input transcription often arrives only after activity_end — end activity first, then wait.
@@ -121,7 +126,7 @@ MAX_ASR_WAIT_AFTER_END_S = 12.0
 # Avoid rapid activity_start/end flapping that triggers Gemini WS 1007.
 MIN_ACTIVITY_BEFORE_FLUSH_S = 1.80
 # "Bro." / "Halo" is often a breath before the real sentence.
-SHORT_UTTERANCE_SILENCE_S = 1.70
+SHORT_UTTERANCE_SILENCE_S = 1.35
 MIN_GAP_AFTER_ACTIVITY_END_S = 0.55
 MAX_RECOVERY_MIC_CHUNKS = 20  # ~2 s — keep recent speech only
 RECOVERY_QUEUE_HEADROOM = 3  # leave queue slots for live mic while dripping buffer
@@ -323,35 +328,175 @@ def _should_drop_phantom_asr(gov: dict, text: str) -> bool:
     return True
 
 
-def _should_drop_echo_asr(gov: dict, text: str) -> bool:
+def _echo_hold_seconds(gov: dict) -> float:
+    if gov.get("embedded_app"):
+        return ECHO_HOLD_AFTER_AGENT_MOBILE_S
+    return ECHO_HOLD_AFTER_AGENT_S
+
+
+_ASSISTANT_ECHO_CORPUS_MAX = 6000
+
+
+def _append_assistant_echo_corpus(gov: dict, spoken: str) -> None:
+    """Keep rolling agent speech for echo matching — segment finished must not wipe it."""
+    chunk = " ".join(spoken.strip().split())
+    if not chunk:
+        return
+    prev = (gov.get("assistant_echo_corpus") or "").strip()
+    merged = f"{prev} {chunk}".strip() if prev else chunk
+    if len(merged) > _ASSISTANT_ECHO_CORPUS_MAX:
+        merged = merged[-_ASSISTANT_ECHO_CORPUS_MAX :]
+    gov["assistant_echo_corpus"] = merged
+
+
+def _assistant_echo_reference(gov: dict) -> str:
+    corpus = (gov.get("assistant_echo_corpus") or "").strip()
+    if corpus:
+        return corpus
+    live = (gov.get("assistant_text") or "").strip()
+    if live:
+        return live
+    return (gov.get("last_assistant_spoken") or "").strip()
+
+
+def _clear_assistant_echo_corpus(gov: dict) -> None:
+    gov["assistant_echo_corpus"] = ""
+
+
+def _word_overlap_ratio(a: str, b: str) -> float:
+    wa = {w for w in a.lower().split() if len(w) > 2}
+    wb = {w for w in b.lower().split() if len(w) > 2}
+    if not wa or not wb:
+        return 0.0
+    return len(wa & wb) / min(len(wa), len(wb))
+
+
+def _agent_reply_already_started(gov: dict, *, now: float | None = None) -> bool:
+    """True when Gemini audio for this turn is already playing — avoid steer that re-speaks."""
+    clock = now if now is not None else time.monotonic()
+    if gov.get("model_generating"):
+        return True
+    if gov.get("steered_audio_seen") or gov.get("awaiting_turn_complete"):
+        return True
+    last_fwd = gov.get("last_forward_at")
+    hold = _echo_hold_seconds(gov) + 1.0
+    if isinstance(last_fwd, (int, float)) and last_fwd > 0:
+        if clock - last_fwd < hold:
+            return True
+    return False
+
+
+def _agent_playback_guard(gov: dict, *, now: float | None = None) -> bool:
+    """True while agent audio is in flight — block echo from opening a user turn."""
+    if gov.get("floor") == "agent":
+        return True
+    return _agent_reply_already_started(gov, now=now)
+
+
+def _should_drop_echo_asr(gov: dict, text: str, *, now: float | None = None) -> bool:
     """Drop mic bleed of the agent's recent speech."""
     normalized = " ".join(text.strip().split())
-    if len(normalized) < 12:
+    min_len = 8 if gov.get("embedded_app") else 12
+    if len(normalized) < min_len:
         return False
-    assistant = (
-        (gov.get("assistant_text") or "").strip()
-        or (gov.get("last_assistant_spoken") or "").strip()
-    )
-    if not assistant:
-        return False
+    # Open user activity with real mic energy — trust ASR for this turn.
+    if gov.get("gemini_activity_open") and gov.get("had_loud_speech"):
+        peak = float(gov.get("turn_peak_mic_rms") or 0.0)
+        if peak >= _mic_threshold(gov, "phantom_min_peak_rms", PHANTOM_MIN_PEAK_RMS):
+            return False
+    clock = now if now is not None else time.monotonic()
+    hold = _echo_hold_seconds(gov)
+    agent_active = _agent_reply_already_started(gov)
+    recent_agent = agent_active
     last_fwd = gov.get("last_forward_at")
-    if not isinstance(last_fwd, (int, float)) or last_fwd <= 0:
+    if isinstance(last_fwd, (int, float)) and last_fwd > 0:
+        if clock - last_fwd <= hold + 1.5:
+            recent_agent = True
+    last_tc = gov.get("last_turn_complete_at")
+    if isinstance(last_tc, (int, float)) and last_tc > 0:
+        if clock - last_tc <= hold + 2.5:
+            recent_agent = True
+    if gov.get("model_generating") or gov.get("floor") == "agent":
+        recent_agent = True
+    if not recent_agent:
         return False
-    if time.monotonic() - last_fwd > ECHO_HOLD_AFTER_AGENT_S + 1.5:
+    recovering = bool(
+        gov.get("activity_end_for_asr") or gov.get("awaiting_asr_recovery")
+    )
+    if (
+        agent_active
+        and gov.get("floor") == "agent"
+        and not recovering
+        and len(normalized) >= min_len
+    ):
+        _log.info("echo ASR dropped (agent in flight): %r", normalized[:80])
+        return True
+    assistant = _assistant_echo_reference(gov)
+    if not assistant:
+        if len(normalized) >= 40:
+            _log.info("echo ASR dropped (long during agent tail): %r", normalized[:80])
+            return True
         return False
+    if len(normalized) >= 60:
+        _log.info("echo ASR dropped (long during agent tail): %r", normalized[:80])
+        return True
     spoken = " ".join(assistant.split()).lower()
     heard = normalized.lower()
     if heard in spoken or spoken in heard:
         _log.info("echo ASR dropped: %r", normalized[:80])
         return True
+    if len(heard) >= 16 and len(spoken) >= 16 and heard[:32] == spoken[-32:]:
+        _log.info("echo ASR dropped (suffix): %r", normalized[:80])
+        return True
     if len(heard) >= 20 and heard[:40] == spoken[:40]:
         _log.info("echo ASR dropped (prefix): %r", normalized[:80])
+        return True
+    overlap_hi = 0.45 if gov.get("embedded_app") else 0.55
+    overlap_lo = 0.22 if gov.get("embedded_app") else 0.30
+    if _word_overlap_ratio(heard, spoken) >= overlap_hi:
+        _log.info("echo ASR dropped (overlap): %r", normalized[:80])
+        return True
+    if len(heard) >= 24 and _word_overlap_ratio(heard, spoken) >= overlap_lo:
+        _log.info("echo ASR dropped (partial overlap): %r", normalized[:80])
         return True
     return False
 
 
 def _should_drop_spurious_asr(gov: dict, text: str) -> bool:
     return _should_drop_phantom_asr(gov, text) or _should_drop_echo_asr(gov, text)
+
+
+def _recover_natural_turn_stuck(gov: dict, *, now: float | None = None) -> bool:
+    """Clear natural-mode pipeline deadlock when turn_complete never arrives."""
+    if not gov.get("natural_mode"):
+        return False
+    clock = now if now is not None else time.monotonic()
+    last_tc = float(gov.get("last_turn_complete_at") or gov.get("session_started_at") or 0.0)
+    last_end = float(gov.get("last_activity_end_at") or 0.0)
+    anchor = max(last_tc, last_end)
+    if anchor <= 0 or (clock - anchor) < NATURAL_TURN_STUCK_S:
+        return False
+    if not (
+        gov.get("awaiting_turn_complete")
+        or gov.get("model_generating")
+        or not gov.get("ready_for_next_utterance", True)
+    ):
+        return False
+    _log.warning(
+        "natural turn stuck %.1fs — force reopen mic (awaiting_tc=%s model_gen=%s ready=%s)",
+        clock - anchor,
+        gov.get("awaiting_turn_complete"),
+        gov.get("model_generating"),
+        gov.get("ready_for_next_utterance"),
+    )
+    gov["awaiting_turn_complete"] = False
+    gov["model_generating"] = False
+    gov["accept_mic"] = True
+    gov["ready_for_next_utterance"] = True
+    gov["commit_scheduled"] = False
+    gov["pending"] = False
+    gov["mic_pacing_reset"] = True
+    return True
 
 
 def _voice_pipeline_stuck(gov: dict, *, now: float | None = None) -> str | None:
@@ -383,6 +528,8 @@ def _voice_pipeline_stuck(gov: dict, *, now: float | None = None) -> str | None:
 
     if gov.get("activity_end_for_asr") or gov.get("awaiting_asr_recovery"):
         return "speech_during_recovery"
+    if _agent_playback_guard(gov, now=clock):
+        return None
     if (
         gov.get("accept_mic")
         and gov.get("ready_for_next_utterance", True)
@@ -561,19 +708,23 @@ def _should_open_user_activity(
         return False
     if gov.get("greeting_phase") or gov.get("user_activity_open") or gov.get("gemini_activity_open"):
         return False
-    if not gov.get("accept_mic"):
+    if not gov.get("accept_mic") and not _is_natural_s2s(gov):
         return False
-    if gov.get("awaiting_turn_complete"):
+    if not _is_natural_s2s(gov):
+        if gov.get("awaiting_turn_complete"):
+            return False
+        if gov.get("model_generating"):
+            return False
+    if not _is_natural_s2s(gov) and not gov.get("ready_for_next_utterance", True):
         return False
-    if gov.get("model_generating"):
-        return False
-    if not gov.get("ready_for_next_utterance", True):
-        return False
-    if _answer_in_flight(gov) or gov.get("commit_scheduled"):
-        return False
+    if not _is_natural_s2s(gov):
+        if _answer_in_flight(gov) or gov.get("commit_scheduled"):
+            return False
     clock = now if now is not None else time.monotonic()
     last_fwd = gov.get("last_forward_at")
-    if isinstance(last_fwd, (int, float)) and last_fwd > 0 and (clock - last_fwd) < ECHO_HOLD_AFTER_AGENT_S:
+    if _is_natural_s2s(gov) and _agent_playback_guard(gov, now=clock):
+        return False
+    if isinstance(last_fwd, (int, float)) and last_fwd > 0 and (clock - last_fwd) < _echo_hold_seconds(gov):
         threshold = max(threshold, ECHO_OPEN_RMS)
     return rms >= threshold
 
@@ -613,8 +764,14 @@ def _stt_grace_after_silence_s(gov: dict) -> float:
     return _mic_threshold(gov, "stt_grace_after_silence_s", STT_GRACE_AFTER_SILENCE_S)
 
 
+def _is_natural_s2s(gov: dict) -> bool:
+    return bool(gov.get("natural_mode"))
+
+
 def _should_buffer_mic(gov: dict) -> bool:
     """Hold mic locally until a new Gemini activity can open — never while one is live."""
+    if _is_natural_s2s(gov):
+        return False
     if gov.get("gemini_activity_open") or gov.get("user_activity_open"):
         return False
     if gov.get("awaiting_turn_complete"):
@@ -839,6 +996,10 @@ def _transcript_commit_reason(
     gov: dict, voice: LiveVoiceConfig, *, now: float | None = None
 ) -> str | None:
     """Why Persona may commit now: asr_final, partial_stable, incomplete_utterance, or None."""
+    if gov.get("floor") == "agent" and _agent_reply_already_started(gov):
+        return None
+    if gov.get("model_generating") and gov.get("floor") != "user":
+        return None
     if not gov.get("vad_turn_active"):
         return None
     if not gov.get("user_activity_open") or not gov.get("gemini_activity_open"):
@@ -863,10 +1024,16 @@ def _transcript_commit_reason(
         return "abandon_no_transcript"
 
     transcript = _latest_governance_transcript(gov)
+    if transcript and _should_drop_spurious_asr(gov, transcript):
+        return None
     if transcript and not _transcript_belongs_to_activity(gov):
         transcript = ""
     if gov.get("asr_finished") and transcript:
         return "asr_final"
+
+    # Natural S2S: silence endpoint handled by natural_turn_committer — not governed VAD.
+    if gov.get("natural_mode"):
+        return None
 
     silence_s = _commit_silence_s(voice, gov)
     post_speech_s = clock - last_loud
@@ -929,6 +1096,67 @@ def _transcript_commit_reason(
         return None
 
     return "incomplete_utterance"
+
+
+def _natural_user_transcript(gov: dict) -> str:
+    """Best-effort user words for natural S2S turn commit (final or stable partial)."""
+    transcript = _latest_governance_transcript(gov)
+    if transcript and transcript.strip():
+        if _should_drop_spurious_asr(gov, transcript):
+            return ""
+        return transcript.strip()
+    partial = (gov.get("partial_text") or "").strip()
+    if partial and not _should_drop_spurious_asr(gov, partial):
+        return partial
+    return ""
+
+
+def _natural_abandon_no_transcript_ready(
+    gov: dict, *, now: float | None = None
+) -> bool:
+    """True when an open natural activity has no ASR after the abandon window."""
+    if not gov.get("natural_mode"):
+        return False
+    if not gov.get("gemini_activity_open") or gov.get("natural_endpoint_sent"):
+        return False
+    clock = now if now is not None else time.monotonic()
+    started = gov.get("activity_started_at")
+    if not isinstance(started, (int, float)):
+        return False
+    if clock - started < MAX_ACTIVITY_WITHOUT_TRANSCRIPT_S:
+        return False
+    return not _natural_user_transcript(gov)
+
+
+def _natural_silence_commit_ready(
+    gov: dict, voice: LiveVoiceConfig, *, now: float | None = None
+) -> bool:
+    """True when natural mode should send activity_end after user silence."""
+    if not gov.get("natural_mode"):
+        return False
+    if not gov.get("gemini_activity_open") or gov.get("natural_endpoint_sent"):
+        return False
+    if not gov.get("had_loud_speech"):
+        return False
+    if not _natural_user_transcript(gov):
+        return False
+    clock = now if now is not None else time.monotonic()
+    if _agent_playback_guard(gov, now=clock):
+        return False
+    peak = float(gov.get("turn_peak_mic_rms") or 0.0)
+    if peak < _loud_mic_rms(gov):
+        return False
+    last_loud = gov.get("last_loud_mic_at")
+    started = gov.get("activity_started_at")
+    if not isinstance(last_loud, (int, float)) or not isinstance(started, (int, float)):
+        return False
+    if clock - started < 0.35:
+        return False
+    silence_s = max(
+        NATURAL_SILENCE_COMMIT_S,
+        voice.silence_duration_ms() / 1000.0,
+    )
+    return (clock - last_loud) >= silence_s
 
 
 def _should_commit_user_activity(
@@ -1031,7 +1259,8 @@ def _note_mic_rms(gov: dict, rms: float, *, now: float | None = None) -> None:
     elif not gov.get("had_loud_speech") and rms >= _loud_mic_rms(gov):
         gov["last_loud_mic_at"] = clock
     if rms >= _loud_mic_rms(gov):
-        gov["last_any_loud_mic_at"] = clock
+        if not (gov.get("embedded_app") and _agent_playback_guard(gov, now=clock)):
+            gov["last_any_loud_mic_at"] = clock
         if gov.get("model_generating") or _answer_in_flight(gov):
             mark_user_speech_start(gov)
 
@@ -1215,7 +1444,7 @@ def _live_session_idle(gov: dict) -> bool:
     )
 
 
-def _apply_barge_in(gov: dict) -> None:
+def _apply_barge_in(gov: dict, *, soft: bool = False) -> None:
     """User stole the floor — drop leftover agent audio and reopen the next utterance."""
     for key in ("partial_task", "final_task", "late_asr_task"):
         task = gov.get(key)
@@ -1236,7 +1465,7 @@ def _apply_barge_in(gov: dict) -> None:
     gov["model_generating"] = False
     gov["recovery_generation_complete"] = False
     gov["awaiting_asr_recovery"] = False
-    gov["ignore_model_audio"] = True
+    gov["ignore_model_audio"] = not soft
     gov["greeting_phase"] = False
     _clear_asr_recovery(gov)
     gov["partial_text"] = ""
@@ -1248,8 +1477,9 @@ def _apply_barge_in(gov: dict) -> None:
     gov["last_forward_at"] = 0.0
     gov["user_activity_open"] = False
     gov["commit_scheduled"] = False
-    gov["close_activity"] = True
+    gov["close_activity"] = not soft
     gov["asr_finished"] = False
+    _clear_assistant_echo_corpus(gov)
     _clear_ungoverned_audio_buffer(gov)
 
 
@@ -1293,6 +1523,7 @@ def _reset_vad_turn(gov: dict) -> None:
     gov["first_partial_at"] = 0.0
     gov["last_user_transcript"] = ""
     gov["turn_peak_mic_rms"] = 0.0
+    gov["natural_endpoint_sent"] = False
 
 
 def _clear_asr_recovery(gov: dict) -> None:
@@ -1355,6 +1586,180 @@ async def _steer_gemini_session(session, steer_prompt: str, *, send_lock: asynci
     """Inject Persona governance via realtime text (same channel as mic audio)."""
     async with send_lock:
         await session.send_realtime_input(text=steer_prompt)
+
+
+def _observe_model_turn_complete(gov: dict, text: str) -> None:
+    """Sidecar hook 1 — observe full assistant transcript after turn completes."""
+    if not gov.get("natural_mode"):
+        return
+    conv = gov.get("conv_ctrl")
+    if not isinstance(conv, ConversationController):
+        return
+    cleaned = text.strip()
+    if not cleaned:
+        return
+    flow = gov.get("flow_ctrl")
+    if isinstance(flow, ConversationFlowController):
+        flow.on_assistant_finished(cleaned)
+    category = conv.on_model_turn_complete(cleaned)
+    if category:
+        _log.info(
+            "conversation controller observe category=%s state=%s",
+            category,
+            conv.to_dict(),
+        )
+
+
+def _clear_assistant_transcript_buffer(gov: dict) -> None:
+    gov["assistant_text"] = ""
+    _clear_assistant_echo_corpus(gov)
+
+
+def _finalize_assistant_turn(
+    gov: dict,
+    *,
+    persist: Callable[[str], None] | None = None,
+) -> str | None:
+    """Observe assistant transcript exactly once, then clear buffer."""
+    text = (gov.get("assistant_text") or "").strip()
+    if not text:
+        _clear_assistant_transcript_buffer(gov)
+        return None
+    if gov.get("assistant_turn_observed"):
+        _clear_assistant_transcript_buffer(gov)
+        return None
+    gov["assistant_turn_observed"] = True
+    if persist is not None:
+        persist(text)
+    _observe_model_turn_complete(gov, text)
+    _clear_assistant_transcript_buffer(gov)
+    return text
+
+
+def _mark_conversation_steer_deferred(gov: dict) -> None:
+    conv = gov.get("conv_ctrl")
+    flow = gov.get("flow_ctrl")
+    pending_conv = isinstance(conv, ConversationController) and conv.state.pending_steer
+    pending_flow = (
+        isinstance(flow, ConversationFlowController) and flow.pending_correction_steer
+    )
+    if pending_conv or pending_flow:
+        gov["conv_steer_deferred"] = True
+
+
+async def _on_safe_turn_boundary(
+    gov: dict,
+    session,
+    *,
+    reason: str,
+    send_lock: asyncio.Lock,
+    yield_turn: Callable[[str], None],
+    persist: Callable[[str], None] | None = None,
+) -> None:
+    """Unified safe boundary: finalize transcript → yield floor → defer steer (no 2nd speech)."""
+    epoch = int(gov.get("agent_reply_epoch") or 0)
+    if epoch > 0 and gov.get("boundary_handled_epoch") == epoch:
+        _log.info("skip duplicate turn boundary epoch=%s reason=%s", epoch, reason)
+        return
+    if epoch > 0:
+        gov["boundary_handled_epoch"] = epoch
+
+    finalized = _finalize_assistant_turn(gov, persist=persist)
+    if finalized:
+        _log.info(
+            "assistant turn finalized reason=%s chars=%s",
+            reason,
+            len(finalized),
+        )
+    yield_turn(reason)
+    if gov.get("natural_mode"):
+        _mark_conversation_steer_deferred(gov)
+        _log.info(
+            "conversation steer deferred reason=%s pending=%s",
+            reason,
+            bool(gov.get("conv_steer_deferred")),
+        )
+
+
+async def _flush_pending_conversation_steer(
+    gov: dict,
+    session,
+    *,
+    send_lock: asyncio.Lock,
+    reason: str = "",
+) -> None:
+    """Deliver queued steer only when pipeline is idle."""
+    if not gov.get("natural_mode"):
+        return
+    if (
+        gov.get("user_activity_open")
+        or gov.get("model_generating")
+        or gov.get("gemini_activity_open")
+        or gov.get("awaiting_turn_complete")
+    ):
+        return
+    flow = gov.get("flow_ctrl")
+    if isinstance(flow, ConversationFlowController):
+        correction = flow.take_correction_steer()
+        if correction:
+            try:
+                await _steer_gemini_session(session, correction, send_lock=send_lock)
+                _log.info(
+                    "flow correction steer delivered reason=%s len=%s",
+                    reason or "unknown",
+                    len(correction),
+                )
+            except Exception:
+                _log.exception(
+                    "flow correction steer delivery failed reason=%s",
+                    reason or "unknown",
+                )
+    conv = gov.get("conv_ctrl")
+    if not isinstance(conv, ConversationController):
+        return
+    steer = conv.take_pending_steer()
+    if not steer:
+        return
+    try:
+        await _steer_gemini_session(session, steer, send_lock=send_lock)
+        conv.mark_steer_sent()
+        _log.info(
+            "conversation steer delivered reason=%s len=%s",
+            reason or "unknown",
+            len(steer),
+        )
+    except Exception:
+        _log.exception("conversation steer delivery failed reason=%s", reason or "unknown")
+
+
+async def _flow_pre_turn_on_user_final(
+    gov: dict,
+    session,
+    text: str,
+    *,
+    send_lock: asyncio.Lock,
+) -> None:
+    """Proactive FOLLOW_THROUGH steer before Gemini replies to low-energy user turns."""
+    if not gov.get("natural_mode") or not text.strip():
+        return
+    conv = gov.get("conv_ctrl")
+    if isinstance(conv, ConversationController):
+        conv.observe_user_turn(text)
+    flow = gov.get("flow_ctrl")
+    if not isinstance(flow, ConversationFlowController):
+        return
+    steer = flow.on_user_final(text)
+    if not steer or _agent_reply_already_started(gov):
+        return
+    try:
+        await _steer_gemini_session(session, steer, send_lock=send_lock)
+        _log.info(
+            "flow pre-turn steer delivered intent=%s len=%s",
+            flow.last_decision.reason if flow.last_decision else "unknown",
+            len(steer),
+        )
+    except Exception:
+        _log.exception("flow pre-turn steer delivery failed")
 
 
 async def _await_client_session(ws: WebSocket, *, timeout: float = 12.0) -> dict:
@@ -1429,8 +1834,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
             begin_message=substitute_dynamic_variables(voice_cfg.begin_message, dyn_vars),
         )
     prior_messages, prior_post_call = load_session_context(runtime, session_id)
-    user_memories = load_user_memories()
-    has_history = bool(prior_messages) or bool(prior_post_call) or bool(user_memories)
+    has_history = bool(prior_messages) or bool(prior_post_call)
     _last_transcript.pop(session_id, None)
     live_dialect = session_payload.get("dialect") or session_payload.get("speaking_style")
     if isinstance(live_dialect, str):
@@ -1439,17 +1843,13 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         live_dialect = None
     if is_papua_dialect(live_dialect):
         voice_cfg = enrich_voice_config_for_papua(voice_cfg)
-    opening_prompt = voice_cfg.opening_or_resume_prompt(
-        profile.display_name, has_history=has_history
-    )
-    if opening_prompt and is_papua_dialect(live_dialect):
-        opening_prompt = papua_opening_greeting_prompt(profile.display_name or "Papua AI")
+    # No scripted opening steer — avoids double greeting with system instruction.
+    opening_prompt = None
     instruction = build_live_voice_instruction(
         profile,
         history=prior_messages,
         dialect=live_dialect,
         post_call=prior_post_call,
-        user_memories=user_memories,
     )
     prosody_sim = session_payload.get("papua_prosody_sim") or session_payload.get("prosody_sim")
     if prosody_sim and is_papua_dialect(live_dialect):
@@ -1489,8 +1889,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         "greeting_phase": opening_prompt is not None,
         "resume_call": has_history,
         "assistant_text": "",
+        "assistant_echo_corpus": "",
         "laugh_track_pending": False,
-        "mop_challenge_active": False,
         "user_speech_started_at": 0.0,
         "last_assistant_spoken": "",
         "held_audio": 0,
@@ -1547,6 +1947,14 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         "webhook_call_ended_sent": False,
         "webhook_call_started_sent": False,
         "natural_mode": live_mode.is_natural,
+        "natural_endpoint_sent": False,
+        "conv_ctrl": ConversationController.from_live_mode(live_mode),
+        "flow_ctrl": ConversationFlowController(),
+        "assistant_turn_observed": False,
+        "agent_reply_epoch": 0,
+        "boundary_handled_epoch": -1,
+        "conv_steer_deferred": False,
+        "embedded_app": bool(session_payload.get("embedded_app")),
         "floor": None,
         "resumption_handle": "",
         "gemini_connected_at": 0.0,
@@ -1621,7 +2029,6 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                         history=history,
                                         dialect=live_dialect,
                                         post_call=post_call,
-                                        user_memories=load_user_memories(),
                                     )
                                 config = _live_connect_config(
                                     setup_instruction,
@@ -1743,26 +2150,26 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                 _log.info("floor → %s (%s)", speaker, reason or "ws")
 
             def yield_turn_to_user(reason: str) -> None:
+                now = time.monotonic()
+                last_reason = gov.get("_last_yield_reason")
+                last_at = float(gov.get("_last_yield_at") or 0.0)
+                if reason in ("turn_complete", "natural_audio_done"):
+                    if last_reason == reason and (now - last_at) < 1.0:
+                        _log.info("skip duplicate yield_turn reason=%s", reason)
+                        return
+                    if gov.get("floor") == "user" and (now - last_at) < 2.0:
+                        _log.info("skip duplicate yield — floor already user reason=%s", reason)
+                        return
+                gov["_last_yield_reason"] = reason
+                gov["_last_yield_at"] = now
                 set_floor("user", reason=reason)
                 payload: dict = {"type": "turn_complete", "reason": reason}
                 if should_play_laugh_track(gov, gov.get("dialect")):
                     payload["laugh_track"] = True
                     gov["laugh_track_pending"] = False
-                    gov["schedule_mop_challenge"] = True
                 if should_play_jedag_jedug(gov, gov.get("dialect")):
                     payload["jedag_jedug"] = True
                 enqueue_browser(payload)
-
-            async def send_mop_balasan_challenge() -> None:
-                await asyncio.sleep(0.85)
-                if stop.is_set():
-                    return
-                try:
-                    await session.send_realtime_input(text=mop_challenge_steering_text())
-                    gov["mop_challenge_active"] = True
-                    _log.info("mop balasan challenge sent")
-                except Exception:
-                    _log.exception("mop balasan challenge failed")
 
             def note_user_activity() -> None:
                 gov["last_user_activity_at"] = time.monotonic()
@@ -1852,17 +2259,6 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         )
                         if result:
                             data = result.get("data") or {}
-                            summary = (
-                                data.get("call_summary")
-                                or data.get("summary")
-                                or data.get("ringkasan")
-                            )
-                            if isinstance(summary, str) and summary.strip():
-                                await asyncio.to_thread(
-                                    commit_episodic,
-                                    summary.strip(),
-                                    session_id=sid,
-                                )
                             enqueue_browser(
                                 {
                                     "type": "post_call_data",
@@ -1974,12 +2370,21 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     _log.info("drained %s leftover mic chunks (%s)", dropped, reason)
 
             async def send_activity_start(*, user: bool = True, opening_rms: float | None = None) -> bool:
-                if gov.get("awaiting_turn_complete"):
-                    _log.info("activity_start deferred — awaiting steered turn_complete")
-                    return False
-                if gov.get("model_generating"):
-                    _log.info("activity_start deferred — model still generating")
-                    return False
+                if gov.get("natural_mode") and gov.get("conv_steer_deferred"):
+                    gov["conv_steer_deferred"] = False
+                    await _flush_pending_conversation_steer(
+                        gov,
+                        session,
+                        send_lock=session_send_lock,
+                        reason="pre_user_turn",
+                    )
+                if not _is_natural_s2s(gov):
+                    if gov.get("awaiting_turn_complete"):
+                        _log.info("activity_start deferred — awaiting steered turn_complete")
+                        return False
+                    if gov.get("model_generating"):
+                        _log.info("activity_start deferred — model still generating")
+                        return False
                 if gov.get("activity_end_for_asr") or gov.get("awaiting_asr_recovery"):
                     _log.info("activity_start deferred — awaiting ASR recovery")
                     return False
@@ -1991,7 +2396,12 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     return True
                 last_end = gov.get("last_activity_end_at")
                 if isinstance(last_end, (int, float)):
-                    gap = MIN_GAP_AFTER_ACTIVITY_END_S - (time.monotonic() - last_end)
+                    gap_s = (
+                        NATURAL_GAP_AFTER_END_S
+                        if _is_natural_s2s(gov)
+                        else MIN_GAP_AFTER_ACTIVITY_END_S
+                    )
+                    gap = gap_s - (time.monotonic() - last_end)
                     if gap > 0:
                         await asyncio.sleep(gap)
                 async with session_send_lock:
@@ -2026,6 +2436,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     gov["last_user_transcript"] = ""
                     gov["stray_abort_sent"] = False
                     gov["ignore_model_audio"] = False
+                    gov["natural_endpoint_sent"] = False
                     set_floor("user", reason="user_activity")
                 return True
 
@@ -2238,7 +2649,6 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     plan = plan_live_governance(
                         output, decision, profile, history=thread, live_mode=live_mode,
                         dialect=live_dialect, post_call=post_call,
-                        user_memories=load_user_memories(),
                     )
                     payload = governance_payload(decision, plan=plan, partial=True)
                     if voice_cfg.should_emit_backchannel(normalized) and decision.bdv == "ACK_ONLY":
@@ -2258,7 +2668,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
 
                 web_steer_extra = ""
                 if (
-                    not gov.get("greeting_phase")
+                    not gov.get("natural_mode")
+                    and not gov.get("greeting_phase")
                     and needs_live_web_search(normalized)
                 ):
                     try:
@@ -2294,18 +2705,6 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         generate_text=False,
                         voice_pause_ms=gov.get("voice_pause_ms") or None,
                     )
-                    if persist:
-                        saved = await asyncio.to_thread(
-                            commit_from_text, normalized, session_id=key
-                        )
-                        if saved:
-                            enqueue_browser(
-                                {
-                                    "type": "user_memory_saved",
-                                    "count": len(saved),
-                                    "items": [r.content for r in saved[:5]],
-                                }
-                            )
                     decision = decide_live_action(output)
                     plan = plan_live_governance(
                         output,
@@ -2315,15 +2714,33 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         live_mode=live_mode,
                         dialect=live_dialect,
                         post_call=load_session_post_call(runtime, key) or post_call,
-                        user_memories=load_user_memories(),
                     )
+
+                    if gov.get("natural_mode") and plan.steer_mode == LiveSteerMode.ALLOW:
+                        _log.info(
+                            "natural S2S — memory-only governance (no steer inject)"
+                        )
+                        enqueue_browser(governance_payload(decision, plan=plan))
+                        gov["commit_scheduled"] = False
+                        gov["ready_for_next_utterance"] = True
+                        if gov.get("final_scheduled_for") == normalized:
+                            gov["final_scheduled_for"] = ""
+                        _last_transcript[key] = normalized
+                        _latency_mark(gov, "governance_done")
+                        return
 
                     if plan.steer_mode == LiveSteerMode.ALLOW:
                         if web_steer_extra:
-                            await _steer_gemini_session(
-                                session, web_steer_extra, send_lock=session_send_lock
-                            )
-                            gov["last_gemini_send"] = time.monotonic()
+                            if _agent_reply_already_started(gov):
+                                _log.info(
+                                    "skip web steer — agent reply already in flight"
+                                )
+                                web_steer_extra = ""
+                            else:
+                                await _steer_gemini_session(
+                                    session, web_steer_extra, send_lock=session_send_lock
+                                )
+                                gov["last_gemini_send"] = time.monotonic()
                         flushed = _apply_natural_allow(gov)
                         for chunk in flushed:
                             enqueue_browser(
@@ -2345,9 +2762,12 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                             len(flushed),
                             gov.get("awaiting_turn_complete"),
                         )
-                        if gov.get("gemini_activity_open"):
-                            await send_activity_end()
-                            gov["last_gemini_send"] = time.monotonic()
+                        if gov.get("gemini_activity_open") and not _agent_reply_already_started(gov):
+                            if gov.get("natural_endpoint_sent"):
+                                _log.info("skip duplicate activity_end — natural endpoint already sent")
+                            else:
+                                await send_activity_end()
+                                gov["last_gemini_send"] = time.monotonic()
                         return
 
                     gov["accept_mic"] = False
@@ -2480,7 +2900,15 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     return "ignored"
                 if _should_drop_spurious_asr(gov, normalized):
                     return "ignored"
+                if gov.get("natural_mode") and _last_transcript.get(key) == normalized:
+                    return "declined"
                 if _answer_in_flight(gov) and normalized:
+                    if _should_drop_spurious_asr(gov, normalized):
+                        _log.info(
+                            "ignore queued echo/spurious while answer plays: %r",
+                            normalized[:80],
+                        )
+                        return "ignored"
                     gov["queued_transcript"] = normalized
                     _log.info("queue transcript while answer plays: %r", normalized)
                     return "queued"
@@ -2491,8 +2919,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                 gov["queued_transcript"] = ""
                 gov["final_scheduled_for"] = normalized
                 gov["fallback_final_scheduled"] = True
-                gov["ready_for_next_utterance"] = False
-                gov["accept_mic"] = False
+                if not gov.get("natural_mode"):
+                    gov["ready_for_next_utterance"] = False
                 persist_turn = persist
                 partial_task = gov.get("partial_task")
                 if partial_task and not partial_task.done():
@@ -2705,10 +3133,17 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 clear_user_speech_start(gov)
                                 continue
                             clear_user_speech_start(gov)
-                            _apply_barge_in(gov)
-                            cut_agent_audio("client barge_in")
+                            _apply_barge_in(gov, soft=True)
+                            dropped = _drop_queued_audio(browser_out)
+                            _log.info(
+                                "soft barge-in — fade cut (dropped %s queued frames)",
+                                dropped,
+                            )
                             if gov.get("gemini_activity_open"):
                                 await send_activity_end()
+                            gov["mic_pacing_reset"] = True
+                            set_floor("user", reason="barge_in")
+                            enqueue_browser({"type": "mic_enable"})
                             continue
                         if kind == "keypad" and payload.get("digit"):
                             await handle_keypad_digit(str(payload["digit"]))
@@ -2829,7 +3264,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 if blob and blob.data:
                                     if drop_leftover or gov.get("user_activity_open"):
                                         continue
-                                    gov["model_generating"] = True
+                                    if not _is_natural_s2s(gov):
+                                        gov["model_generating"] = True
                                     pcm_parts.append((blob.data, blob.mime_type or "audio/pcm;rate=24000"))
                             if should_forward_audio():
                                 if gov.get("awaiting_steered_turn"):
@@ -2911,7 +3347,14 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         if sc.output_transcription and sc.output_transcription.text:
                             spoken = sc.output_transcription.text.strip()
                             if spoken:
-                                gov["assistant_text"] = spoken
+                                prev = (gov.get("assistant_text") or "").strip()
+                                if not prev:
+                                    gov["assistant_turn_observed"] = False
+                                    gov["agent_reply_epoch"] = int(gov.get("agent_reply_epoch") or 0) + 1
+                                gov["assistant_text"] = (
+                                    f"{prev} {spoken}".strip() if prev else spoken
+                                )
+                                _append_assistant_echo_corpus(gov, spoken)
                             if should_forward_audio():
                                 enqueue_browser(
                                     {
@@ -2923,8 +3366,6 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 )
                             if spoken and sc.output_transcription.finished:
                                 gov["last_assistant_spoken"] = spoken
-                                persist_spoken_reply(spoken)
-                                gov["assistant_text"] = ""
 
                         if sc.input_transcription and sc.input_transcription.text:
                             text = sc.input_transcription.text.strip()
@@ -2943,14 +3384,6 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 if text != gov.get("last_user_transcript"):
                                     gov["last_user_transcript"] = text
                                     mark_humor_turn(gov, text)
-                                    if (
-                                        sc.input_transcription.finished
-                                        and gov.get("mop_challenge_active")
-                                        and is_user_funny_mop(text)
-                                    ):
-                                        gov["laugh_track_pending"] = True
-                                        gov["mop_challenge_active"] = False
-                                        _log.info("user funny mop — laugh track apresiasi")
                                     if gov.get("ready_for_next_utterance"):
                                         gov["fallback_final_scheduled"] = False
                                 if not sc.input_transcription.finished:
@@ -2972,10 +3405,38 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                             "user transcript final: %r",
                                             text,
                                         )
-                                        if _should_schedule_late_asr(gov):
+                                        if gov.get("natural_mode") and text.strip():
+                                            await _flow_pre_turn_on_user_final(
+                                                gov,
+                                                session,
+                                                text.strip(),
+                                                send_lock=session_send_lock,
+                                            )
+                                            _reset_vad_turn(gov)
+                                            gov["ready_for_next_utterance"] = True
+                                            gov["user_activity_open"] = False
+                                            gov["natural_endpoint_sent"] = True
+                                            if gov.get("gemini_activity_open"):
+                                                if _agent_reply_already_started(gov):
+                                                    _log.info(
+                                                        "natural ASR final — skip activity_end, agent replying"
+                                                    )
+                                                else:
+                                                    await send_activity_end()
+                                                    gov["last_gemini_send"] = time.monotonic()
+                                                    _log.info(
+                                                        "natural immediate activity_end %r",
+                                                        text[:80],
+                                                    )
+                                            asyncio.create_task(
+                                                apply_governance(
+                                                    text.strip(),
+                                                    partial=False,
+                                                    persist=True,
+                                                )
+                                            )
+                                        elif _should_schedule_late_asr(gov):
                                             schedule_late_asr_governance(text)
-                                        # Persona-first: persona_turn_committer schedules governance.
-                                        # ASR final only sets asr_finished for local VAD commit logic.
                                     else:
                                         schedule_partial_governance(text)
                             elif not text:
@@ -2989,12 +3450,9 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 )
 
                         if sc.turn_complete:
-                            leftover = (gov.get("assistant_text") or "").strip()
-                            if leftover:
-                                persist_spoken_reply(leftover)
-                                gov["assistant_text"] = ""
                             was_greeting = gov.get("greeting_phase")
                             if was_greeting:
+                                _clear_assistant_transcript_buffer(gov)
                                 gov["greeting_phase"] = False
                                 gov["accept_mic"] = True
                                 gov["mic_pacing_reset"] = True
@@ -3005,9 +3463,13 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 gov["ready_for_next_utterance"] = True
                                 gov["model_generating"] = False
                                 _log.info("greeting turn_complete — mic input enabled")
+                                greeting_fallback = gov.get("greeting_fallback_task")
+                                if greeting_fallback is not None and not greeting_fallback.done():
+                                    greeting_fallback.cancel()
                                 yield_turn_to_user("greeting_done")
                                 continue
                             if gov.get("activity_end_for_asr") or gov.get("awaiting_asr_recovery"):
+                                _clear_assistant_transcript_buffer(gov)
                                 _log.info(
                                     "spontaneous turn_complete during ASR recovery — keep buffered reply"
                                 )
@@ -3024,6 +3486,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                     pending
                                     and pending != _last_transcript.get(key)
                                     and not _answer_in_flight(gov)
+                                    and not gov.get("natural_mode")
                                 ):
                                     gov["asr_finished"] = True
                                     schedule_final_governance(pending)
@@ -3039,6 +3502,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 and not gov.get("awaiting_steered_turn")
                                 and not gov.get("steered_audio_seen")
                             ):
+                                _clear_assistant_transcript_buffer(gov)
                                 gov["stray_abort_sent"] = False
                                 gov["held_audio"] = 0
                                 gov["awaiting_turn_complete"] = False
@@ -3052,11 +3516,43 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 continue
                             if gov.get("user_activity_open") or gov.get("commit_scheduled"):
                                 if gov.get("awaiting_turn_complete"):
-                                    _log.info(
-                                        "finalize steered turn during user activity (leftover turn_complete)"
-                                    )
-                                    _clear_steered_turn_state(gov)
-                                    gov["accept_mic"] = True
+                                    if gov.get("natural_mode"):
+                                        _log.info(
+                                            "natural turn_complete during commit — full reset"
+                                        )
+                                        gov["commit_scheduled"] = False
+                                        gov["model_generating"] = False
+                                        gov["pending"] = False
+                                        _clear_steered_turn_state(gov)
+                                        gov["ready_for_next_utterance"] = True
+                                        gov["accept_mic"] = True
+                                        gov["mic_pacing_reset"] = True
+                                        gov["last_turn_complete_at"] = time.monotonic()
+                                        gov["asr_finished"] = False
+                                        gov["partial_text"] = ""
+                                        gov["partial_stable_text"] = ""
+                                        gov["partial_stable_since"] = 0.0
+                                        gov["first_partial_at"] = 0.0
+                                        gov["held_audio"] = 0
+                                        gov["stray_abort_sent"] = False
+                                        _clear_ungoverned_audio_buffer(gov)
+                                        drain_mic_queue("natural_turn_complete")
+                                        release_recovery_mic_buffer("natural_turn_complete")
+                                        _last_transcript.pop(session_ref["id"], None)
+                                        await _on_safe_turn_boundary(
+                                            gov,
+                                            session,
+                                            reason="turn_complete",
+                                            send_lock=session_send_lock,
+                                            yield_turn=yield_turn_to_user,
+                                            persist=persist_spoken_reply,
+                                        )
+                                    else:
+                                        _log.info(
+                                            "finalize steered turn during user activity (leftover turn_complete)"
+                                        )
+                                        _clear_steered_turn_state(gov)
+                                        gov["accept_mic"] = True
                                 else:
                                     pending = _latest_governance_transcript(gov)
                                     key = session_ref["id"]
@@ -3066,6 +3562,10 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                         and pending != already
                                         and not _answer_in_flight(gov)
                                         and gov.get("ready_for_next_utterance", True)
+                                        and not (
+                                            gov.get("natural_mode")
+                                            and _agent_reply_already_started(gov)
+                                        )
                                     ):
                                         _log.info(
                                             "turn_complete commit pending partial: %r",
@@ -3090,6 +3590,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                         )
                                 continue
                             if gov.get("pending"):
+                                _clear_assistant_transcript_buffer(gov)
                                 gov["ungoverned_complete"] = True
                                 _log.info("ungoverned turn_complete while governance pending")
                                 continue
@@ -3120,14 +3621,38 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                             drain_mic_queue("turn_complete")
                             release_recovery_mic_buffer("turn_complete")
                             _last_transcript.pop(session_ref["id"], None)
-                            yield_turn_to_user("turn_complete")
-                            if gov.pop("schedule_mop_challenge", False):
-                                asyncio.create_task(send_mop_balasan_challenge())
+                            await _on_safe_turn_boundary(
+                                gov,
+                                session,
+                                reason="turn_complete",
+                                send_lock=session_send_lock,
+                                yield_turn=yield_turn_to_user,
+                                persist=persist_spoken_reply,
+                            )
                             queued = (gov.get("queued_transcript") or "").strip()
                             gov["queued_transcript"] = ""
                             if queued:
-                                _log.info("draining queued transcript after answer: %r", queued)
-                                schedule_final_governance(queued)
+                                if gov.get("natural_mode"):
+                                    _log.info(
+                                        "natural S2S — drop queued transcript (avoid double): %r",
+                                        queued[:80],
+                                    )
+                                elif _should_drop_spurious_asr(gov, queued):
+                                    _log.info(
+                                        "dropped queued echo/spurious after answer: %r",
+                                        queued[:80],
+                                    )
+                                elif _last_transcript.get(session_ref["id"]) == queued:
+                                    _log.info(
+                                        "dropped queued duplicate after answer: %r",
+                                        queued[:80],
+                                    )
+                                else:
+                                    _log.info(
+                                        "draining queued transcript after answer: %r",
+                                        queued,
+                                    )
+                                    schedule_final_governance(queued)
                     except asyncio.CancelledError:
                         raise
                     except Exception as exc:
@@ -3174,6 +3699,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         await asyncio.sleep(0.03)
                         if stop.is_set():
                             return
+                        if gov.get("natural_mode"):
+                            continue
                         now = time.monotonic()
                         reason = _transcript_commit_reason(gov, voice_cfg, now=now)
                         if not reason:
@@ -3186,6 +3713,18 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         _next_turn_id(gov)
                         gov["commit_scheduled"] = True
                         transcript = _latest_governance_transcript(gov)
+                        if transcript and _should_drop_spurious_asr(gov, transcript):
+                            _log.info(
+                                "commit blocked — echo/spurious ASR: %r",
+                                transcript[:80],
+                            )
+                            gov["commit_scheduled"] = False
+                            gov["partial_text"] = ""
+                            gov["partial_stable_text"] = ""
+                            gov["partial_stable_since"] = 0.0
+                            gov["last_user_transcript"] = ""
+                            gov["first_partial_at"] = 0.0
+                            continue
                         if reason == "end_activity_for_asr":
                             started = gov.get("activity_started_at")
                             if (
@@ -3279,10 +3818,12 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 hypothesis_id="H2",
                             )
                             # #endregion
-                            # Floor stays with the user until the first playable agent PCM.
                             outcome = schedule_final_governance(transcript)
                             if outcome == "ignored":
-                                await close_silent_user_activity()
+                                if gov.get("natural_mode"):
+                                    gov["commit_scheduled"] = False
+                                else:
+                                    await close_silent_user_activity()
                             elif outcome != "scheduled":
                                 gov["commit_scheduled"] = False
                         else:
@@ -3292,6 +3833,77 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     raise
                 except Exception:
                     _log.exception("persona turn committer failed")
+
+            async def natural_turn_committer() -> None:
+                """Natural S2S: silence-based activity_end when ASR final is missing or dropped."""
+                try:
+                    while not stop.is_set():
+                        await asyncio.sleep(0.05)
+                        if stop.is_set() or not gov.get("natural_mode"):
+                            continue
+                        now = time.monotonic()
+                        if _natural_abandon_no_transcript_ready(gov, now=now):
+                            started = gov.get("activity_started_at") or now
+                            _log.info(
+                                "natural abandon — no ASR (activity=%.1fs)",
+                                now - started,
+                            )
+                            await close_silent_user_activity()
+                            continue
+                        if not _natural_silence_commit_ready(gov, voice_cfg, now=now):
+                            continue
+                        last_loud = gov.get("last_loud_mic_at") or now
+                        gov["voice_pause_ms"] = int(max(0.0, now - last_loud) * 1000)
+                        gov["_last_commit_reason"] = "natural_silence"
+                        _latency_mark(gov, "speech_end", now=last_loud)
+                        _latency_mark(gov, "user_commit", now=now)
+                        _next_turn_id(gov)
+                        gov["natural_endpoint_sent"] = True
+                        gov["user_activity_open"] = False
+                        transcript = _natural_user_transcript(gov)
+                        if not transcript:
+                            gov["natural_endpoint_sent"] = False
+                            continue
+                        _log.info(
+                            "natural silence activity_end transcript=%r pause=%sms",
+                            (transcript or "")[:80],
+                            gov.get("voice_pause_ms"),
+                        )
+                        # #region agent log
+                        _debug_log(
+                            "gemini_live_bridge.py:natural_turn_committer",
+                            "natural silence endpoint",
+                            {
+                                "transcript_preview": (transcript or "")[:80],
+                                "pause_ms": gov.get("voice_pause_ms"),
+                            },
+                            hypothesis_id="H3",
+                        )
+                        # #endregion
+                        if gov.get("gemini_activity_open"):
+                            try:
+                                await send_activity_end()
+                                gov["last_gemini_send"] = time.monotonic()
+                            except Exception as exc:
+                                _log.warning(
+                                    "natural activity_end failed: %s — will resume",
+                                    exc,
+                                )
+                                if _is_gemini_goaway_error(exc) or _gemini_ws_close_code(exc) == "1007":
+                                    await resume_gemini("natural_endpoint_1007")
+                        if transcript and transcript.strip():
+                            gov["asr_finished"] = True
+                            asyncio.create_task(
+                                apply_governance(
+                                    transcript.strip(),
+                                    partial=False,
+                                    persist=True,
+                                )
+                            )
+                except asyncio.CancelledError:
+                    raise
+                except Exception:
+                    _log.exception("natural turn committer failed")
 
             async def recover_stuck_voice_pipeline(reason: str) -> None:
                 """Clear ASR/governance deadlock and optionally refresh Gemini Live."""
@@ -3321,6 +3933,14 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                 gov["ready_for_next_utterance"] = True
                 gov["mic_pacing_reset"] = True
                 _reset_vad_turn(gov)
+                # Echo often triggers speech_without_activity on HP — never reconnect mid-reply.
+                if reason == "speech_without_activity":
+                    if gov.get("gemini_activity_open"):
+                        try:
+                            await send_activity_end()
+                        except Exception:
+                            pass
+                    return
                 enqueue_browser(
                     {
                         "type": "notice",
@@ -3341,6 +3961,13 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         await asyncio.sleep(2.0)
                         if stop.is_set():
                             return
+                        if _recover_natural_turn_stuck(gov):
+                            enqueue_browser(
+                                {
+                                    "type": "notice",
+                                    "message": "Voice siap lagi — silakan lanjut bicara.",
+                                }
+                            )
                         reason = _voice_pipeline_stuck(gov)
                         if reason:
                             await recover_stuck_voice_pipeline(reason)
@@ -3413,15 +4040,59 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                 except Exception:
                     _log.exception("call session watchdog failed")
 
+            async def natural_agent_audio_watchdog() -> None:
+                """Natural S2S: Gemini often skips turn_complete — yield mic after agent audio."""
+                try:
+                    while not stop.is_set():
+                        await asyncio.sleep(0.5)
+                        if stop.is_set() or not gov.get("natural_mode"):
+                            continue
+                        last_fwd = gov.get("last_forward_at")
+                        if not isinstance(last_fwd, (int, float)) or last_fwd <= 0:
+                            continue
+                        now = time.monotonic()
+                        if now - last_fwd < 2.5:
+                            continue
+                        last_tc = float(gov.get("last_turn_complete_at") or 0.0)
+                        if last_tc >= last_fwd:
+                            continue
+                        if gov.get("user_activity_open") or gov.get("gemini_activity_open"):
+                            continue
+                        _log.info(
+                            "natural S2S force yield — agent audio done, no turn_complete (%.1fs)",
+                            now - last_fwd,
+                        )
+                        gov["model_generating"] = False
+                        gov["awaiting_turn_complete"] = False
+                        gov["accept_mic"] = True
+                        gov["ready_for_next_utterance"] = True
+                        gov["commit_scheduled"] = False
+                        gov["last_turn_complete_at"] = now
+                        await _on_safe_turn_boundary(
+                            gov,
+                            session,
+                            reason="natural_audio_done",
+                            send_lock=session_send_lock,
+                            yield_turn=yield_turn_to_user,
+                            persist=persist_spoken_reply,
+                        )
+                except asyncio.CancelledError:
+                    raise
+                except Exception:
+                    _log.exception("natural agent audio watchdog failed")
+
             browser_task = asyncio.create_task(browser_sender())
             forward_in = asyncio.create_task(client_to_gemini())
             forward_out = asyncio.create_task(gemini_to_client())
             audio_out = asyncio.create_task(gemini_audio_sender())
             keepalive = asyncio.create_task(gemini_keepalive())
             greeting = asyncio.create_task(send_opening_greeting())
-            mic_fallback = asyncio.create_task(greeting_mic_fallback())
+            greeting_fallback_task = asyncio.create_task(greeting_mic_fallback())
+            gov["greeting_fallback_task"] = greeting_fallback_task
             committer = asyncio.create_task(persona_turn_committer())
+            natural_committer = asyncio.create_task(natural_turn_committer())
             asr_watchdog = asyncio.create_task(asr_stuck_watchdog())
+            natural_audio_watchdog = asyncio.create_task(natural_agent_audio_watchdog())
             watchdog = asyncio.create_task(call_session_watchdog())
             _log.info("live bridge tasks started (persona-first turn commit)")
             _latency_mark(gov, "session_active")
@@ -3436,6 +4107,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     "post_call_config": post_call_cfg.to_client_dict(),
                     "security_config": security_cfg.to_client_dict(),
                     "webhook_config": webhook_cfg.to_client_dict(),
+                    "live_mode": live_mode.to_client_dict(),
                 }
             )
             if not gov.get("webhook_call_started_sent"):
@@ -3451,9 +4123,11 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
             except asyncio.QueueFull:
                 pass
             greeting.cancel()
-            mic_fallback.cancel()
+            greeting_fallback_task.cancel()
             committer.cancel()
+            natural_committer.cancel()
             asr_watchdog.cancel()
+            natural_audio_watchdog.cancel()
             watchdog.cancel()
             keepalive.cancel()
             forward_in.cancel()
@@ -3471,6 +4145,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                 keepalive,
                 browser_task,
                 committer,
+                natural_committer,
                 return_exceptions=True,
             )
     except Exception as exc:
@@ -3527,17 +4202,6 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     )
                     if result:
                         data = result.get("data") or {}
-                        summary = (
-                            data.get("call_summary")
-                            or data.get("summary")
-                            or data.get("ringkasan")
-                        )
-                        if isinstance(summary, str) and summary.strip():
-                            await asyncio.to_thread(
-                                commit_episodic,
-                                summary.strip(),
-                                session_id=session_ref["id"],
-                            )
                         try:
                             await ws.send_json(
                                 {

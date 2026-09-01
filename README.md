@@ -65,4 +65,4 @@ Versi beta — bug report & saran UX sangat welcome. Buka [Issues](https://githu
 
 ---
 
-**Versi saat ini:** 2.9.5-no-repeat2 (beta)
+**Versi saat ini:** 2.9.54-follow-through (beta)

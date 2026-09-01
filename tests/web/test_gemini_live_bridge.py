@@ -1411,3 +1411,58 @@ def test_build_engine_directive_for_transcript_includes_user_line():
     assert 'The user said: "Halo. Halo."' in text
     assert "Answer warmly." in text
     assert "you heard their audio" not in text
+
+
+def test_natural_silence_commit_requires_transcript():
+    from persona_ai.web.gemini_live_bridge import (
+        _natural_abandon_no_transcript_ready,
+        _natural_silence_commit_ready,
+        _natural_user_transcript,
+        MAX_ACTIVITY_WITHOUT_TRANSCRIPT_S,
+        NATURAL_SILENCE_COMMIT_S,
+    )
+    from persona_ai.web.voice_config import LiveVoiceConfig
+
+    voice = LiveVoiceConfig()
+    now = 10.0
+    gov = {
+        "natural_mode": True,
+        "gemini_activity_open": True,
+        "natural_endpoint_sent": False,
+        "had_loud_speech": True,
+        "activity_started_at": now - 1.0,
+        "last_loud_mic_at": now - NATURAL_SILENCE_COMMIT_S - 0.1,
+        "turn_peak_mic_rms": 0.1,
+        "partial_text": "",
+        "last_user_transcript": "",
+        "live_voice_thresholds": {},
+    }
+    assert _natural_user_transcript(gov) == ""
+    assert not _natural_silence_commit_ready(gov, voice, now=now)
+    assert not _natural_abandon_no_transcript_ready(gov, now=now)
+
+    gov["activity_started_at"] = now - (MAX_ACTIVITY_WITHOUT_TRANSCRIPT_S + 0.5)
+    assert _natural_abandon_no_transcript_ready(gov, now=now)
+
+    gov["partial_text"] = "Halo ko"
+    assert _natural_user_transcript(gov) == "Halo ko"
+    assert _natural_silence_commit_ready(gov, voice, now=now)
+    assert not _natural_abandon_no_transcript_ready(gov, now=now)
+
+
+def test_natural_abandon_waits_for_activity_window():
+    from persona_ai.web.gemini_live_bridge import (
+        MAX_ACTIVITY_WITHOUT_TRANSCRIPT_S,
+        _natural_abandon_no_transcript_ready,
+    )
+
+    now = 10.0
+    gov = {
+        "natural_mode": True,
+        "gemini_activity_open": True,
+        "natural_endpoint_sent": False,
+        "activity_started_at": now - (MAX_ACTIVITY_WITHOUT_TRANSCRIPT_S - 0.5),
+        "partial_text": "",
+        "last_user_transcript": "",
+    }
+    assert not _natural_abandon_no_transcript_ready(gov, now=now)
