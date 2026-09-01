@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from persona_ai.web.gemini_live_bridge import (
+    _agent_reply_already_started,
     _append_ungoverned_audio,
     _apply_natural_allow,
     _floor_event,
@@ -9,12 +10,14 @@ from persona_ai.web.gemini_live_bridge import (
     _is_voice_filler,
     _partial_is_stable,
     _should_close_audio_gate,
+    _should_drop_echo_asr,
     _should_forward_governed_audio,
     _should_open_user_activity,
     _should_schedule_governance_fallback,
     _take_floor,
     _transcript_commit_reason,
     _update_partial_stability,
+    _word_overlap_ratio,
     MAX_UNGOVERNED_BUFFER_BYTES,
 )
 from persona_ai.web.persona_live import LiveSteerMode
@@ -192,6 +195,50 @@ def test_natural_allow_reopens_mic_if_generation_already_done():
     assert gov["accept_mic"] is True
     assert gov["awaiting_turn_complete"] is False
     assert gov["model_generating"] is False
+
+
+def test_agent_reply_already_started_when_audio_forwarded():
+    now = 100.0
+    assert _agent_reply_already_started(
+        {"last_forward_at": now - 1.0},
+        now=now + 1.0,
+    )
+    assert not _agent_reply_already_started(
+        {"last_forward_at": now - 10.0},
+        now=now + 10.0,
+    )
+
+
+def test_echo_asr_dropped_after_turn_complete():
+    agent = "Ko dengar ya, sa jelaskan pelan-pelan supaya ko paham semuanya."
+    heard = agent
+    now = 500.0
+    assert _should_drop_echo_asr(
+        {
+            "last_assistant_spoken": agent,
+            "last_turn_complete_at": now - 1.0,
+            "last_forward_at": now - 8.0,
+        },
+        heard,
+        now=now,
+    )
+
+
+def test_echo_asr_overlap_on_mobile():
+    agent = "Hari ini cuaca di Jayapura cerah sekali ko, enak jalan-jalan sore."
+    heard = "cuaca Jayapura cerah sekali enak jalan jalan"
+    now = 600.0
+    assert _word_overlap_ratio(heard, agent) >= 0.55
+    assert _should_drop_echo_asr(
+        {
+            "embedded_app": True,
+            "last_assistant_spoken": agent,
+            "last_turn_complete_at": now - 2.0,
+            "last_forward_at": now - 9.0,
+        },
+        heard,
+        now=now,
+    )
 
 
 def test_stray_abort_disabled():

@@ -45,8 +45,8 @@ android {
         applicationId "com.persona.ai"
         minSdk 24
         targetSdk 34
-        versionCode 91
-        versionName "2.9.3-barge-fix"
+        versionCode 93
+        versionName "2.9.5-no-repeat2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "GEMINI_API_KEY", "\"${loadGeminiApiKeyFromEnv()}\""

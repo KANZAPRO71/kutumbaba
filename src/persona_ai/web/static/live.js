@@ -410,6 +410,7 @@ class GeminiLiveCall {
         };
         if (IS_EMBEDDED_APP) {
           sessionPayload.dialect = "papua";
+          sessionPayload.embedded_app = true;
           const sim = loadProsodySim();
           if (sim) sessionPayload.papua_prosody_sim = sim;
         }
@@ -562,13 +563,6 @@ class GeminiLiveCall {
       if (duration < minMs && !finished) return;
       if (typeof console !== "undefined" && console.info) {
         console.info("[persona smart barge-in]", { text: q.slice(0, 80), duration });
-      }
-      this._executeBargeIn(q);
-      return;
-    }
-    if (IS_EMBEDDED_APP && finished && words.length >= 3) {
-      if (typeof console !== "undefined" && console.info) {
-        console.info("[persona natural barge-in]", { text: q.slice(0, 80), words: words.length });
       }
       this._executeBargeIn(q);
     }
@@ -734,14 +728,17 @@ class GeminiLiveCall {
         }, WS_TIMEOUT_MS);
         this.ws.onopen = () => {
           clearTimeout(timer);
-          this.ws.send(
-            JSON.stringify({
-              type: "session",
-              session_id: this.sessionId,
-              voice_name: this.voiceName,
-              language_code: this.languageCode,
-            })
-          );
+          const sessionPayload = {
+            type: "session",
+            session_id: this.sessionId,
+            voice_name: this.voiceName,
+            language_code: this.languageCode,
+          };
+          if (IS_EMBEDDED_APP) {
+            sessionPayload.dialect = "papua";
+            sessionPayload.embedded_app = true;
+          }
+          this.ws.send(JSON.stringify(sessionPayload));
           resolve();
         };
         this.ws.onerror = () => {
@@ -901,6 +898,14 @@ class GeminiLiveCall {
     // immediately so this speech reaches Gemini instead of being dropped.
     if (this._floor === "agent") return;
     if (this._playbackBusy() && this._floor !== "user") return;
+    // HP: block mic while AI audio plays unless user just barged in (prevents echo loop).
+    if (
+      IS_EMBEDDED_APP &&
+      this._playbackBusy() &&
+      performance.now() >= (this._ignoreAgentFloorUntil || 0)
+    ) {
+      return;
+    }
     const down = downsample(input, this._inputRate, INPUT_RATE);
     if (!down.length) return;
 

@@ -86,6 +86,7 @@ MAX_AUDIO_QUEUE_CHUNKS = 8  # drop backlog beyond ~0.8 s
 LOUD_MIC_RMS = 0.05
 # Speaker echo after agent playback — ignore until the tail dies.
 ECHO_HOLD_AFTER_AGENT_S = 2.0
+ECHO_HOLD_AFTER_AGENT_MOBILE_S = 4.5
 ECHO_OPEN_RMS = 0.10
 # Force-clear ASR recovery when Gemini stops returning transcripts.
 ASR_STUCK_RECOVERY_S = 5.0
@@ -323,10 +324,40 @@ def _should_drop_phantom_asr(gov: dict, text: str) -> bool:
     return True
 
 
-def _should_drop_echo_asr(gov: dict, text: str) -> bool:
+def _echo_hold_seconds(gov: dict) -> float:
+    if gov.get("embedded_app"):
+        return ECHO_HOLD_AFTER_AGENT_MOBILE_S
+    return ECHO_HOLD_AFTER_AGENT_S
+
+
+def _word_overlap_ratio(a: str, b: str) -> float:
+    wa = {w for w in a.lower().split() if len(w) > 2}
+    wb = {w for w in b.lower().split() if len(w) > 2}
+    if not wa or not wb:
+        return 0.0
+    return len(wa & wb) / min(len(wa), len(wb))
+
+
+def _agent_reply_already_started(gov: dict, *, now: float | None = None) -> bool:
+    """True when Gemini audio for this turn is already playing — avoid steer that re-speaks."""
+    clock = now if now is not None else time.monotonic()
+    if gov.get("model_generating"):
+        return True
+    if gov.get("steered_audio_seen") or gov.get("awaiting_turn_complete"):
+        return True
+    last_fwd = gov.get("last_forward_at")
+    hold = _echo_hold_seconds(gov) + 1.0
+    if isinstance(last_fwd, (int, float)) and last_fwd > 0:
+        if clock - last_fwd < hold:
+            return True
+    return False
+
+
+def _should_drop_echo_asr(gov: dict, text: str, *, now: float | None = None) -> bool:
     """Drop mic bleed of the agent's recent speech."""
     normalized = " ".join(text.strip().split())
-    if len(normalized) < 12:
+    min_len = 8 if gov.get("embedded_app") else 12
+    if len(normalized) < min_len:
         return False
     assistant = (
         (gov.get("assistant_text") or "").strip()
@@ -334,10 +365,18 @@ def _should_drop_echo_asr(gov: dict, text: str) -> bool:
     )
     if not assistant:
         return False
+    clock = now if now is not None else time.monotonic()
+    hold = _echo_hold_seconds(gov)
+    recent_agent = False
     last_fwd = gov.get("last_forward_at")
-    if not isinstance(last_fwd, (int, float)) or last_fwd <= 0:
-        return False
-    if time.monotonic() - last_fwd > ECHO_HOLD_AFTER_AGENT_S + 1.5:
+    if isinstance(last_fwd, (int, float)) and last_fwd > 0:
+        if clock - last_fwd <= hold + 1.5:
+            recent_agent = True
+    last_tc = gov.get("last_turn_complete_at")
+    if isinstance(last_tc, (int, float)) and last_tc > 0:
+        if clock - last_tc <= hold + 2.5:
+            recent_agent = True
+    if not recent_agent:
         return False
     spoken = " ".join(assistant.split()).lower()
     heard = normalized.lower()
@@ -346,6 +385,9 @@ def _should_drop_echo_asr(gov: dict, text: str) -> bool:
         return True
     if len(heard) >= 20 and heard[:40] == spoken[:40]:
         _log.info("echo ASR dropped (prefix): %r", normalized[:80])
+        return True
+    if _word_overlap_ratio(heard, spoken) >= 0.55:
+        _log.info("echo ASR dropped (overlap): %r", normalized[:80])
         return True
     return False
 
@@ -1547,6 +1589,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         "webhook_call_ended_sent": False,
         "webhook_call_started_sent": False,
         "natural_mode": live_mode.is_natural,
+        "embedded_app": bool(session_payload.get("embedded_app")),
         "floor": None,
         "resumption_handle": "",
         "gemini_connected_at": 0.0,
@@ -2318,12 +2361,36 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         user_memories=load_user_memories(),
                     )
 
+                    if (
+                        gov.get("natural_mode")
+                        and plan.steer_mode == LiveSteerMode.ALLOW
+                        and _agent_reply_already_started(gov)
+                    ):
+                        _log.info(
+                            "natural S2S — skip post-governance inject, reply already streaming"
+                        )
+                        enqueue_browser(governance_payload(decision, plan=plan))
+                        gov["commit_scheduled"] = False
+                        if gov.get("final_scheduled_for") == normalized:
+                            gov["final_scheduled_for"] = ""
+                        if not gov.get("awaiting_turn_complete"):
+                            gov["model_generating"] = True
+                            _mark_awaiting_turn_complete(gov)
+                        _latency_mark(gov, "governance_done")
+                        return
+
                     if plan.steer_mode == LiveSteerMode.ALLOW:
                         if web_steer_extra:
-                            await _steer_gemini_session(
-                                session, web_steer_extra, send_lock=session_send_lock
-                            )
-                            gov["last_gemini_send"] = time.monotonic()
+                            if _agent_reply_already_started(gov):
+                                _log.info(
+                                    "skip web steer — agent reply already in flight"
+                                )
+                                web_steer_extra = ""
+                            else:
+                                await _steer_gemini_session(
+                                    session, web_steer_extra, send_lock=session_send_lock
+                                )
+                                gov["last_gemini_send"] = time.monotonic()
                         flushed = _apply_natural_allow(gov)
                         for chunk in flushed:
                             enqueue_browser(
@@ -2345,7 +2412,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                             len(flushed),
                             gov.get("awaiting_turn_complete"),
                         )
-                        if gov.get("gemini_activity_open"):
+                        if gov.get("gemini_activity_open") and not _agent_reply_already_started(gov):
                             await send_activity_end()
                             gov["last_gemini_send"] = time.monotonic()
                         return
@@ -2480,7 +2547,25 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     return "ignored"
                 if _should_drop_spurious_asr(gov, normalized):
                     return "ignored"
+                if gov.get("natural_mode") and _last_transcript.get(key) == normalized:
+                    return "declined"
+                if (
+                    gov.get("natural_mode")
+                    and normalized
+                    and _agent_reply_already_started(gov)
+                ):
+                    _log.info(
+                        "natural S2S — ignore governance while reply streaming: %r",
+                        normalized[:80],
+                    )
+                    return "ignored"
                 if _answer_in_flight(gov) and normalized:
+                    if _should_drop_spurious_asr(gov, normalized):
+                        _log.info(
+                            "ignore queued echo/spurious while answer plays: %r",
+                            normalized[:80],
+                        )
+                        return "ignored"
                     gov["queued_transcript"] = normalized
                     _log.info("queue transcript while answer plays: %r", normalized)
                     return "queued"
@@ -2707,7 +2792,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                             clear_user_speech_start(gov)
                             _apply_barge_in(gov)
                             cut_agent_audio("client barge_in")
-                            if gov.get("gemini_activity_open"):
+                            # RMS-only barge (echo) must not activity_end — that retriggers Gemini.
+                            if gov.get("gemini_activity_open") and transcript:
                                 await send_activity_end()
                             continue
                         if kind == "keypad" and payload.get("digit"):
@@ -3066,6 +3152,10 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                         and pending != already
                                         and not _answer_in_flight(gov)
                                         and gov.get("ready_for_next_utterance", True)
+                                        and not (
+                                            gov.get("natural_mode")
+                                            and _agent_reply_already_started(gov)
+                                        )
                                     ):
                                         _log.info(
                                             "turn_complete commit pending partial: %r",
@@ -3126,8 +3216,22 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                             queued = (gov.get("queued_transcript") or "").strip()
                             gov["queued_transcript"] = ""
                             if queued:
-                                _log.info("draining queued transcript after answer: %r", queued)
-                                schedule_final_governance(queued)
+                                if _should_drop_spurious_asr(gov, queued):
+                                    _log.info(
+                                        "dropped queued echo/spurious after answer: %r",
+                                        queued[:80],
+                                    )
+                                elif _last_transcript.get(session_ref["id"]) == queued:
+                                    _log.info(
+                                        "dropped queued duplicate after answer: %r",
+                                        queued[:80],
+                                    )
+                                else:
+                                    _log.info(
+                                        "draining queued transcript after answer: %r",
+                                        queued,
+                                    )
+                                    schedule_final_governance(queued)
                     except asyncio.CancelledError:
                         raise
                     except Exception as exc:
