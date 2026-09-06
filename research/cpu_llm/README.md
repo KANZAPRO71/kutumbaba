@@ -17,7 +17,7 @@ pola kata Melayu Papua, bukan menalar seperti model frontier.
 
 | Faktor | Model frontier | Pipeline ini |
 |---|---|---|
-| Parameter | miliaran–triliunan | ~1 juta |
+| Parameter | miliaran–triliunan | ~1,8 juta |
 | Data | triliunan token | ~100 ribu karakter |
 | Perangkat | ribuan GPU | 4 thread CPU |
 | Tujuan | percakapan umum | bukti + eksperimen logat |
@@ -79,3 +79,6 @@ Teksnya memakai pola Melayu Papua (`ko`, `sa`, `tra`, `mo`, `kah`) — bukti dis
 - `train.py` — loop AdamW + cosine LR, simpan checkpoint terbaik
 - `generate.py` — sampling dari checkpoint
 - `corpus.txt` — korpus hasil ekstrak (bisa di-generate ulang)
+- `train_metrics.json` / `train_log.txt` / `sample_outputs.txt` — hasil run CPU
+- `loss_curve.svg` — kurva train vs val
+- `papua_lm.pt` — checkpoint (tidak di-commit; hasil `train.py`)

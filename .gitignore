@@ -48,6 +48,7 @@ dist/
 
 # Research LM checkpoints (retrain in ~10 min on CPU)
 research/cpu_llm/*.pt
+research/lora/hf_adapter/
 
 # Legacy Ada (old repo)
 *.o
