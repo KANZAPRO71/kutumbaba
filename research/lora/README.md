@@ -38,6 +38,17 @@ python research/lora/generate_lora.py
 
 Hanya bobot `lora_A` / `lora_B` yang dilatih (~beberapa persen parameter). Dasar dibekukan.
 
+### Hasil run CPU (4 thread, 0 GPU)
+
+| Metrik | Nilai |
+|---|---|
+| Modul LoRA | 16 (rank 8 / alpha 16) |
+| Trainable | 98.304 / 1.912.896 (**5,14%**) |
+| Val loss | **1,82 → 0,82** |
+| Durasi | **4,5 menit** |
+
+Loss turun tanpa overfitting. Generate char-level tetap berantakan — model 1,8 juta parameter tidak cukup untuk ikut instruksi. LoRA di sini membuktikan adapter + dataset; percakapan yang layak butuh jalur Qwen di Colab.
+
 ## Jalur 2 — LoRA di Qwen (Colab)
 
 Buka `Papua_LoRA_Colab.ipynb` di Google Colab (GPU T4), atau:
