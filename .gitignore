@@ -46,6 +46,9 @@ desktop.ini
 releases/
 dist/
 
+# Research LM checkpoints (retrain in ~10 min on CPU)
+research/cpu_llm/*.pt
+
 # Legacy Ada (old repo)
 *.o
 *.ali

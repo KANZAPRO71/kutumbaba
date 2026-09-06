@@ -9,7 +9,7 @@ Pipeline ini:
 2. Melatih GPT decoder-only kecil **sepenuhnya di CPU**
 3. Menghasilkan teks dari checkpoint
 
-Ini **bukan** pengganti Gemini. Modelnya sengaja kecil (~1 juta parameter) supaya
+Ini **bukan** pengganti Gemini. Modelnya sengaja kecil (~1,8 juta parameter) supaya
 latihan selesai di mesin 4-core tanpa kartu grafis. Hasilnya meniru logat dan
 pola kata Melayu Papua, bukan menalar seperti model frontier.
 
@@ -46,6 +46,30 @@ python research/cpu_llm/generate.py --prompt "Ko su" --tokens 80
 ```
 
 Dependensi: `torch` (CPU build cukup). Tidak perlu CUDA.
+
+## Hasil run di mesin 4-core (tanpa GPU)
+
+| Metrik | Nilai |
+|---|---|
+| Perangkat | CPU, 4 thread |
+| Parameter | 1.814.592 |
+| Korpus | 101.997 karakter / vocab 89 |
+| Durasi | **10,3 menit** |
+| Train loss | 4,54 → 0,22 |
+| Val loss terbaik | **1,68** (step 1250) |
+
+Setelah step 1250 model mulai overfitting (train turun, val naik). Checkpoint yang disimpan adalah yang val-nya terbaik.
+
+Contoh generate (char-level, bukan percakapan penuh):
+
+```
+PROMPT : 'Ko su'
+OUTPUT : Ko su mo pi?
+Sa tra mo pi ke sana?
+Sa pu hati.
+```
+
+Teksnya memakai pola Melayu Papua (`ko`, `sa`, `tra`, `mo`, `kah`) — bukti distribusi karakter terpelajari. Ini belum cukup untuk menggantikan Gemini.
 
 ## File
 

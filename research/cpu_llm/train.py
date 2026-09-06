@@ -109,17 +109,17 @@ def main() -> None:
     )
     model = GPT(cfg)
 
-    print("=" * 62)
-    print("LATIHAN LM MELAYU PAPUA — CPU SAJA (TANPA GPU)")
-    print("=" * 62)
-    print(f"Perangkat      : CPU ({torch.get_num_threads()} thread)")
-    print(f"Korpus         : {len(text):,} karakter")
-    print(f"Ukuran vocab   : {tokenizer.vocab_size} karakter")
-    print(f"Token latih    : {len(splits['train']):,}")
-    print(f"Token validasi : {len(splits['val']):,}")
-    print(f"Parameter      : {model.num_params():,}")
-    print(f"Arsitektur     : {cfg.n_layer} layer, {cfg.n_head} head, dim {cfg.n_embd}")
-    print("=" * 62)
+    print("=" * 62, flush=True)
+    print("LATIHAN LM MELAYU PAPUA — CPU SAJA (TANPA GPU)", flush=True)
+    print("=" * 62, flush=True)
+    print(f"Perangkat      : CPU ({torch.get_num_threads()} thread)", flush=True)
+    print(f"Korpus         : {len(text):,} karakter", flush=True)
+    print(f"Ukuran vocab   : {tokenizer.vocab_size} karakter", flush=True)
+    print(f"Token latih    : {len(splits['train']):,}", flush=True)
+    print(f"Token validasi : {len(splits['val']):,}", flush=True)
+    print(f"Parameter      : {model.num_params():,}", flush=True)
+    print(f"Arsitektur     : {cfg.n_layer} layer, {cfg.n_head} head, dim {cfg.n_embd}", flush=True)
+    print("=" * 62, flush=True)
 
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=args.lr, betas=(0.9, 0.99), weight_decay=0.1
@@ -144,7 +144,8 @@ def main() -> None:
             elapsed = time.time() - start
             print(
                 f"step {step:>5} | train {losses['train']:.4f} | "
-                f"val {losses['val']:.4f} | lr {lr:.2e} | {elapsed:6.1f}s"
+                f"val {losses['val']:.4f} | lr {lr:.2e} | {elapsed:6.1f}s",
+                flush=True,
             )
             history.append({"step": step, **losses, "elapsed_s": round(elapsed, 1)})
             if losses["val"] < best_val:
