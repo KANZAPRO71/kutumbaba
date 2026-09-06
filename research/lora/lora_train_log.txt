@@ -1,0 +1,21 @@
+==============================================================
+FINE-TUNE LORA — CPU, tanpa GPU / tanpa HuggingFace
+==============================================================
+Perangkat      : CPU (4 thread)
+Modul LoRA     : 16
+Rank / alpha   : 8 / 16
+Trainable      : 98,304 / 1,912,896 (5.14%)
+Token SFT      : train 162,704 | val 14,392
+==============================================================
+step    0 | train 1.8399 | val 1.8152 | lr 2.50e-05 |    4.9s
+step  100 | train 1.0225 | val 1.0109 | lr 9.86e-04 |   38.1s
+step  200 | train 0.8988 | val 0.9266 | lr 9.05e-04 |   71.5s
+step  300 | train 0.8966 | val 0.8838 | lr 7.64e-04 |  104.7s
+step  400 | train 0.8470 | val 0.8604 | lr 5.87e-04 |  138.1s
+step  500 | train 0.8249 | val 0.8390 | lr 4.04e-04 |  170.7s
+step  600 | train 0.8223 | val 0.8402 | lr 2.45e-04 |  203.8s
+step  700 | train 0.8146 | val 0.8394 | lr 1.38e-04 |  237.4s
+step  799 | train 0.8060 | val 0.8226 | lr 1.00e-04 |  270.2s
+==============================================================
+Selesai 4.5 menit. Val terbaik: 0.8226
+Adapter: /workspace/research/lora/papua_lora.pt

@@ -1,0 +1,31 @@
+==============================================================
+GENERATE — model dilatih di CPU, tanpa GPU
+==============================================================
+
+PROMPT : 'Ko su'
+OUTPUT : Ko su mo pi?
+Sa tra mo pi ke sana?
+Sa pu hati.
+Sa mo cerita ko.
+Ko mo cerita eee.
+Jang ke skali
+
+PROMPT : 'Sa pu'
+OUTPUT : Sa pu jawab sa jangan mo.
+AI mo kira kah? Emang penting ko bilang ketawa di rumah.
+Yo ke kah?
+E
+
+PROMPT : 'Jayapura'
+OUTPUT : Jayapura, omong angkot Jayapura, seperti sopikir.
+Kombex & Solo Dev lihatua Selamat Sentani.
+Li / 
+
+PROMPT : "Kata 'tra'"
+OUTPUT : Kata 'tra' artinya kepembual soal berbaga kuat membual, omong sa eee.
+Kata 'Sombong' artinya macam a
+
+PROMPT : 'Mop Papua'
+OUTPUT : Mop Papua.
+Gaya Barat Numbay: Jayapura, cool sok keren (spen kah?! / Masa, sa setuju, kalo ko cape 
+
