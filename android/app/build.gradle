@@ -3,6 +3,10 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.chaquo.python'
 
 def loadGeminiApiKeyFromEnv() {
+    def fromOs = System.getenv("GEMINI_API_KEY")?.trim() ?: ""
+    if (fromOs.length() > 0) {
+        return fromOs.replace("\\", "\\\\").replace("\"", "\\\"")
+    }
     def envFile = rootProject.file("../.env")
     if (!envFile.exists()) {
         return ""
@@ -46,14 +50,14 @@ tasks.configureEach { task ->
 
 android {
     namespace 'com.persona.ai'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
-        applicationId "com.persona.ai"
+        applicationId "com.personapapua.ai"
         minSdk 24
-        targetSdk 34
-        versionCode 156
-        versionName "2.9.68-faster-turn"
+        targetSdk 36
+        versionCode 3
+        versionName "1.0.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "GEMINI_API_KEY", "\"${geminiApiKeyForBuild}\""
@@ -78,7 +82,11 @@ android {
             def propsFile = rootProject.file("keystore.properties")
             if (propsFile.exists()) {
                 propsFile.withInputStream { props.load(it) }
-                storeFile rootProject.file(props.getProperty("storeFile", ""))
+                def storePath = props.getProperty("storeFile")?.trim()
+                if (!storePath) {
+                    throw new GradleException("keystore.properties: storeFile is missing or empty")
+                }
+                storeFile rootProject.file(storePath)
                 storePassword props.getProperty("storePassword", "")
                 keyAlias props.getProperty("keyAlias", "")
                 keyPassword props.getProperty("keyPassword", "")

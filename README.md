@@ -73,4 +73,4 @@ Versi beta — bug report & saran UX sangat welcome. Buka [Issues](https://githu
 
 ---
 
-**Versi saat ini:** 2.9.68-faster-turn (beta)
+**Versi saat ini:** 1.0.0.0 (beta)

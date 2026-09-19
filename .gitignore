@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+rules.md
 
 # Python
 .venv/
@@ -22,8 +23,10 @@ android/local.properties
 *.apk
 *.aab
 *.keystore
+*.jks
 !android/app/debug.keystore
 android/keystore.properties
+android/release/
 
 # IDE / OS
 .idea/
