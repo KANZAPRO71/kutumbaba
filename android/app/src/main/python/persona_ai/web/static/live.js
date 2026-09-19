@@ -6,14 +6,18 @@
 const INPUT_RATE = 16000;
 const OUTPUT_RATE = 24000;
 const WS_TIMEOUT_MS = 30000;
+/** HP WebView: speaker lebih dekat ke mic — barge-in sedikit lebih ketat. */
+const IS_EMBEDDED_APP =
+  typeof location !== "undefined" &&
+  new URLSearchParams(location.search).get("app") === "1";
 /** ~100 ms PCM @ 16 kHz — keeps WS/Gemini load sane vs AudioWorklet 128-sample quanta. */
 const MIC_BATCH_SAMPLES = 1600;
 /** Playback safety margin — absorbs WS/network jitter between audio chunks. */
 const PLAYBACK_LOOKAHEAD_S = 0.1;
 const PLAYBACK_LOOKAHEAD_SUSPENDED_S = 0.18;
 const PLAYBACK_UNDERRUN_SLIP_S = 0.012;
-/** Hold a few agent PCM chunks before scheduling — smooths cellular jitter (WebView playback). */
-const JITTER_MIN_CHUNKS = 3;
+/** Pre-buffer agent PCM — too high = suara putus antar-chunk; too low = stutter on bad network. */
+const JITTER_MIN_CHUNKS = IS_EMBEDDED_APP ? 1 : 2;
 const JITTER_MIN_CHUNKS_SUSPENDED = 1;
 const JITTER_MAX_CHUNKS = 24;
 const MIN_PLAYABLE_PCM_BYTES = 480; // ~10 ms @ 24 kHz mono s16le
@@ -22,10 +26,6 @@ const BARGE_IN_MIN_RMS = 0.042;
 const BARGE_IN_GRACE_MS = 200;
 const BARGE_IN_COOLDOWN_MS = 380;
 const BARGE_IN_ECHO_GUARD = 1.22;
-/** HP WebView: speaker lebih dekat ke mic — barge-in sedikit lebih ketat. */
-const IS_EMBEDDED_APP =
-  typeof location !== "undefined" &&
-  new URLSearchParams(location.search).get("app") === "1";
 const BARGE_IN_ECHO_GUARD_MOBILE = 1.28;
 const MOBILE_BARGE_TIGHTEN = {
   rms_add: 0.008,
@@ -314,6 +314,9 @@ class GeminiLiveCall {
     this.captureNode = null;
     this.source = null;
     this.playGain = null;
+    this._micAnalyser = null;
+    this._playbackAnalyser = null;
+    this._micAnalyserMute = null;
     this.playTime = 0;
     this.active = false;
     this._connected = false;
@@ -359,6 +362,7 @@ class GeminiLiveCall {
     this._disconnectNotified = false;
     this._bgm = null;
     this._wsGeneration = 0;
+    this._lastVizLevelAt = 0;
     this._linkState = "connected";
     this._playbackLookaheadS = PLAYBACK_LOOKAHEAD_S;
     this._jitterQueue = [];
@@ -929,9 +933,35 @@ class GeminiLiveCall {
     this._inputRate = this.audioCtx.sampleRate;
     this.playGain = this.audioCtx.createGain();
     this.playGain.gain.value = 1;
-    this.playGain.connect(this.audioCtx.destination);
+    this._playbackAnalyser = this.audioCtx.createAnalyser();
+    this._playbackAnalyser.fftSize = 256;
+    this._playbackAnalyser.smoothingTimeConstant = 0.55;
+    this.playGain.connect(this._playbackAnalyser);
+    this._playbackAnalyser.connect(this.audioCtx.destination);
+    this._syncWaveformAnalysers();
     await this._unlockAudioOutput();
     this._applyBgmSettings();
+  }
+
+  _syncWaveformAnalysers() {
+    window.PersonaWaveform?.attachAnalysers?.({
+      mic: this._micAnalyser,
+      playback: this._playbackAnalyser,
+    });
+  }
+
+  _wireMicAnalyserTap() {
+    if (!this.audioCtx || !this._micAnalyser) return;
+    if (!this._micAnalyserMute) {
+      this._micAnalyserMute = this.audioCtx.createGain();
+      this._micAnalyserMute.gain.value = 0;
+      this._micAnalyserMute.connect(this.audioCtx.destination);
+    }
+    try {
+      this._micAnalyser.connect(this._micAnalyserMute);
+    } catch {
+      /* already wired */
+    }
   }
 
   _applyBgmSettings() {
@@ -1039,7 +1069,21 @@ class GeminiLiveCall {
     wait();
   }
 
+  _reportMicLevel(input) {
+    if (!input?.length) return;
+    const now = performance.now();
+    if (now - this._lastVizLevelAt < 28) return;
+    this._lastVizLevelAt = now;
+    let sum = 0;
+    for (let i = 0; i < input.length; i += 1) {
+      sum += input[i] * input[i];
+    }
+    const rms = Math.sqrt(sum / input.length);
+    window.PersonaWaveform?.pushMicLevel?.(rms);
+  }
+
   _sendMicPcm(input) {
+    this._reportMicLevel(input);
     if (!this._micEnabled) return;
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this._isActive) return;
     // Natural S2S: full-duplex mic — server-side echo filter; needed for barge-in.
@@ -1095,6 +1139,12 @@ class GeminiLiveCall {
       URL.revokeObjectURL(url);
 
       this.source = this.audioCtx.createMediaStreamSource(this.mediaStream);
+      this._micAnalyser = this.audioCtx.createAnalyser();
+      this._micAnalyser.fftSize = 256;
+      this._micAnalyser.smoothingTimeConstant = 0.62;
+      this.source.connect(this._micAnalyser);
+      this._wireMicAnalyserTap();
+
       this.captureNode = new AudioWorkletNode(this.audioCtx, "mic-capture");
       const mute = this.audioCtx.createGain();
       mute.gain.value = 0;
@@ -1109,6 +1159,7 @@ class GeminiLiveCall {
       this.source.connect(this.captureNode);
       this.captureNode.connect(mute);
       mute.connect(this.audioCtx.destination);
+      this._syncWaveformAnalysers();
       this.onMicStatus({ active: false, reason: "pipeline_ready", label: tracks[0].label });
     } catch (workletErr) {
       this._connectMicPipelineLegacy(workletErr);
@@ -1121,6 +1172,12 @@ class GeminiLiveCall {
 
     const tracks = this.mediaStream.getAudioTracks();
     this.source = this.audioCtx.createMediaStreamSource(this.mediaStream);
+    this._micAnalyser = this.audioCtx.createAnalyser();
+    this._micAnalyser.fftSize = 256;
+    this._micAnalyser.smoothingTimeConstant = 0.62;
+    this.source.connect(this._micAnalyser);
+    this._wireMicAnalyserTap();
+
     const processor = this.audioCtx.createScriptProcessor(4096, 1, 1);
     const mute = this.audioCtx.createGain();
     mute.gain.value = 0;
@@ -1135,6 +1192,7 @@ class GeminiLiveCall {
     processor.connect(mute);
     mute.connect(this.audioCtx.destination);
     this.captureNode = processor;
+    this._syncWaveformAnalysers();
     this.onMicStatus({
       active: false,
       reason: "pipeline_ready_legacy",
@@ -1158,9 +1216,14 @@ class GeminiLiveCall {
   }
 
   _jitterMinChunks() {
-    return this._linkState === "suspended" || this._linkState === "resuming"
-      ? JITTER_MIN_CHUNKS_SUSPENDED
-      : JITTER_MIN_CHUNKS;
+    if (this._linkState === "suspended" || this._linkState === "resuming") {
+      return JITTER_MIN_CHUNKS_SUSPENDED;
+    }
+    // After playback started, do not re-wait for N chunks — avoids mid-sentence gaps.
+    if (this._agentSpeaking && this._playbackSources.size > 0) {
+      return 1;
+    }
+    return JITTER_MIN_CHUNKS;
   }
 
   _maybeDrainJitterBuffer(flushAll = false) {
@@ -1424,9 +1487,14 @@ class GeminiLiveCall {
     if (bytes.byteLength < MIN_PLAYABLE_PCM_BYTES) return;
     const samples = new Int16Array(bytes);
     const floats = new Float32Array(samples.length);
+    let sumSq = 0;
     for (let i = 0; i < samples.length; i++) {
       floats[i] = samples[i] / (samples[i] < 0 ? 0x8000 : 0x7fff);
+      sumSq += floats[i] * floats[i];
     }
+    const chunkRms = floats.length ? Math.sqrt(sumSq / floats.length) : 0;
+    window.PersonaWaveform?.pushAgentLevel?.(chunkRms);
+
     const buffer = this.audioCtx.createBuffer(1, floats.length, rate);
     buffer.copyToChannel(floats, 0);
     const src = this.audioCtx.createBufferSource();
@@ -1522,6 +1590,10 @@ class GeminiLiveCall {
         PersonaAndroid.stopBgm();
       }
     }
+    window.PersonaWaveform?.detachAnalysers?.();
+    this._micAnalyser = null;
+    this._playbackAnalyser = null;
+    this._micAnalyserMute = null;
     if (this.playGain) {
       this.playGain.disconnect();
       this.playGain = null;

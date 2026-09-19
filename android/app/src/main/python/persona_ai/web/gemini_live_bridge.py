@@ -3682,7 +3682,6 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     tool_call = getattr(msg, "tool_call", None)
                     if tool_call is not None:
                         _spawn_live_tool_call(session, session_send_lock, gov, tool_call)
-                        continue
 
                     go_away = getattr(msg, "go_away", None)
                     if go_away is not None:

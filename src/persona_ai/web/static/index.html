@@ -17,23 +17,50 @@
     .voice-foot.hidden,
     .text-compose.hidden { display: none !important; pointer-events: none !important; }
     .panel-overlay { display: none !important; }
-    .panel-head,
-    .panel-head button,
-    .panel-actions,
-    .panel-actions button,
-    .btn-call,
-    .btn-settings,
-    .panel-foot,
-    .panel-foot button,
-    .voice-foot,
-    .voice-foot button,
-    .onboarding-overlay:not(.hidden):not([hidden]) button,
-    .settings-picker-option {
+    #panel .panel-head,
+    #panel .panel-head button,
+    #panel .panel-actions,
+    #panel .panel-actions button,
+    #panel .btn-call,
+    #panel .btn-settings,
+    #panel .panel-foot,
+    #panel .panel-foot button,
+    #panel .voice-foot,
+    #panel .voice-foot button,
+    .onboarding-overlay:not(.hidden):not([hidden]) button {
       pointer-events: auto !important;
       position: relative;
       z-index: 1101;
     }
+    body.settings-modal-open #panel {
+      visibility: hidden;
+      pointer-events: none !important;
+    }
+    body.settings-modal-open #settings.settings-overlay:not(.hidden):not([hidden]) {
+      display: flex !important;
+      pointer-events: auto !important;
+      z-index: 99999 !important;
+    }
+    #settings .settings-sheet {
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
+    }
     button { touch-action: manipulation; cursor: pointer; -webkit-tap-highlight-color: rgba(255,255,255,0.15); }
+    /* WebView Android — teks bisa disorot; kontrol tetap non-select */
+    * {
+      -webkit-user-select: text !important;
+      user-select: text !important;
+    }
+    button, canvas, img, svg {
+      -webkit-user-select: none !important;
+      user-select: none !important;
+    }
+    .brand-wordmark {
+      background: linear-gradient(115deg, #f5e6c0, #e8c47a, #a67c2a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
   </style>
 
   <script>
@@ -68,12 +95,15 @@
       };
       function bindTouchUi() {
         function isFormControl(target) {
-          return !!target.closest("select, input, textarea, option, .settings-picker-list, .settings-picker-option");
+          return !!target.closest(
+            "#settings, .settings-sheet, select, input, textarea, option, label, summary, details, .settings-picker-list, .settings-picker-option, .experience-mode-list-settings, .experience-mode-btn",
+          );
         }
         document.addEventListener(
           "touchend",
           function (e) {
             if (isFormControl(e.target)) return;
+            if (e.target.closest("#settings") && !e.target.closest("[data-persona-action]")) return;
             var btn = e.target.closest("[data-persona-action]");
             if (!btn || btn.disabled) return;
             var actionId = btn.getAttribute("data-persona-action");
@@ -107,11 +137,11 @@
 
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=clash-display@500,600&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/static/styles.css?v=76" />
+  <link rel="stylesheet" href="/static/styles.css?v=86" />
 
 </head>
 
-<body>
+<body data-theme="ocean">
 
   <div class="panel" id="panel">
 
@@ -125,7 +155,7 @@
 
           <span class="status-dot" id="statusDot"></span>
 
-          <span class="brand-wordmark" id="modelStatus">Papua AI</span>
+          <span class="brand-wordmark" id="modelStatus">PAPUA AI</span>
 
         </div>
 
@@ -454,7 +484,17 @@
 
 
 
-    <div class="settings-overlay hidden" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="achievement-toast hidden" id="achievementToast" role="status" aria-live="polite"></div>
+
+
+
+
+
+    
+
+  </div>
+
+<div class="settings-overlay hidden" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
 
       <div class="settings-sheet">
 
@@ -678,17 +718,11 @@
 
     </div>
 
+  <script src="/static/waveform-viz.js?v=86"></script>
 
+  <script src="/static/live.js?v=86"></script>
 
-    <div class="achievement-toast hidden" id="achievementToast" role="status" aria-live="polite"></div>
-
-  </div>
-
-  <script src="/static/waveform-viz.js?v=78"></script>
-
-  <script src="/static/live.js?v=75"></script>
-
-  <script src="/static/app.js?v=77"></script>
+  <script src="/static/app.js?v=86"></script>
 
 </body>
 

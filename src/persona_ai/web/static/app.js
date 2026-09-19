@@ -1799,6 +1799,7 @@ function initProsodySimControls() {
 
 function openSettings() {
   if (!settings) return;
+  document.body.classList.add("settings-modal-open");
   settings.classList.remove("hidden");
   settings.hidden = false;
   if (settingsApiKey) {
@@ -1831,6 +1832,7 @@ function closeSettings() {
   if (!settings) return;
   settings.classList.add("hidden");
   settings.hidden = true;
+  document.body.classList.remove("settings-modal-open");
 }
 
 async function saveSettings() {
@@ -2714,7 +2716,7 @@ async function loadHealth() {
     const connected = serverReady || (isEmbeddedApp && clientReady);
     cachedPersonaName = data.persona_name || "Papua Ai";
     statusDot.classList.toggle("offline", !connected);
-    modelStatus.textContent = personaLabel();
+    modelStatus.textContent = "PAPUA AI";
     defaultLanguage = data.default_language || "id-ID";
     populateVoiceOptions(data.live_voices, data.default_voice);
     populateBgmOptions();
@@ -2728,7 +2730,7 @@ async function loadHealth() {
   } catch {
     cachedPersonaName = "Papua Ai";
     statusDot.classList.add("offline");
-    modelStatus.textContent = personaLabel();
+    modelStatus.textContent = "PAPUA AI";
     updateCallButtonReady(hasByokKey());
     renderSystem("Backend belum siap — tunggu sebentar lalu refresh");
   }
