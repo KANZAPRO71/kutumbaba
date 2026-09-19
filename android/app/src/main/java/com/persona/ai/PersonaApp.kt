@@ -3,4 +3,9 @@ package com.persona.ai
 import android.app.Application
 
 /** Application shell — Python starts on the backend server thread (see LocalPersonaServer). */
-class PersonaApp : Application()
+class PersonaApp : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        CheckInScheduler.schedule(this)
+    }
+}

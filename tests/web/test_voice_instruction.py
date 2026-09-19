@@ -31,7 +31,7 @@ class TestVoiceInstruction:
     def test_mince_few_shot_instruction(self):
         profile = load_default_preset()
         text = build_live_voice_instruction(profile, dialect="papua")
-        assert "Mince" in text
+        assert "Papua Ai" in text
         assert "FREKUENSI NATURAL" in text
         assert "Adooo" in text
         assert "Hahaha" in text
@@ -46,7 +46,7 @@ class TestVoiceInstruction:
         profile = load_default_preset()
         text = build_live_voice_instruction(profile, dialect=None)
         assert "FORBIDDEN" in text
-        assert "Mince" in text
+        assert "Papua Ai" in text
         assert "FREKUENSI NATURAL" in text
 
     def test_instruction_includes_prior_conversation(self):

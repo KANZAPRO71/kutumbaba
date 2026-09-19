@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package + dev/web extras
+        run: pip install -e ".[dev,web]"
+
+      - name: Pytest (companion + memory + web glue; no live Gemini)
+        run: >
+          pytest
+          tests/memory
+          tests/conversation
+          tests/web/test_session_memory.py
+          tests/web/test_post_call_memory.py
+          tests/web/test_post_call_config.py
+          tests/web/test_memory_preview.py
+          tests/web/test_conversation_controller_modes.py
+          tests/web/test_conversation_controller.py
+          tests/web/test_server_chat.py
+          tests/web/test_voice_instruction.py
+          tests/web/test_security_config.py
+          tests/web/test_time_awareness.py
+          tests/web/test_voice_config.py
+          tests/web/test_live_mode.py
+          tests/web/test_agent_handbook.py
+          tests/web/test_live_web_search.py
+          tests/personality/test_preset.py
+          tests/personality/test_papua_mops.py
+          tests/personality/test_papua_voice_anti_chatbot.py
+          tests/personality/test_papua_live_system_instruction.py
+          tests/web/test_persona_live.py
+          tests/web/test_gemini_live_bridge.py
+          -q
+
+  packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install build deps
+        run: pip install -e ".[dev,web]"
+
+      - name: Wheel install smoke
+        run: pytest tests/test_packaging.py -q -m packaging

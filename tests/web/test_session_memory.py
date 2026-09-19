@@ -5,10 +5,15 @@ from __future__ import annotations
 from persona_ai.core.types import Message
 from persona_ai.web.session_memory import (
     collapse_history,
+    format_companion_context_block,
     format_live_history_block,
     live_memory_steer_text,
+    load_companion_context_for_turn,
     post_call_summary,
 )
+from persona_ai.memory.engine import add_memory, reset_memory_store
+from persona_ai.memory.open_loop_engine import create_open_loop, reset_open_loop_store
+from persona_ai.memory.open_loop_extract import OpenLoopCandidate
 
 
 class TestSessionMemory:
@@ -34,7 +39,7 @@ class TestSessionMemory:
             Message.from_text("user", "Kemarin ko bilang su beli mobil ceper."),
         ]
         block = format_live_history_block(history, dialect="papua")
-        assert "INGATAN PERCAKAPAN" in block
+        assert "Konteks obrolan" in block
         assert "Obet" in block
         assert "Percakapan terbaru" in block
         assert "mobil ceper" in block
@@ -70,5 +75,51 @@ class TestSessionMemory:
             post_call={"data": {"call_summary": "Ko cerita tentang mop Obet dan mobil ceper."}},
             dialect="papua",
             user_memories=memories,
+            include_user_memory=True,
         )
         assert block.count("mobil ceper") == 1
+        assert "Ringkasan panggilan" not in block
+
+    def test_companion_memory_in_live_block(self, tmp_path, monkeypatch):
+        db_path = tmp_path / "user_memory.db"
+        monkeypatch.setenv("PERSONA_MEMORY_DB", str(db_path))
+        reset_memory_store()
+        reset_open_loop_store()
+        add_memory("Nama ko Obet", memory_type="semantic")
+        create_open_loop(
+            OpenLoopCandidate(
+                topic="motor",
+                content="Minggu depan sa mo beli motor",
+                time_hint="minggu depan",
+                confidence=0.9,
+            ),
+        )
+        history = [Message.from_text("user", "Eh motor minggu depan gimana ya?")]
+        block = format_live_history_block(
+            history,
+            dialect="papua",
+            include_companion_memory=True,
+        )
+        assert "URUSAN BELUM SELESAI" in block
+        assert "motor" in block.lower()
+        reset_memory_store()
+        reset_open_loop_store()
+
+    def test_format_companion_context_block(self, tmp_path, monkeypatch):
+        db_path = tmp_path / "user_memory.db"
+        monkeypatch.setenv("PERSONA_MEMORY_DB", str(db_path))
+        reset_memory_store()
+        reset_open_loop_store()
+        create_open_loop(
+            OpenLoopCandidate(
+                topic="rapat",
+                content="Lusa sa ada rapat dengan tim",
+                time_hint="lusa",
+                confidence=0.9,
+            ),
+        )
+        ctx = load_companion_context_for_turn("rapat tim", messages=[])
+        block = format_companion_context_block(ctx, dialect="papua")
+        assert "rapat" in block.lower()
+        reset_memory_store()
+        reset_open_loop_store()

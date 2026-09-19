@@ -30,7 +30,9 @@ def test_time_question_bypasses_llm(monkeypatch):
     assert response.execution_profile == "clock"
     assert response.raw_bdv == "RESPOND"
     assert response.effective_bdv == "RESPOND"
-    assert "UTC" in (response.text or "")
+    text = (response.text or "").lower()
+    # Preset timezone Asia/Jakarta when tzdata/IANA available; else unset fallback.
+    assert "pukul" in text or "timezone" in text
 
 
 def test_session_history_without_gemini_key(monkeypatch):

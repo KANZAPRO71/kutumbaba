@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.http.SslError
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -31,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "PersonaAI"
         private const val PERMISSION_REQUEST_MIC = 101
+        private const val PERMISSION_REQUEST_NOTIFICATIONS = 102
     }
 
     private lateinit var webView: WebView
@@ -62,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         setupBackNavigation()
         checkMicrophonePermission()
+        maybeRequestNotificationPermission()
         bootstrapAndLoad()
     }
 
@@ -308,6 +311,21 @@ class MainActivity : AppCompatActivity() {
                 PERMISSION_REQUEST_MIC
             )
         }
+    }
+
+    private fun maybeRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (!CheckInScheduler.remindersEnabled(this)) return
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            PERMISSION_REQUEST_NOTIFICATIONS,
+        )
     }
 
     override fun onRequestPermissionsResult(

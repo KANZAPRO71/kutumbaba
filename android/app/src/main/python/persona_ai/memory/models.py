@@ -8,8 +8,16 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-MemoryType = Literal["semantic", "preference", "episodic", "manual"]
-MemorySource = Literal["user_explicit", "post_call", "manual", "inferred"]
+MemoryType = Literal[
+    "semantic",
+    "preference",
+    "relationship",
+    "episodic",
+    "manual",
+    "open_loop",
+]
+MemorySource = Literal["user_explicit", "post_call", "manual", "inferred", "open_loop"]
+OpenLoopStatus = Literal["pending", "resolved", "expired"]
 
 DEFAULT_USER_ID = "local"
 

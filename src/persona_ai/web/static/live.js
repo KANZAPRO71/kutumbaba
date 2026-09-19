@@ -108,6 +108,16 @@ function loadProsodySim() {
 }
 
 const BGM_STORAGE_KEY = "papua_bgm_mode";
+const CONVERSATION_MODE_KEY = "papua_conversation_mode";
+
+function loadConversationMode() {
+  try {
+    const raw = localStorage.getItem(CONVERSATION_MODE_KEY);
+    return raw && String(raw).trim() ? String(raw).trim() : "casual_chat";
+  } catch {
+    return "casual_chat";
+  }
+}
 const BGM_MODES = { off: "off", disko: "disko_tanah", hiphop: "hiphop_papua" };
 const JEDAG_BURST_MS = 3000;
 
@@ -423,6 +433,7 @@ class GeminiLiveCall {
           voice_name: this.voiceName,
           language_code: this.languageCode,
           dialect: "papua",
+          conversation_mode: loadConversationMode(),
         };
         if (IS_EMBEDDED_APP) {
           sessionPayload.embedded_app = true;
@@ -1188,7 +1199,7 @@ class GeminiLiveCall {
     if (this._isActive) return Promise.resolve();
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        reject(new Error("Timeout — suara Mince tidak aktif"));
+        reject(new Error("Timeout — suara Papua Ai tidak aktif"));
       }, WS_TIMEOUT_MS);
       this._activeResolve = () => {
         clearTimeout(timer);

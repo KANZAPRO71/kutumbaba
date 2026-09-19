@@ -57,5 +57,6 @@ def test_from_profile_reads_preset_timezone() -> None:
 def test_prompt_lines_in_system_prompt_shape() -> None:
     cfg = TimeAwarenessConfig(timezone="UTC")
     lines = cfg.prompt_lines(language="en")
-    assert len(lines) == 2
+    assert len(lines) >= 2
     assert lines[0].startswith("Current Time Awareness:")
+    assert any("Daily rhythm" in line or "today" in line.lower() for line in lines[1:])

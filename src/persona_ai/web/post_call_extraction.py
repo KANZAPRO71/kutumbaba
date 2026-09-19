@@ -39,7 +39,9 @@ def _build_prompt(
     )
     schema = json.dumps(config.json_schema(), ensure_ascii=False)
     return (
-        "Extract structured post-call analytics from this voice conversation.\n"
+        "Extract structured post-call analytics from this conversation.\n"
+        "For user_memories and open_loops: only include what the User explicitly said; "
+        "do not infer from the Agent; use the User's phrasing.\n"
         f"Call ended because: {end_reason}\n"
         f"Call duration_ms: {duration_ms}\n\n"
         "Fields to extract:\n"
@@ -120,4 +122,10 @@ def extract_post_call_data(
     }
     runtime.record_post_call_data(session_id, payload)
     _log.info("post-call extraction saved session=%s keys=%s", session_id, list(data.keys()))
+    try:
+        from persona_ai.web.post_call_memory import ingest_post_call_memory
+
+        ingest_post_call_memory(runtime, session_id, payload)
+    except Exception:
+        _log.exception("post-call memory ingest failed session=%s", session_id)
     return payload

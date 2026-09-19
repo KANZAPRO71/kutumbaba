@@ -5,6 +5,9 @@ from __future__ import annotations
 from persona_ai.core.types import Message
 from persona_ai.memory.engine import format_memory_block, load_memories_for_prompt
 from persona_ai.memory.models import UserMemoryRecord
+from persona_ai.memory.open_loop_engine import format_open_loops_block
+from persona_ai.memory.open_loop_models import OpenLoopRecord
+from persona_ai.memory.retrieve import CompanionMemoryContext, retrieve_companion_memory
 
 RECENT_VERBATIM_TURNS = 14
 NATURAL_RECENT_VERBATIM_TURNS = 4
@@ -79,27 +82,60 @@ def format_user_memory_block(
     return format_memory_block(records, dialect=dialect)
 
 
+def _last_user_line(messages: list[Message] | None) -> str:
+    if not messages:
+        return ""
+    for msg in reversed(messages):
+        if msg.role == "user":
+            text = (msg.text or "").strip()
+            if text:
+                return text
+    return ""
+
+
+def load_companion_context_for_turn(
+    query: str | None = None,
+    *,
+    messages: list[Message] | None = None,
+) -> CompanionMemoryContext:
+    from persona_ai.memory.live_policy import apply_live_memory_policy
+
+    effective = (query or _last_user_line(messages)).strip()
+    ctx = retrieve_companion_memory(effective or None)
+    return apply_live_memory_policy(ctx)
+
+
+def format_companion_context_block(
+    ctx: CompanionMemoryContext,
+    *,
+    dialect: str | None = None,
+) -> str:
+    from persona_ai.memory.live_policy import apply_live_memory_policy, live_memory_mention_rules
+
+    ctx = apply_live_memory_policy(ctx)
+    if not ctx.user_memories and not ctx.open_loops:
+        return ""
+    parts: list[str] = [live_memory_mention_rules(dialect=dialect)]
+    if ctx.user_memories:
+        parts.append(format_memory_block(list(ctx.user_memories), dialect=dialect))
+    if ctx.open_loops:
+        parts.append(format_open_loops_block(list(ctx.open_loops), dialect=dialect))
+    return "\n\n".join(part for part in parts if part)
+
+
 def _summary_in_user_memories(
     summary: str,
     user_memories: list[UserMemoryRecord] | None,
 ) -> bool:
-    needle = summary.strip().lower()
-    if len(needle) < 8:
+    cleaned = " ".join((summary or "").split()).strip()
+    if len(cleaned) < 8:
         return False
-    needle_words = {w for w in needle.split() if len(w) > 3}
+    from persona_ai.memory.embedding_index import embed_query, vector_for_memory
+    from persona_ai.memory.vector_math import cosine_similarity
+
+    q_vec = embed_query(cleaned)
     for record in user_memories or []:
-        existing = (record.content or "").strip().lower()
-        if not existing:
-            continue
-        if needle in existing or existing in needle:
-            return True
-        if not needle_words:
-            continue
-        existing_words = {w for w in existing.split() if len(w) > 3}
-        if not existing_words:
-            continue
-        overlap = len(needle_words & existing_words) / min(len(needle_words), len(existing_words))
-        if overlap >= 0.55:
+        if cosine_similarity(q_vec, vector_for_memory(record)) >= 0.55:
             return True
     return False
 
@@ -111,6 +147,10 @@ def format_live_history_block(
     dialect: str | None = None,
     user_memories: list[UserMemoryRecord] | None = None,
     include_user_memory: bool = False,
+    open_loops: list[OpenLoopRecord] | None = None,
+    include_open_loops: bool = False,
+    include_companion_memory: bool = False,
+    companion_query: str | None = None,
     recent_verbatim_turns: int | None = None,
     filter_filler_loops: bool = False,
 ) -> str:
@@ -122,20 +162,39 @@ def format_live_history_block(
     recent_cap = max(2, min(recent_cap, RECENT_VERBATIM_TURNS))
     papua = is_papua_dialect(dialect)
     skip_filler = filter_filler_loops and papua
+
+    ctx: CompanionMemoryContext | None = None
+    if include_companion_memory:
+        ctx = load_companion_context_for_turn(companion_query, messages=messages)
+        include_user_memory = include_user_memory or bool(ctx.user_memories)
+        include_open_loops = include_open_loops or bool(ctx.open_loops)
+        if user_memories is None and ctx.user_memories:
+            user_memories = list(ctx.user_memories)
+        if open_loops is None and ctx.open_loops:
+            open_loops = list(ctx.open_loops)
+
     user_block = (
         format_user_memory_block(user_memories, dialect=dialect)
-        if include_user_memory
+        if include_user_memory and user_memories
+        else ""
+    )
+    loop_block = (
+        format_open_loops_block(open_loops, dialect=dialect)
+        if include_open_loops and open_loops
         else ""
     )
     summary = post_call_summary(post_call)
     if summary and _summary_in_user_memories(summary, user_memories):
         summary = None
-    if not messages and not summary and not user_block:
+    if not messages and not summary and not user_block and not loop_block:
         return ""
 
     lines: list[str] = []
     if user_block:
         lines.append(user_block)
+        lines.append("")
+    if loop_block:
+        lines.append(loop_block)
         lines.append("")
     lines.extend(memory_rules_lines(dialect=dialect))
 

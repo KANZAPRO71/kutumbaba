@@ -2,7 +2,7 @@
   "schema_version": "persona_preset_v1",
   "preset_id": "default_companion",
   "version": "1.0.0",
-  "display_name": "Mince",
+  "display_name": "Papua Ai",
 
   "traits": {
     "warmth": 0.6,
@@ -205,6 +205,18 @@
         "name": "User Sentiment",
         "type": "enum",
         "description": "Overall user sentiment: positive, neutral, or negative."
+      },
+      {
+        "id": "open_loops",
+        "name": "Open Loops",
+        "type": "open_loops",
+        "description": "Unresolved plans or promises the user mentioned. Empty array if none."
+      },
+      {
+        "id": "user_memories",
+        "name": "User Memories",
+        "type": "user_memories",
+        "description": "Stable facts the user stated about themselves. Empty array if none."
       }
     ]
   },
@@ -223,7 +235,7 @@
     "automatic_fallback": false,
     "fallback_voice_name": "Aoede",
     "default_dynamic_variables": {
-      "agent_name": "Mince",
+      "agent_name": "Papua Ai",
       "company": "Papua AI"
     }
   },

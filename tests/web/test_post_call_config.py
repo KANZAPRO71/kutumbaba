@@ -9,7 +9,13 @@ from persona_ai.web.post_call_config import PostCallConfig
 def test_default_retell_fields() -> None:
     cfg = PostCallConfig()
     ids = {field.id for field in cfg.fields}
-    assert ids == {"call_summary", "call_successful", "user_sentiment"}
+    assert ids == {
+        "call_summary",
+        "call_successful",
+        "user_sentiment",
+        "open_loops",
+        "user_memories",
+    }
     schema = cfg.json_schema()
     assert set(schema["required"]) == ids
     assert schema["properties"]["user_sentiment"]["enum"] == [
@@ -17,6 +23,7 @@ def test_default_retell_fields() -> None:
         "neutral",
         "negative",
     ]
+    assert schema["properties"]["open_loops"]["type"] == "array"
 
 
 def test_from_profile_reads_live_post_call() -> None:
@@ -24,7 +31,8 @@ def test_from_profile_reads_live_post_call() -> None:
     cfg = PostCallConfig.from_profile(profile)
     assert cfg.enabled is True
     assert cfg.model_name() == "gemini-3.1-flash-lite-preview"
-    assert len(cfg.fields) == 3
+    assert len(cfg.fields) == 5
+    assert {f.id for f in cfg.fields} >= {"open_loops", "user_memories"}
 
 
 def test_custom_field_from_dict() -> None:

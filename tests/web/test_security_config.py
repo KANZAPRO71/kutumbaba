@@ -26,7 +26,7 @@ def test_from_profile_reads_live_security_block() -> None:
     profile = PersonalityProfile(id="t", preset_id="default_companion", display_name="Persona")
     cfg = LiveSecurityConfig.from_profile(profile)
     assert cfg.storage_mode == "everything"
-    assert cfg.default_dynamic_variables.get("agent_name") == "Mince"
+    assert cfg.default_dynamic_variables.get("agent_name") == "Papua Ai"
     assert cfg.fallback_voice_name == "Aoede"
 
 

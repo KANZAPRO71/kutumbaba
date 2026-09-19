@@ -1,4 +1,4 @@
-"""Tests for user memory store and extraction."""
+"""Tests for user memory store — manual / episodic; no keyword extract."""
 
 from __future__ import annotations
 
@@ -31,22 +31,9 @@ def memory_db(monkeypatch):
         reset_memory_store()
 
 
-def test_extract_explicit_remember():
-    candidates = extract_memory_candidates("Ingat ya, nama ko Budi suka basket")
-    assert len(candidates) == 1
-    assert "Budi" in candidates[0].content
-    assert candidates[0].memory_type == "semantic"
-
-
-def test_extract_preference():
-    candidates = extract_memory_candidates("Ko tra suka pedas banget")
-    assert len(candidates) == 1
-    assert candidates[0].memory_type == "preference"
-
-
-def test_vent_not_extracted():
-    candidates = extract_memory_candidates("Ah capek banget hari ini")
-    assert candidates == []
+def test_extract_from_chat_is_disabled():
+    assert extract_memory_candidates("Ingat ya, nama ko Budi suka basket") == []
+    assert extract_memory_candidates("Sa lagi belajar coding") == []
 
 
 def test_store_save_and_list(memory_db):
@@ -57,13 +44,11 @@ def test_store_save_and_list(memory_db):
     assert items[0].content == "Nama ko Budi"
 
 
-def test_commit_from_text(memory_db):
-    saved = commit_from_text("Ingat dong, ko alergi seafood", session_id="s1")
-    assert len(saved) == 1
-    assert "seafood" in saved[0].content.lower()
+def test_commit_from_text_no_op(memory_db):
+    assert commit_from_text("Ingat dong, ko alergi seafood", session_id="s1") == []
 
 
-def test_dedupe_similar(memory_db):
+def test_dedupe_exact_content(memory_db):
     add_memory("Nama ko Budi", memory_type="manual")
     add_memory("Nama ko Budi", memory_type="manual")
     assert len(list_memories()) == 1

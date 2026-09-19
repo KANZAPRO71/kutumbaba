@@ -35,6 +35,13 @@ desktop.ini
 # Local runtime data — never commit
 .persona_ai/sessions.db
 .persona_ai/sessions.db-*
+.persona_ai/user_memory.db
+.persona_ai/user_memory.db-*
+persona_user_memory.db
+persona_user_memory.db-*
+
+# Python build output
+build/
 .persona_ai/certs/
 .persona_ai/*.json
 !.persona_ai/eval/

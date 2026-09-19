@@ -106,12 +106,12 @@ class SQLiteUserMemoryStore:
         content: str,
         user_id: str = DEFAULT_USER_ID,
     ) -> UserMemoryRecord | None:
-        needle = content.strip().lower()
+        needle = " ".join(content.split()).strip().lower()
         if len(needle) < 4:
             return None
         for record in self.list_all(user_id, limit=200):
-            existing = record.content.strip().lower()
-            if existing == needle or needle in existing or existing in needle:
+            existing = " ".join(record.content.split()).strip().lower()
+            if existing == needle:
                 return record
         return None
 
@@ -122,6 +122,12 @@ class SQLiteUserMemoryStore:
                 (user_id,),
             ).fetchone()
         return int(row[0]) if row else 0
+
+    def delete_all(self, user_id: str = DEFAULT_USER_ID) -> int:
+        with self._connect() as conn:
+            cur = conn.execute("DELETE FROM user_memory WHERE user_id = ?", (user_id,))
+            conn.commit()
+            return int(cur.rowcount)
 
     def close(self) -> None:
         """Release SQLite handles — important on Windows before deleting db files."""

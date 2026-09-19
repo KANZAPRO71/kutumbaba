@@ -203,26 +203,44 @@ class ConversationController:
     SIMILARITY_STRONG = 0.58
     SIMILARITY_MILD = 0.38
 
+    _MODE_STEER_ENABLED = frozenset(
+        {"curhat", "study", "funny", "brainstorm", "story", "roleplay"}
+    )
+
     def __init__(
         self,
         *,
         steer_cooldown: float = STEER_COOLDOWN,
         deliver_steer: bool = True,
+        conversation_mode: str | None = None,
     ) -> None:
         self.steer_cooldown = max(0.0, steer_cooldown)
         self.deliver_steer = deliver_steer
+        self.conversation_mode = (conversation_mode or "casual_chat").strip().lower()
         self.state = ControllerState()
 
     @classmethod
-    def from_live_mode(cls, live_mode: Any) -> ConversationController:
+    def from_live_mode(
+        cls,
+        live_mode: Any,
+        *,
+        conversation_mode: str | None = None,
+    ) -> ConversationController:
+        mode = (conversation_mode or "casual_chat").strip().lower()
         cooldown = float(getattr(live_mode, "slip_nudge_cooldown_s", cls.STEER_COOLDOWN))
         if getattr(live_mode, "is_natural", False):
-            return cls(steer_cooldown=cooldown, deliver_steer=False)
+            if mode in cls._MODE_STEER_ENABLED:
+                return cls(
+                    steer_cooldown=min(cooldown, 45.0),
+                    deliver_steer=True,
+                    conversation_mode=mode,
+                )
+            return cls(steer_cooldown=cooldown, deliver_steer=False, conversation_mode=mode)
         deliver = bool(
             getattr(live_mode, "slip_nudge", False)
             or getattr(live_mode, "flow_steer", True)
         )
-        return cls(steer_cooldown=cooldown, deliver_steer=deliver)
+        return cls(steer_cooldown=cooldown, deliver_steer=deliver, conversation_mode=mode)
 
     @staticmethod
     def _matches_any(text_lower: str, patterns: tuple[str, ...]) -> bool:
@@ -427,6 +445,12 @@ class ConversationController:
         return analysis
 
     def decide(self, analysis: dict[str, int]) -> str | None:
+        category = self._decide_category(analysis)
+        if category:
+            return category
+        return self._decide_mode_extra(analysis)
+
+    def _decide_category(self, analysis: dict[str, int]) -> str | None:
         if self.state.last_user_follow_through:
             pushed = (
                 analysis.get("offering_question", 0) > 0
@@ -458,7 +482,137 @@ class ConversationController:
             return DriftCategory.TOO_LONG
         return None
 
+    def _decide_mode_extra(self, analysis: dict[str, int]) -> str | None:
+        if self.conversation_mode == "curhat":
+            if analysis.get("word_count", 0) > 75:
+                return DriftCategory.TOO_LONG
+            if (
+                analysis.get("offering_question", 0) > 0
+                or self.state.offering_question_streak >= 1
+            ):
+                return DriftCategory.QUESTION_LOOP
+            if analysis.get("chatbot_score", 0) >= 2 or self.state.chatbot_score >= 2:
+                return DriftCategory.CHATBOT
+        if self.conversation_mode == "study":
+            if analysis.get("word_count", 0) > 120:
+                return DriftCategory.TOO_LONG
+        if self.conversation_mode == "funny":
+            if analysis.get("word_count", 0) > 85:
+                return DriftCategory.TOO_LONG
+            if (
+                analysis.get("offering_question", 0) > 0
+                or self.state.offering_question_streak >= 1
+            ):
+                return DriftCategory.QUESTION_LOOP
+            if analysis.get("chatbot_score", 0) >= 2 or self.state.chatbot_score >= 2:
+                return DriftCategory.CHATBOT
+        if self.conversation_mode == "brainstorm":
+            if analysis.get("word_count", 0) > 110:
+                return DriftCategory.TOO_LONG
+            if analysis.get("chatbot_score", 0) >= 2 or self.state.chatbot_score >= 2:
+                return DriftCategory.CHATBOT
+            if (
+                analysis.get("offering_question", 0) > 0
+                or self.state.offering_question_streak >= 1
+            ):
+                return DriftCategory.QUESTION_LOOP
+        if self.conversation_mode == "story":
+            if analysis.get("word_count", 0) > 130:
+                return DriftCategory.TOO_LONG
+            if (
+                analysis.get("offering_question", 0) > 0
+                or self.state.offering_question_streak >= 1
+            ):
+                return DriftCategory.QUESTION_LOOP
+            if analysis.get("chatbot_score", 0) >= 2 or self.state.chatbot_score >= 2:
+                return DriftCategory.CHATBOT
+        if self.conversation_mode == "roleplay":
+            if analysis.get("word_count", 0) > 95:
+                return DriftCategory.TOO_LONG
+            if analysis.get("chatbot_score", 0) >= 2 or self.state.chatbot_score >= 2:
+                return DriftCategory.CHATBOT
+            if (
+                analysis.get("offering_question", 0) > 0
+                and analysis.get("menu_score", 0) >= 1
+            ):
+                return DriftCategory.MENU_LOOP
+        return None
+
     def choose_steer(self, category: str) -> str:
+        if self.conversation_mode == "curhat":
+            if category == DriftCategory.TOO_LONG:
+                return (
+                    "Mode curhat: dengar dulu — satu kalimat pendek saja, tanpa saran "
+                    "kecuali user minta."
+                )
+            if category == DriftCategory.QUESTION_LOOP:
+                return (
+                    "Mode curhat: jangan tanya balik atau tawarin topik. "
+                    "Reaksi singkat, biarkan user lanjut."
+                )
+            if category == DriftCategory.CHATBOT:
+                return (
+                    "Mode curhat: bukan asisten layanan — teman yang mendengar, "
+                    "bukan motivator atau konselor."
+                )
+        if self.conversation_mode == "funny":
+            if category == DriftCategory.TOO_LONG:
+                return (
+                    "Mode lucu: punchline singkat — jangan monolog atau stand-up panjang."
+                )
+            if category == DriftCategory.QUESTION_LOOP:
+                return (
+                    "Mode lucu: jangan tanya menu ('mau dengar mop?') — lempar joke "
+                    "atau reaksi, bukan interview."
+                )
+            if category == DriftCategory.CHATBOT:
+                return (
+                    "Mode lucu: tongkrongan playful, bukan CS — tanpa 'tentu saja' "
+                    "atau nada konselor."
+                )
+        if self.conversation_mode == "brainstorm":
+            if category == DriftCategory.TOO_LONG:
+                return (
+                    "Mode brainstorm: satu ide/sudut per giliran — yes-and dulu, "
+                    "baru tambah, jangan essay."
+                )
+            if category == DriftCategory.CHATBOT:
+                return (
+                    "Mode brainstorm: partner ide, bukan guru — jangan lecture "
+                    "atau solusi jadi satu blok."
+                )
+            if category == DriftCategory.QUESTION_LOOP:
+                return (
+                    "Mode brainstorm: yes-and ide ko dulu — jangan tanya menu "
+                    "('mau bahas A atau B')."
+                )
+        if self.conversation_mode == "story":
+            if category == DriftCategory.TOO_LONG:
+                return (
+                    "Mode cerita: potongan 2–4 kalimat per giliran — lanjut kalau "
+                    "ko minta, jangan monolog panjang."
+                )
+            if category == DriftCategory.QUESTION_LOOP:
+                return (
+                    "Mode cerita: lanjutkan alur — jangan tanya menu atau check-in."
+                )
+            if category == DriftCategory.CHATBOT:
+                return (
+                    "Mode cerita: storyteller hidup, bukan asisten — tanpa nada layanan."
+                )
+        if self.conversation_mode == "roleplay":
+            if category == DriftCategory.TOO_LONG:
+                return (
+                    "Mode roleplay: satu beat per giliran — suara natural, bukan naskah panjang."
+                )
+            if category == DriftCategory.CHATBOT:
+                return (
+                    "Mode roleplay: tetap di peran — bukan CS atau konselor generic."
+                )
+            if category == DriftCategory.MENU_LOOP:
+                return (
+                    "Mode roleplay: ikuti scene ko — jangan tawarin menu topik di luar peran."
+                )
         options = list(
             self.STEERS.get(category, self.STEERS[DriftCategory.MENU_LOOP])
         )

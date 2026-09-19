@@ -59,7 +59,6 @@ def test_instruction_compact_natural_anti_patterns():
     profile = load_default_preset()
     text = build_live_voice_instruction(profile, dialect="papua")
     assert len(text) < 3500
-    assert "Tentu saja" in text
-    assert "Saya dengar" in text
-    assert "full duplex" in text.lower()
+    assert "tongkrongan" in text.lower()
+    assert "mau bahas apa" in text.lower()
     assert voice_not_chat_prompt_lines("papua", language="id")[0].startswith("Suara")

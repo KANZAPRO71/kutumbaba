@@ -198,9 +198,16 @@ class TimeAwarenessConfig:
             "use the agent local time above. For appointments, confirm date and time explicitly.",
         ]
 
-    def prompt_lines(self, *, language: str = "id") -> list[str]:
+    def prompt_lines(self, *, language: str = "id", dialect: str | None = None) -> list[str]:
         lines = [self.current_datetime_line(language=language)]
         lines.extend(self.interpretation_lines(language=language))
+        now = self.now()
+        if now is not None:
+            from persona_ai.conversation.daily import daily_lines_for_datetime
+
+            lines.extend(
+                daily_lines_for_datetime(now, language=language, dialect=dialect)
+            )
         return lines
 
     def to_client_dict(self) -> dict[str, str | None]:

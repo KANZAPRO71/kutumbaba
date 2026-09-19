@@ -61,6 +61,22 @@ class PersonaAndroidBridge(
         }
     }
 
+    @JavascriptInterface
+    fun setDailyRemindersEnabled(enabled: Boolean) {
+        CheckInScheduler.setRemindersEnabled(activity.applicationContext, enabled)
+    }
+
+    @JavascriptInterface
+    fun getDailyRemindersEnabled(): Boolean {
+        return CheckInScheduler.remindersEnabled(activity.applicationContext)
+    }
+
+    /** Saat app/WebView ke background — sama dengan POST /api/session/.../extract-memory */
+    @JavascriptInterface
+    fun finalizeSessionMemory(sessionId: String?) {
+        SessionMemoryExtract.finalizeSession(sessionId)
+    }
+
     companion object {
         private const val TAG = "PersonaAndroid"
     }

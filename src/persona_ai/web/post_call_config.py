@@ -9,7 +9,9 @@ from persona_ai.core.types import PersonalityProfile
 from persona_ai.llm.gemini_models import gemini_post_call_model
 from persona_ai.personality.preset import read_preset_json
 
-_VALID_FIELD_TYPES = frozenset({"string", "boolean", "number", "enum"})
+_VALID_FIELD_TYPES = frozenset(
+    {"string", "boolean", "number", "enum", "open_loops", "user_memories"},
+)
 
 # Retell default post-call fields
 DEFAULT_POST_CALL_FIELDS: tuple[dict[str, str], ...] = (
@@ -31,6 +33,24 @@ DEFAULT_POST_CALL_FIELDS: tuple[dict[str, str], ...] = (
         "type": "enum",
         "description": "Overall user sentiment: positive, neutral, or negative.",
     },
+    {
+        "id": "open_loops",
+        "name": "Open Loops",
+        "type": "open_loops",
+        "description": (
+            "Unresolved threads to follow up later (user-stated plans, promises, time hints). "
+            "Empty array if none."
+        ),
+    },
+    {
+        "id": "user_memories",
+        "name": "User Memories",
+        "type": "user_memories",
+        "description": (
+            "Stable facts the user stated about themselves (name, job, likes, people close to them). "
+            "Use the user's wording; skip small talk and assistant guesses. Empty array if none."
+        ),
+    },
 )
 
 
@@ -51,6 +71,63 @@ class PostCallField:
                 "type": "string",
                 "enum": ["positive", "neutral", "negative"],
                 "description": self.description or self.name,
+            }
+        if self.type == "open_loops":
+            return {
+                "type": "array",
+                "description": self.description or self.name,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "topic": {
+                            "type": "string",
+                            "description": "Short slug from the thread (user's words, not a fixed taxonomy)",
+                        },
+                        "content": {
+                            "type": "string",
+                            "description": "What the user said or plans, one sentence",
+                        },
+                        "time_hint": {
+                            "type": "string",
+                            "description": "Optional: besok, minggu depan, nanti, etc.",
+                        },
+                        "from_user": {
+                            "type": "boolean",
+                            "description": "True only if the User stated this plan/fact",
+                        },
+                    },
+                    "required": ["topic", "content", "from_user"],
+                    "additionalProperties": False,
+                },
+            }
+        if self.type == "user_memories":
+            return {
+                "type": "array",
+                "description": self.description or self.name,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "content": {
+                            "type": "string",
+                            "description": "One fact in the user's own phrasing",
+                        },
+                        "memory_type": {
+                            "type": "string",
+                            "enum": ["semantic", "preference", "relationship"],
+                            "description": "semantic=fact, preference=likes/dislikes, relationship=people",
+                        },
+                        "confidence": {
+                            "type": "number",
+                            "description": "0-1 how explicit the user was (omit if unsure)",
+                        },
+                        "from_user": {
+                            "type": "boolean",
+                            "description": "True only if the User explicitly said this (not inferred by Agent)",
+                        },
+                    },
+                    "required": ["content", "memory_type", "from_user"],
+                    "additionalProperties": False,
+                },
             }
         return {"type": "string", "description": self.description or self.name}
 

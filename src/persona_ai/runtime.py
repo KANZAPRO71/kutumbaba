@@ -126,6 +126,14 @@ class PersonaRuntime:
                 stored = filt(session)
         self._store.save(stored)
 
+    def _commit_user_turn_memory(self, session_id: str, user_text: str) -> None:
+        try:
+            from persona_ai.memory.commit_turn import commit_user_turn_memory
+
+            commit_user_turn_memory(user_text, session_id=session_id)
+        except Exception:
+            pass
+
     @property
     def session_store(self) -> SessionStore:
         return self._store
@@ -198,6 +206,7 @@ class PersonaRuntime:
         channel: str = "voice",
         response_policy: str = "governed",
         generate_text: bool = True,
+        conversation_mode: str | None = None,
     ) -> TurnOutput:
         if persist:
             return self._process_persisted(
@@ -207,6 +216,7 @@ class PersonaRuntime:
                 channel=channel,
                 response_policy=response_policy,
                 generate_text=generate_text,
+                conversation_mode=conversation_mode,
             )
         return self._process_ephemeral(
             session_id,
@@ -216,6 +226,7 @@ class PersonaRuntime:
             channel=channel,
             response_policy=response_policy,
             generate_text=generate_text,
+            conversation_mode=conversation_mode,
         )
 
     def _process_persisted(
@@ -227,6 +238,7 @@ class PersonaRuntime:
         channel: str = "voice",
         response_policy: str = "governed",
         generate_text: bool = True,
+        conversation_mode: str | None = None,
     ) -> TurnOutput:
         session = self._store.load(session_id)
         if session is None:
@@ -243,6 +255,7 @@ class PersonaRuntime:
                 channel=channel,
                 response_policy=response_policy,
                 generate_text=generate_text,
+                conversation_mode=conversation_mode,
             )
             self._save_session(next_session)
             persistence_ok = True
@@ -310,6 +323,7 @@ class PersonaRuntime:
         channel: str = "voice",
         response_policy: str = "governed",
         generate_text: bool = True,
+        conversation_mode: str | None = None,
     ) -> TurnOutput:
         from persona_ai.arc import store as arc_store
 
@@ -332,6 +346,7 @@ class PersonaRuntime:
             channel=channel,
             response_policy=response_policy,
             generate_text=generate_text,
+            conversation_mode=conversation_mode,
         )
 
         trace = TurnTrace(
@@ -365,6 +380,7 @@ class PersonaRuntime:
         channel: str = "voice",
         response_policy: str = "governed",
         generate_text: bool = True,
+        conversation_mode: str | None = None,
     ) -> tuple[TurnOutput, SessionState]:
         t0 = time.perf_counter()
         pre = self._policy.pre_check(user_text)
@@ -377,11 +393,16 @@ class PersonaRuntime:
             arc=session.arc,
             voice_pause_ms=voice_pause_ms,
             policy_signals=policy_signals,
+            conversation_mode=conversation_mode,
         )
         raw_bdv = decide(inp)
+        from persona_ai.conversation.behavior_bias import bias_bdv_for_mode, tune_voice_for_mode
+
+        raw_bdv = bias_bdv_for_mode(raw_bdv, inp, conversation_mode=conversation_mode)
         bdv = _cap_question_budget(_apply_response_policy(raw_bdv, response_policy), self._profile)
         expr = apply(self._profile, bdv, session.arc, execution_profile(bdv))
         voice = bind(bdv, expr, self._profile, session.arc, session.anchor)
+        voice = tune_voice_for_mode(voice, conversation_mode=conversation_mode)
 
         updated_anchor = session.anchor
         if session.anchor is not None:
@@ -481,6 +502,7 @@ class PersonaRuntime:
             assistant_text=text,
         )
         next_messages = append_messages(session.messages, user_text, text)
+        self._commit_user_turn_memory(session.session_id, user_text)
 
         next_session = session.model_copy(
             update={

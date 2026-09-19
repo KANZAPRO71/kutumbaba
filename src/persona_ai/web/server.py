@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, WebSocket
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -53,11 +53,14 @@ from persona_ai.web.webhook_config import LiveWebhookConfig
 from persona_ai.web.webhook_delivery import deliver_webhook_event, sample_test_call
 from persona_ai.memory.engine import (
     add_memory,
+    clear_all_user_memory,
     delete_memory,
+    export_user_data,
     list_memories,
     memory_storage_path,
     memory_summary_for_client,
 )
+from persona_ai.memory.open_loop_engine import list_pending_open_loops, resolve_open_loop
 from persona_ai.session.store import SQLiteSessionStore, default_db_path
 
 load_project_dotenv()
@@ -184,6 +187,13 @@ class MemoryDeleteResponse(BaseModel):
     id: str
 
 
+class MemoryClearResponse(BaseModel):
+    ok: bool = True
+    memories_deleted: int = 0
+    open_loops_deleted: int = 0
+    review_deleted: int = 0
+
+
 def _reset_runtime() -> None:
     global _runtime, _adapter, _llm_kind, _runtime_error, _retell_bridge
     _runtime = None
@@ -229,6 +239,7 @@ def health() -> dict:
             "developer_role": developer_role(),
             "developer_credit": ui_credit_line(),
             "live_web_search": True,
+            "memory_rag": _memory_rag_health(),
             "error": _runtime_error,
         }
 
@@ -258,7 +269,14 @@ def health() -> dict:
         "developer_role": developer_role(),
         "developer_credit": ui_credit_line(),
         "live_web_search": True,
+        "memory_rag": _memory_rag_health(),
     }
+
+
+def _memory_rag_health() -> dict:
+    from persona_ai.memory.rag_config import memory_rag_client_config
+
+    return memory_rag_client_config()
 
 
 @app.post("/api/byok")
@@ -358,6 +376,41 @@ def latest_session() -> dict:
     }
 
 
+@app.post("/api/session/{session_id}/extract-memory")
+def extract_session_memory(session_id: str) -> dict:
+    """Run post-call LLM extraction for text (or voice) sessions — same path as live end."""
+    if not session_id or len(session_id) > 128:
+        raise HTTPException(status_code=400, detail="invalid session_id")
+    runtime, adapter, _ = _ensure_runtime()
+    session = _load_session_or_empty(session_id)
+    if session is None or not session.messages:
+        return {"session_id": session_id, "ok": False, "post_call": None}
+
+    from persona_ai.web.post_call_config import PostCallConfig
+    from persona_ai.web.post_call_extraction import extract_post_call_data
+
+    cfg = PostCallConfig.from_profile(runtime.personality_profile)
+    if not cfg.enabled:
+        return {"session_id": session_id, "ok": False, "post_call": None, "reason": "disabled"}
+
+    api_key = getattr(adapter, "api_key", "") or os.environ.get("GEMINI_API_KEY", "")
+    security_cfg = LiveSecurityConfig.from_profile(runtime.personality_profile)
+    payload = extract_post_call_data(
+        runtime,
+        session_id,
+        config=cfg,
+        end_reason="session_finalize",
+        duration_ms=0,
+        api_key=api_key or None,
+        security_cfg=security_cfg,
+    )
+    return {
+        "session_id": session_id,
+        "ok": payload is not None,
+        "post_call": payload,
+    }
+
+
 @app.get("/api/session/{session_id}/post-call")
 def get_session_post_call(session_id: str) -> dict:
     if not session_id or len(session_id) > 128:
@@ -393,6 +446,105 @@ def get_user_memory() -> dict:
     }
 
 
+class MemoryImportRequest(BaseModel):
+    payload: dict[str, Any]
+    mode: str = Field(default="merge", pattern="^(merge|replace)$")
+
+
+@app.post("/api/memory/import")
+def import_memory_backup(body: MemoryImportRequest) -> dict:
+    """Restore from papua_ai_memory_export v2/v3 JSON."""
+    from persona_ai.memory.import_restore import import_user_data
+
+    try:
+        counts = import_user_data(body.payload, mode=body.mode)  # type: ignore[arg-type]
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    from persona_ai.memory.embedding_index import reindex_all_embeddings
+
+    reindex = reindex_all_embeddings()
+    return {"ok": True, "imported": counts, "reindexed": reindex}
+
+
+@app.post("/api/memory/reindex-embeddings")
+def reindex_memory_embeddings() -> dict:
+    """Rebuild RAG vector cache for all local memories and pending open loops."""
+    from persona_ai.memory.embedding_index import reindex_all_embeddings
+
+    counts = reindex_all_embeddings()
+    return {"ok": True, "reindexed": counts}
+
+
+@app.get("/api/memory/export")
+def export_memory_download() -> Response:
+    """Download local memory + open loops as JSON (no conversation transcript)."""
+    import json
+
+    payload = export_user_data()
+    body = json.dumps(payload, ensure_ascii=False, indent=2)
+    return Response(
+        content=body,
+        media_type="application/json; charset=utf-8",
+        headers={
+            "Content-Disposition": 'attachment; filename="papua-ai-memory-export.json"',
+        },
+    )
+
+
+@app.delete("/api/memory/all", response_model=MemoryClearResponse)
+def clear_local_memory() -> MemoryClearResponse:
+    counts = clear_all_user_memory()
+    return MemoryClearResponse(
+        ok=True,
+        memories_deleted=counts["memories_deleted"],
+        open_loops_deleted=counts["open_loops_deleted"],
+        review_deleted=counts.get("review_deleted", 0),
+    )
+
+
+@app.get("/api/memory/review")
+def list_memory_review_queue() -> dict:
+    from persona_ai.memory.review_engine import list_memory_reviews
+
+    items = list_memory_reviews()
+    return {
+        "count": len(items),
+        "items": [
+            {
+                "id": r.id,
+                "content": r.content,
+                "memory_type": r.memory_type,
+                "confidence": r.confidence,
+                "created_at": r.created_at,
+            }
+            for r in items
+        ],
+    }
+
+
+@app.post("/api/memory/review/{review_id}/confirm")
+def confirm_memory_review_item(review_id: str) -> dict:
+    from persona_ai.memory.review_engine import confirm_memory_review
+
+    if not review_id or len(review_id) > 64:
+        raise HTTPException(status_code=400, detail="invalid review_id")
+    record = confirm_memory_review(review_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="review item not found")
+    return {"ok": True, "memory": memory_summary_for_client([record])[0]}
+
+
+@app.post("/api/memory/review/{review_id}/dismiss")
+def dismiss_memory_review_item(review_id: str) -> dict:
+    from persona_ai.memory.review_engine import dismiss_memory_review
+
+    if not review_id or len(review_id) > 64:
+        raise HTTPException(status_code=400, detail="invalid review_id")
+    if not dismiss_memory_review(review_id):
+        raise HTTPException(status_code=404, detail="review item not found")
+    return {"ok": True, "id": review_id}
+
+
 @app.post("/api/memory")
 def create_user_memory(body: MemoryCreateRequest) -> dict:
     memory_type = body.memory_type if body.memory_type in {
@@ -402,6 +554,180 @@ def create_user_memory(body: MemoryCreateRequest) -> dict:
     if record is None:
         raise HTTPException(status_code=400, detail="content too short")
     return {"ok": True, "memory": memory_summary_for_client([record])[0]}
+
+
+class OpenLoopResolveResponse(BaseModel):
+    ok: bool = True
+    id: str
+
+
+@app.get("/api/companion/memory-preview")
+def companion_memory_preview(query: str = "") -> dict:
+    """Debug/settings: what RAG would inject for a query (no LLM)."""
+    from persona_ai.memory.retrieve import retrieve_companion_memory
+
+    ctx = retrieve_companion_memory(query or None)
+    loops = ctx.open_loops
+    return {
+        "query": ctx.query,
+        "retrieval_mode": ctx.retrieval_mode,
+        "memories": memory_summary_for_client(list(ctx.user_memories)),
+        "open_loops": [
+            {
+                "id": loop.id,
+                "topic": loop.topic,
+                "content": loop.content,
+                "time_hint": loop.time_hint,
+            }
+            for loop in loops
+        ],
+    }
+
+
+@app.get("/api/companion/check-in")
+def get_daily_check_in() -> dict:
+    runtime, _, _ = _ensure_runtime()
+    from persona_ai.conversation.daily_checkin import evaluate_daily_checkin
+
+    checkin = evaluate_daily_checkin(runtime.personality_profile)
+    return {
+        "show": checkin.show,
+        "day_part": checkin.day_part,
+        "message": checkin.message,
+        "live_hint": checkin.live_hint,
+        "talked_today": checkin.talked_today,
+        "follow_up_kind": checkin.follow_up_kind,
+        "open_loop_id": checkin.open_loop_id,
+    }
+
+
+@app.get("/api/companion/stats")
+def get_companion_stats() -> dict:
+    from persona_ai.conversation.companion_prefs import get_companion_prefs_store
+    from persona_ai.conversation.companion_stats import load_companion_stats, stats_for_client
+
+    stats = load_companion_stats()
+    body = stats_for_client(stats)
+    body["session_feedback"] = get_companion_prefs_store().feedback_summary()
+    return {"ok": True, "stats": body}
+
+
+class CompanionPrefsPatch(BaseModel):
+    rag_enabled: bool | None = None
+    rag_min_score: float | None = Field(default=None, ge=0.05, le=0.95)
+    rag_use_gemini: bool | None = None
+    reindex_embeddings: bool = False
+
+
+@app.get("/api/companion/prefs")
+def get_companion_prefs() -> dict:
+    from persona_ai.conversation.companion_prefs import load_companion_prefs
+    from persona_ai.memory.rag_config import memory_rag_client_config
+
+    prefs = load_companion_prefs()
+    return {
+        "ok": True,
+        "prefs": prefs.model_dump(),
+        "effective": memory_rag_client_config(),
+    }
+
+
+@app.patch("/api/companion/prefs")
+def patch_companion_prefs(body: CompanionPrefsPatch) -> dict:
+    from persona_ai.conversation.companion_prefs import load_companion_prefs, save_companion_prefs
+    from persona_ai.memory.rag_config import memory_rag_client_config
+
+    prefs = load_companion_prefs()
+    reindex = body.reindex_embeddings
+    data = body.model_dump(exclude_unset=True, exclude={"reindex_embeddings"})
+    prev_gemini = prefs.rag_use_gemini
+    prefs = prefs.model_copy(update=data)
+    saved = save_companion_prefs(prefs)
+    reindex_counts: dict[str, int] | None = None
+    if reindex or (saved.rag_use_gemini != prev_gemini):
+        from persona_ai.memory.embedding_index import reindex_all_embeddings
+
+        reindex_counts = reindex_all_embeddings()
+    return {
+        "ok": True,
+        "prefs": saved.model_dump(),
+        "effective": memory_rag_client_config(),
+        "reindex": reindex_counts,
+    }
+
+
+class SessionFeedbackRequest(BaseModel):
+    session_id: str = Field(min_length=1, max_length=128)
+    rating: str = Field(pattern="^(up|down|skip)$")
+
+
+@app.post("/api/companion/session-feedback")
+def post_session_feedback(body: SessionFeedbackRequest) -> dict:
+    from persona_ai.conversation.companion_prefs import get_companion_prefs_store
+
+    store = get_companion_prefs_store()
+    store.record_feedback(body.session_id, body.rating)
+    return {"ok": True, "summary": store.feedback_summary()}
+
+
+@app.get("/api/conversation-modes")
+def list_conversation_modes() -> dict:
+    from persona_ai.conversation.mode_prompt import scenario_for_client
+    from persona_ai.conversation.scenarios import DEFAULT_SCENARIO_ID, list_scenarios
+
+    modes = [scenario_for_client(s) for s in list_scenarios()]
+    return {"default": DEFAULT_SCENARIO_ID, "modes": modes}
+
+
+@app.get("/api/privacy")
+def get_privacy_summary() -> dict:
+    """Local-first privacy snapshot for the settings UI."""
+    from persona_ai.memory.review_engine import list_memory_reviews
+
+    memories = list_memories()
+    loops = list_pending_open_loops()
+    reviews = list_memory_reviews()
+    return {
+        "api_key_storage": "device_local",
+        "developer_server": False,
+        "conversation_storage": "device_local_sqlite",
+        "memory_storage_path": memory_storage_path(),
+        "memory_count": len(memories),
+        "open_loop_count": len(loops),
+        "review_count": len(reviews),
+        "gemini": "user_byok",
+    }
+
+
+@app.get("/api/open-loops")
+def get_open_loops() -> dict:
+    """Pending conversational threads stored locally."""
+    loops = list_pending_open_loops()
+    return {
+        "count": len(loops),
+        "open_loops": [
+            {
+                "id": loop.id,
+                "topic": loop.topic,
+                "content": loop.content,
+                "status": loop.status,
+                "time_hint": loop.time_hint,
+                "created_at": loop.created_at,
+                "updated_at": loop.updated_at,
+            }
+            for loop in loops
+        ],
+    }
+
+
+@app.post("/api/open-loops/{loop_id}/resolve", response_model=OpenLoopResolveResponse)
+def resolve_open_loop_endpoint(loop_id: str) -> OpenLoopResolveResponse:
+    if not loop_id or len(loop_id) > 64:
+        raise HTTPException(status_code=400, detail="invalid loop_id")
+    record = resolve_open_loop(loop_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="open loop not found")
+    return OpenLoopResolveResponse(ok=True, id=record.id)
 
 
 @app.delete("/api/memory/{memory_id}", response_model=MemoryDeleteResponse)

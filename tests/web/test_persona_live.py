@@ -189,7 +189,7 @@ class TestPlanLiveGovernance:
             live_mode=_GOVERNED,
         )
         assert "ada mobil Honda" in (plan.steer_prompt or "")
-        assert "Conversation so far:" in (plan.steer_prompt or "")
+        assert "Use that thread" in (plan.steer_prompt or "")
 
     def test_natural_respond_allows_s2s(self):
         profile = load_default_preset()
@@ -220,7 +220,7 @@ class TestVoiceDirectives:
     def test_natural_baseline_is_short(self):
         profile = load_default_preset()
         text = build_live_voice_instruction(profile)
-        assert "ChatGPT voice" in text
+        assert "tongkrongan" in text.lower() or "friend" in text.lower()
         assert "PERSONA_GOVERNANCE" not in text
         assert "Turn protocol" not in text
         assert "Agent Handbook" not in text

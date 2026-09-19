@@ -22,8 +22,8 @@ def test_from_profile_reads_preset() -> None:
     profile = PersonalityProfile(id="t", preset_id="default_companion", display_name="Persona")
     cfg = LiveModeConfig.from_profile(profile)
     assert cfg.mode == "natural"
-    assert cfg.slip_nudge is True
-    assert cfg.slip_nudge_cooldown_s == 90.0
+    assert cfg.slip_nudge is False
+    assert cfg.slip_nudge_cooldown_s == 30.0
     assert cfg.persona_refresh_s == 240.0
 
 

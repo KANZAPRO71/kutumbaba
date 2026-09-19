@@ -31,11 +31,25 @@ const onboardingError = document.getElementById("onboardingError");
 const onboardingProgress = document.getElementById("onboardingProgress");
 const resumeBanner = document.getElementById("resumeBanner");
 const resumeBannerText = document.getElementById("resumeBannerText");
+const dailyCheckInBanner = document.getElementById("dailyCheckInBanner");
+const dailyCheckInText = document.getElementById("dailyCheckInText");
+const btnDailyCheckInCall = document.getElementById("btnDailyCheckInCall");
+const btnDailyCheckInDismiss = document.getElementById("btnDailyCheckInDismiss");
+const DAILY_CHECKIN_DISMISS_KEY = "papua_daily_checkin_dismiss";
 const btnResumeYes = document.getElementById("btnResumeYes");
 const btnResumeNo = document.getElementById("btnResumeNo");
 const postCallCard = document.getElementById("postCallCard");
 const postCallSummary = document.getElementById("postCallSummary");
 const postCallMood = document.getElementById("postCallMood");
+const btnPostCallUp = document.getElementById("btnPostCallUp");
+const btnPostCallDown = document.getElementById("btnPostCallDown");
+const ragEnabledToggle = document.getElementById("ragEnabledToggle");
+const ragMinScore = document.getElementById("ragMinScore");
+const ragMinScoreVal = document.getElementById("ragMinScoreVal");
+const ragGeminiToggle = document.getElementById("ragGeminiToggle");
+const sessionFeedbackStats = document.getElementById("sessionFeedbackStats");
+let lastPostCallSessionId = null;
+let prefsSaveTimer = null;
 const btnPostCallClose = document.getElementById("btnPostCallClose");
 const btnTextToggle = document.getElementById("btnTextToggle");
 const textCompose = document.getElementById("textCompose");
@@ -48,6 +62,26 @@ const settingsApiKey = document.getElementById("settingsApiKey");
 const settingsError = document.getElementById("settingsError");
 const settingsKeyStatus = document.getElementById("settingsKeyStatus");
 const btnSettingsSave = document.getElementById("btnSettingsSave");
+const memoryStats = document.getElementById("memoryStats");
+const companionAchievements = document.getElementById("companionAchievements");
+const achievementToast = document.getElementById("achievementToast");
+const ACHIEVEMENT_UNLOCK_KEY = "papua_achievement_unlocked_ids";
+let achievementToastTimer = null;
+const memoryReviewList = document.getElementById("memoryReviewList");
+const memoryList = document.getElementById("memoryList");
+const openLoopList = document.getElementById("openLoopList");
+const btnMemoryRefresh = document.getElementById("btnMemoryRefresh");
+const btnMemoryExport = document.getElementById("btnMemoryExport");
+const btnMemoryReindex = document.getElementById("btnMemoryReindex");
+const btnMemoryImport = document.getElementById("btnMemoryImport");
+const memoryImportFile = document.getElementById("memoryImportFile");
+const RAG_IDLE_REINDEX_KEY = "papua_rag_idle_reindex_ms";
+const RAG_IDLE_REINDEX_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const btnMemoryClearAll = document.getElementById("btnMemoryClearAll");
+const dailyReminderToggle = document.getElementById("dailyReminderToggle");
+const btnMemoryAdd = document.getElementById("btnMemoryAdd");
+const memoryManualInput = document.getElementById("memoryManualInput");
+const memoryAddError = document.getElementById("memoryAddError");
 const settingsMopCount = document.getElementById("settingsMopCount");
 const settingsMopPreview = document.getElementById("settingsMopPreview");
 const settingsKamusCount = document.getElementById("settingsKamusCount");
@@ -69,7 +103,7 @@ const BGM_OPTIONS = [
 ];
 let cachedLiveVoices = null;
 let cachedDefaultVoice = "Leda";
-let cachedPersonaName = "Mince";
+let cachedPersonaName = "Papua Ai";
 const LEGACY_VOICE_ALIASES = { Sulafat: "Leda", Puck: "Leda", Tinus: "Leda" };
 const BYOK_STORAGE_KEY = "persona_gemini_api_key";
 const ONBOARDING_KEY = "persona_onboarding_v2";
@@ -79,7 +113,7 @@ const SHOW_CHAT_TEXT = false;
 const RESUME_SKIP_KEY = "persona_resume_skip_id";
 
 function personaLabel() {
-  return cachedPersonaName || "Mince";
+  return cachedPersonaName || "Papua Ai";
 }
 
 function normalizeSavedVoice(saved, defaultVoice) {
@@ -261,9 +295,12 @@ function renderAssistant(payload) {
 }
 
 function renderSystem(message) {
+  if (!message) return;
   if (!SHOW_CHAT_TEXT) {
-    if (message && voiceStatus && inCall) {
+    if (inCall && voiceStatus) {
       setVoiceStatus(message.slice(0, 80));
+    } else {
+      showUiToast(message);
     }
     return;
   }
@@ -336,23 +373,65 @@ function sentimentLabel(value) {
   return "Mood: netral";
 }
 
+function postCallFields(raw) {
+  if (!raw || typeof raw !== "object") return {};
+  if (raw.data && typeof raw.data === "object") return raw.data;
+  return raw;
+}
+
 function showPostCallCard(data) {
-  if (!SHOW_CHAT_TEXT || !postCallCard || !data) return;
-  const summary =
-    data.call_summary ||
-    data.summary ||
-    "Obrolan singkat tadi — lanjut kapan saja ya.";
-  postCallSummary.textContent = summary;
-  if (postCallMood) {
-    const mood = data.user_sentiment ? sentimentLabel(data.user_sentiment) : "";
-    postCallMood.textContent = mood;
-    postCallMood.classList.toggle("hidden", !mood);
+  if (!data) return;
+  lastPostCallSessionId = data.session_id || sessionId || null;
+  if (postCallCard) {
+    const fields = postCallFields(data);
+    const summary =
+      fields.call_summary ||
+      fields.summary ||
+      fields.ringkasan ||
+      "Obrolan singkat tadi — lanjut kapan saja ya.";
+    if (postCallSummary) postCallSummary.textContent = summary;
+    if (postCallMood) {
+      const mood = fields.user_sentiment ? sentimentLabel(fields.user_sentiment) : "";
+      postCallMood.textContent = mood;
+      postCallMood.classList.toggle("hidden", !mood);
+    }
+    postCallCard.classList.remove("hidden");
   }
-  postCallCard.classList.remove("hidden");
+  void syncAchievementsAfterCall();
 }
 
 function hidePostCallCard() {
   postCallCard?.classList.add("hidden");
+}
+
+async function finalizeSessionMemory(sid) {
+  const id = sid || sessionId;
+  if (!id) return null;
+  if (
+    isEmbeddedApp &&
+    typeof PersonaAndroid !== "undefined" &&
+    PersonaAndroid.finalizeSessionMemory
+  ) {
+    try {
+      PersonaAndroid.finalizeSessionMemory(id);
+    } catch {
+      /* ignore */
+    }
+    return null;
+  }
+  try {
+    const res = await fetch(
+      `/api/session/${encodeURIComponent(id)}/extract-memory`,
+      { method: "POST", cache: "no-store" }
+    );
+    if (!res.ok) return null;
+    const body = await res.json();
+    if (body?.post_call) showPostCallCard(body.post_call);
+    void syncAchievementsAfterCall();
+    return body?.post_call || null;
+  } catch {
+    return null;
+  }
 }
 
 async function fetchPostCallWithRetry(maxAttempts = 8, delayMs = 1500) {
@@ -398,6 +477,60 @@ async function loadSessionHistoryFrom(id) {
     }
   } catch {
     /* empty */
+  }
+}
+
+function dailyCheckInDismissedToday() {
+  try {
+    return localStorage.getItem(DAILY_CHECKIN_DISMISS_KEY) === new Date().toDateString();
+  } catch {
+    return false;
+  }
+}
+
+function syncDailyReminderToggle() {
+  if (!dailyReminderToggle) return;
+  if (typeof PersonaAndroid !== "undefined" && PersonaAndroid.getDailyRemindersEnabled) {
+    try {
+      dailyReminderToggle.checked = PersonaAndroid.getDailyRemindersEnabled();
+    } catch {
+      dailyReminderToggle.checked = true;
+    }
+  } else {
+    dailyReminderToggle.checked = true;
+    dailyReminderToggle.disabled = true;
+  }
+}
+
+function onDailyReminderToggleChange() {
+  if (!dailyReminderToggle) return;
+  if (typeof PersonaAndroid !== "undefined" && PersonaAndroid.setDailyRemindersEnabled) {
+    PersonaAndroid.setDailyRemindersEnabled(Boolean(dailyReminderToggle.checked));
+  }
+}
+
+function dismissDailyCheckInForToday() {
+  try {
+    localStorage.setItem(DAILY_CHECKIN_DISMISS_KEY, new Date().toDateString());
+  } catch {
+    /* ignore */
+  }
+  dailyCheckInBanner?.classList.add("hidden");
+}
+
+async function checkDailyCheckInBanner() {
+  if (!dailyCheckInBanner || inCall) return;
+  if (dailyCheckInDismissedToday()) return;
+  if (resumeBanner && !resumeBanner.classList.contains("hidden")) return;
+  try {
+    const res = await fetch("/api/companion/check-in", { cache: "no-store" });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.show || !data.message) return;
+    if (dailyCheckInText) dailyCheckInText.textContent = data.message;
+    dailyCheckInBanner.classList.remove("hidden");
+  } catch {
+    /* ignore */
   }
 }
 
@@ -551,6 +684,480 @@ function skipOnboarding() {
   dismissOnboarding();
 }
 
+const MEMORY_TYPE_LABELS = {
+  semantic: "fakta",
+  preference: "suka/tidak",
+  episodic: "obrolan lalu",
+  manual: "ko simpan",
+  open_loop: "urusan",
+};
+
+function readStoredAchievementIds() {
+  try {
+    const raw = localStorage.getItem(ACHIEVEMENT_UNLOCK_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((id) => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredAchievementIds(ids) {
+  try {
+    localStorage.setItem(ACHIEVEMENT_UNLOCK_KEY, JSON.stringify(ids));
+  } catch {
+    /* ignore quota */
+  }
+}
+
+function showUiToast(message, durationMs = 4200) {
+  if (!achievementToast || !message) return;
+  achievementToast.textContent = message;
+  achievementToast.classList.remove("hidden");
+  if (achievementToastTimer) clearTimeout(achievementToastTimer);
+  achievementToastTimer = setTimeout(() => {
+    achievementToast.classList.add("hidden");
+    achievementToastTimer = null;
+  }, durationMs);
+}
+
+function showAchievementToast(message) {
+  showUiToast(message);
+}
+
+function celebrateNewAchievements(achievements, { seedOnly = false } = {}) {
+  if (!Array.isArray(achievements)) return;
+  const unlocked = achievements.filter((a) => a.unlocked).map((a) => a.id);
+  const prev = new Set(readStoredAchievementIds());
+  const newly = unlocked.filter((id) => !prev.has(id));
+  writeStoredAchievementIds(unlocked);
+  if (seedOnly || newly.length === 0) return;
+  const labels = newly
+    .map((id) => {
+      const row = achievements.find((a) => a.id === id);
+      if (!row) return null;
+      return `${row.emoji || "🏅"} ${row.title || id}`;
+    })
+    .filter(Boolean);
+  if (!labels.length) return;
+  const msg =
+    labels.length === 1
+      ? `Lencana baru: ${labels[0]}`
+      : `Lencana baru: ${labels.join(" · ")}`;
+  showAchievementToast(msg);
+}
+
+function applyCompanionPrefsToForm(prefs, effective) {
+  if (!prefs) return;
+  if (ragEnabledToggle) ragEnabledToggle.checked = Boolean(prefs.rag_enabled);
+  if (ragMinScore && prefs.rag_min_score != null) {
+    ragMinScore.value = String(prefs.rag_min_score);
+    if (ragMinScoreVal) ragMinScoreVal.textContent = Number(prefs.rag_min_score).toFixed(2);
+  }
+  if (ragGeminiToggle) {
+    ragGeminiToggle.checked = Boolean(prefs.rag_use_gemini);
+    ragGeminiToggle.disabled = effective?.embedder !== "gemini" && !prefs.rag_use_gemini;
+  }
+}
+
+function scheduleCompanionPrefsSave() {
+  if (prefsSaveTimer) clearTimeout(prefsSaveTimer);
+  prefsSaveTimer = setTimeout(() => void saveCompanionPrefsFromForm(), 400);
+}
+
+async function saveCompanionPrefsFromForm() {
+  if (!ragEnabledToggle && !ragMinScore) return;
+  const body = {
+    rag_enabled: ragEnabledToggle ? Boolean(ragEnabledToggle.checked) : true,
+    rag_min_score: ragMinScore ? Number(ragMinScore.value) : 0.18,
+    rag_use_gemini: ragGeminiToggle ? Boolean(ragGeminiToggle.checked) : false,
+  };
+  try {
+    const res = await fetch("/api/companion/prefs", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    applyCompanionPrefsToForm(data.prefs, data.effective);
+  } catch {
+    /* ignore */
+  }
+}
+
+async function sendSessionFeedback(rating) {
+  const sid = lastPostCallSessionId || sessionId;
+  if (!sid) {
+    hidePostCallCard();
+    return;
+  }
+  try {
+    await fetch("/api/companion/session-feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sid, rating }),
+    });
+  } catch {
+    /* ignore */
+  }
+  hidePostCallCard();
+  if (rating === "up") showAchievementToast("Makasih feedback-nya — sa ingat.");
+  void loadMemoryDashboard();
+}
+
+async function syncAchievementsAfterCall() {
+  try {
+    const res = await fetch("/api/companion/stats", { cache: "no-store" });
+    if (!res.ok) return;
+    const body = await res.json();
+    celebrateNewAchievements(body.stats?.achievements || []);
+    void loadMemoryDashboard();
+  } catch {
+    /* ignore */
+  }
+}
+
+async function loadMemoryDashboard() {
+  if (!memoryStats && !memoryReviewList && !memoryList && !openLoopList) return;
+  if (memoryStats) memoryStats.textContent = "Memuat…";
+  try {
+    const [privacyRes, memRes, loopRes, statsRes, reviewRes] = await Promise.all([
+      fetch("/api/privacy"),
+      fetch("/api/memory"),
+      fetch("/api/open-loops"),
+      fetch("/api/companion/stats"),
+      fetch("/api/memory/review"),
+    ]);
+    const privacy = privacyRes.ok ? await privacyRes.json() : {};
+    const memData = memRes.ok ? await memRes.json() : { memories: [] };
+    const loopData = loopRes.ok ? await loopRes.json() : { open_loops: [] };
+    const memories = memData.memories || [];
+    const loops = loopData.open_loops || [];
+    const reviewData = reviewRes.ok ? await reviewRes.json() : { items: [] };
+    const reviews = reviewData.items || [];
+
+    const statsBody = statsRes.ok ? await statsRes.json() : {};
+    let ragHint = "";
+    try {
+      const prefsRes = await fetch("/api/companion/prefs", { cache: "no-store" });
+      if (prefsRes.ok) {
+        const prefsBody = await prefsRes.json();
+        const eff = prefsBody.effective;
+        if (eff?.enabled) {
+          const embed = eff.embedder === "gemini" ? "Gemini embed" : "embed lokal";
+          ragHint = ` · RAG ${embed} (min ${eff.min_score})`;
+        } else {
+          ragHint = " · RAG mati";
+        }
+        applyCompanionPrefsToForm(prefsBody.prefs, eff);
+      }
+    } catch {
+      /* ignore */
+    }
+    const streak = statsBody.stats?.streak_days ?? 0;
+    const sessions = statsBody.stats?.total_sessions ?? 0;
+    if (memoryStats) {
+      const streakLine =
+        streak > 0 ? ` · 🔥 ${streak} hari streak` : "";
+      const reviewN = privacy.review_count ?? reviews.length;
+      const reviewLine = reviewN > 0 ? ` · ${reviewN} perlu konfirmasi` : "";
+      memoryStats.textContent =
+        `${privacy.memory_count ?? memories.length} ingatan · ${privacy.open_loop_count ?? loops.length} belum selesai${reviewLine} · ${sessions} panggilan${streakLine}${ragHint} · data di HP ko`;
+    }
+
+    if (memoryReviewList) {
+      memoryReviewList.innerHTML = "";
+      if (!reviews.length) {
+        const li = document.createElement("li");
+        li.className = "settings-memory-empty";
+        li.textContent = "Kosong — saran dari obrolan (confidence rendah) muncul di sini.";
+        memoryReviewList.appendChild(li);
+      } else {
+        reviews.forEach((item) => {
+          const li = document.createElement("li");
+          li.className = "settings-memory-item";
+          const text = document.createElement("span");
+          text.className = "settings-memory-text";
+          const label = MEMORY_TYPE_LABELS[item.memory_type] || item.memory_type;
+          text.textContent = `[${label}] ${item.content}`;
+          const confirmBtn = document.createElement("button");
+          confirmBtn.type = "button";
+          confirmBtn.className = "btn-memory-delete";
+          confirmBtn.setAttribute("aria-label", "Simpan ingatan");
+          confirmBtn.textContent = "✓";
+          confirmBtn.addEventListener("click", () => void confirmReviewItem(item.id));
+          const dismissBtn = document.createElement("button");
+          dismissBtn.type = "button";
+          dismissBtn.className = "btn-memory-delete";
+          dismissBtn.setAttribute("aria-label", "Buang saran");
+          dismissBtn.textContent = "×";
+          dismissBtn.addEventListener("click", () => void dismissReviewItem(item.id));
+          li.append(text, confirmBtn, dismissBtn);
+          memoryReviewList.appendChild(li);
+        });
+      }
+    }
+
+    const achievements = statsBody.stats?.achievements || [];
+    const fb = statsBody.stats?.session_feedback;
+    if (sessionFeedbackStats && fb) {
+      const up = fb.up || 0;
+      const down = fb.down || 0;
+      sessionFeedbackStats.textContent =
+        up + down > 0
+          ? `Feedback obrolan (lokal): 👍 ${up} · 👎 ${down}`
+          : "Feedback obrolan: belum ada — tandai setelah ngobrol.";
+    }
+    celebrateNewAchievements(achievements, { seedOnly: true });
+    if (companionAchievements) {
+      companionAchievements.innerHTML = "";
+      achievements.forEach((badge) => {
+        const li = document.createElement("li");
+        li.className = badge.unlocked
+          ? "settings-achievement-item settings-achievement-unlocked"
+          : "settings-achievement-item settings-achievement-locked";
+        li.title = badge.description || "";
+        li.textContent = `${badge.emoji || "🏅"} ${badge.title || badge.id}`;
+        companionAchievements.appendChild(li);
+      });
+    }
+
+    if (memoryList) {
+      memoryList.innerHTML = "";
+      if (!memories.length) {
+        const li = document.createElement("li");
+        li.className = "settings-memory-empty";
+        li.textContent = "Belum ada — tambah manual atau selesai obrolan (extract otomatis).";
+        memoryList.appendChild(li);
+      } else {
+        memories.forEach((m) => {
+          const li = document.createElement("li");
+          li.className = "settings-memory-item";
+          const label = MEMORY_TYPE_LABELS[m.memory_type] || m.memory_type;
+          const text = document.createElement("span");
+          text.className = "settings-memory-text";
+          text.textContent = `[${label}] ${m.content}`;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn-memory-delete";
+          btn.setAttribute("aria-label", "Hapus ingatan");
+          btn.textContent = "×";
+          btn.addEventListener("click", () => void deleteMemoryItem(m.id));
+          li.append(text, btn);
+          memoryList.appendChild(li);
+        });
+      }
+    }
+
+    if (openLoopList) {
+      openLoopList.innerHTML = "";
+      if (!loops.length) {
+        const li = document.createElement("li");
+        li.className = "settings-memory-empty";
+        li.textContent = "Kosong — rencana/janji dari obrolan ko bakal muncul di sini.";
+        openLoopList.appendChild(li);
+      } else {
+        loops.forEach((loop) => {
+          const li = document.createElement("li");
+          li.className = "settings-memory-item";
+          const text = document.createElement("span");
+          text.className = "settings-memory-text";
+          const hint = loop.time_hint ? ` (${loop.time_hint})` : "";
+          text.textContent = `${loop.topic}${hint}: ${loop.content}`;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn-memory-delete";
+          btn.setAttribute("aria-label", "Tandai selesai");
+          btn.textContent = "✓";
+          btn.addEventListener("click", () => void resolveOpenLoopItem(loop.id));
+          li.append(text, btn);
+          openLoopList.appendChild(li);
+        });
+      }
+    }
+  } catch {
+    if (memoryStats) memoryStats.textContent = "Tra bisa muat ingatan — coba lagi.";
+  }
+}
+
+async function confirmReviewItem(id) {
+  if (!id) return;
+  try {
+    const res = await fetch(
+      `/api/memory/review/${encodeURIComponent(id)}/confirm`,
+      { method: "POST" }
+    );
+    if (!res.ok) return;
+    await loadMemoryDashboard();
+  } catch {
+    /* ignore */
+  }
+}
+
+async function dismissReviewItem(id) {
+  if (!id) return;
+  try {
+    const res = await fetch(
+      `/api/memory/review/${encodeURIComponent(id)}/dismiss`,
+      { method: "POST" }
+    );
+    if (!res.ok) return;
+    await loadMemoryDashboard();
+  } catch {
+    /* ignore */
+  }
+}
+
+async function deleteMemoryItem(id) {
+  if (!id) return;
+  try {
+    const res = await fetch(`/api/memory/${encodeURIComponent(id)}`, { method: "DELETE" });
+    if (!res.ok) return;
+    await loadMemoryDashboard();
+  } catch {
+    /* ignore */
+  }
+}
+
+async function resolveOpenLoopItem(id) {
+  if (!id) return;
+  try {
+    const res = await fetch(`/api/open-loops/${encodeURIComponent(id)}/resolve`, { method: "POST" });
+    if (!res.ok) return;
+    await loadMemoryDashboard();
+  } catch {
+    /* ignore */
+  }
+}
+
+async function addManualMemory() {
+  const text = (memoryManualInput?.value || "").trim();
+  memoryAddError?.classList.add("hidden");
+  if (text.length < 2) {
+    memoryAddError?.classList.remove("hidden");
+    return;
+  }
+  try {
+    const res = await fetch("/api/memory", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: text, memory_type: "manual" }),
+    });
+    if (!res.ok) {
+      memoryAddError?.classList.remove("hidden");
+      return;
+    }
+    if (memoryManualInput) memoryManualInput.value = "";
+    await loadMemoryDashboard();
+  } catch {
+    memoryAddError?.classList.remove("hidden");
+  }
+}
+
+async function reindexMemoryEmbeddings() {
+  if (memoryStats) memoryStats.textContent = "Rebuild index RAG…";
+  try {
+    const res = await fetch("/api/memory/reindex-embeddings", { method: "POST" });
+    if (!res.ok) return;
+    const body = await res.json();
+    const n = body.reindexed?.memories ?? 0;
+    const loops = body.reindexed?.open_loops ?? 0;
+    showAchievementToast(`Index RAG diperbarui (${n} ingatan, ${loops} loop).`);
+    await loadMemoryDashboard();
+  } catch {
+    if (memoryStats) memoryStats.textContent = "Gagal rebuild index — coba lagi.";
+  }
+}
+
+function maybeIdleReindexEmbeddings() {
+  if (inCall) return;
+  let last = 0;
+  try {
+    last = Number(localStorage.getItem(RAG_IDLE_REINDEX_KEY) || "0");
+  } catch {
+    /* ignore */
+  }
+  if (Date.now() - last < RAG_IDLE_REINDEX_INTERVAL_MS) return;
+  fetch("/api/memory/reindex-embeddings", { method: "POST" })
+    .then(() => {
+      try {
+        localStorage.setItem(RAG_IDLE_REINDEX_KEY, String(Date.now()));
+      } catch {
+        /* ignore */
+      }
+    })
+    .catch(() => {});
+}
+
+async function importMemoryJsonFile(file) {
+  if (!file) return;
+  const text = await file.text();
+  let payload;
+  try {
+    payload = JSON.parse(text);
+  } catch {
+    showAchievementToast("File JSON tra valid.");
+    return;
+  }
+  const replace = window.confirm(
+    "Import backup?\n\nOK = ganti semua ingatan di HP dengan isi file.\nCancel = gabung (skip duplikat)."
+  );
+  const mode = replace ? "replace" : "merge";
+  try {
+    const res = await fetch("/api/memory/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payload, mode }),
+    });
+    if (!res.ok) {
+      showAchievementToast("Import gagal — cek format file.");
+      return;
+    }
+    const body = await res.json();
+    const imp = body.imported || {};
+    showAchievementToast(
+      `Import selesai: ${imp.memories ?? 0} ingatan, ${imp.open_loops ?? 0} loop.`
+    );
+    await loadMemoryDashboard();
+  } catch {
+    showAchievementToast("Import gagal — coba lagi.");
+  }
+}
+
+async function exportMemoryJson() {
+  try {
+    const res = await fetch("/api/memory/export");
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "papua-ai-memory-export.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch {
+    /* ignore */
+  }
+}
+
+async function clearAllMemory() {
+  if (
+    typeof window !== "undefined" &&
+    !window.confirm("Hapus semua ingatan & urusan belum selesai di HP ini? Tra bisa undo.")
+  ) {
+    return;
+  }
+  try {
+    const res = await fetch("/api/memory/all", { method: "DELETE" });
+    if (!res.ok) return;
+    writeStoredAchievementIds([]);
+    await loadMemoryDashboard();
+  } catch {
+    /* ignore */
+  }
+}
+
 function updateSettingsKeyStatus() {
   if (!settingsKeyStatus) return;
   if (hasByokKey()) {
@@ -690,6 +1297,7 @@ function openSettings() {
   }
   initProsodySimControls();
   populateBgmOptions();
+  void populateModeOptions();
   if (cachedLiveVoices?.length) {
     renderVoicePickerList();
   } else {
@@ -697,6 +1305,8 @@ function openSettings() {
   }
   renderBgmPickerList();
   updateSettingsKeyStatus();
+  void loadMemoryDashboard();
+  syncDailyReminderToggle();
   settingsError?.classList.add("hidden");
   if (settingsError) {
     settingsError.textContent = "Key tra valid — cek lagi ya ko.";
@@ -818,7 +1428,7 @@ function renderVoicePickerList() {
     btn.dataset.voice = v.name;
     btn.textContent =
       v.name === "Leda"
-        ? `${v.name} — ${v.style.toLowerCase()} (default Mince)`
+        ? `${v.name} — ${v.style.toLowerCase()} (default Papua Ai)`
         : `${v.name} — ${v.style.toLowerCase()}`;
     btn.setAttribute("role", "option");
     btn.setAttribute("aria-selected", v.name === current ? "true" : "false");
@@ -862,6 +1472,86 @@ function setSelectedBgm(mode) {
   });
 }
 
+let cachedConversationModes = null;
+
+function selectedConversationMode() {
+  try {
+    return localStorage.getItem(CONVERSATION_MODE_KEY) || "casual_chat";
+  } catch {
+    return "casual_chat";
+  }
+}
+
+async function loadConversationModesFromApi() {
+  if (cachedConversationModes?.length) return cachedConversationModes;
+  try {
+    const res = await fetch("/api/conversation-modes");
+    if (!res.ok) return null;
+    const data = await res.json();
+    cachedConversationModes = Array.isArray(data.modes) ? data.modes : [];
+    return cachedConversationModes;
+  } catch {
+    return null;
+  }
+}
+
+function renderModePickerList(modes) {
+  if (!modePickerList) return;
+  const list =
+    modes ||
+    cachedConversationModes || [
+      { id: "casual_chat", display_name: "Ngobrol santai", emoji: "🗣️" },
+    ];
+  const current = selectedConversationMode();
+  modePickerList.innerHTML = "";
+  for (const m of list) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "settings-picker-option";
+    btn.dataset.mode = m.id;
+    btn.textContent = `${m.emoji || ""} ${m.display_name || m.id}`.trim();
+    btn.setAttribute("role", "option");
+    btn.setAttribute("aria-selected", m.id === current ? "true" : "false");
+    if (m.id === current) btn.classList.add("is-selected");
+    btn.addEventListener("click", () => setSelectedConversationMode(m.id));
+    modePickerList.appendChild(btn);
+  }
+}
+
+function setSelectedConversationMode(modeId) {
+  if (!modeId) return;
+  if (modeSelect && [...modeSelect.options].some((o) => o.value === modeId)) {
+    modeSelect.value = modeId;
+  }
+  try {
+    localStorage.setItem(CONVERSATION_MODE_KEY, modeId);
+  } catch {
+    /* ignore */
+  }
+  modePickerList?.querySelectorAll(".settings-picker-option[data-mode]").forEach((el) => {
+    el.classList.toggle("is-selected", el.dataset.mode === modeId);
+    el.setAttribute("aria-selected", el.dataset.mode === modeId ? "true" : "false");
+  });
+}
+
+async function populateModeOptions() {
+  const modes = await loadConversationModesFromApi();
+  if (modeSelect && modes?.length) {
+    modeSelect.innerHTML = "";
+    for (const m of modes) {
+      const opt = document.createElement("option");
+      opt.value = m.id;
+      opt.textContent = `${m.emoji || ""} ${m.display_name || m.id}`.trim();
+      modeSelect.appendChild(opt);
+    }
+    const saved = selectedConversationMode();
+    if ([...modeSelect.options].some((o) => o.value === saved)) {
+      modeSelect.value = saved;
+    }
+  }
+  renderModePickerList(modes);
+}
+
 function renderBgmPickerList() {
   if (!bgmPickerList) return;
   const current = selectedBgmMode();
@@ -883,6 +1573,8 @@ function renderBgmPickerList() {
 voiceSelect?.addEventListener("change", () => {
   localStorage.setItem(VOICE_STORAGE_KEY, voiceSelect.value);
 });
+
+dailyReminderToggle?.addEventListener("change", onDailyReminderToggleChange);
 
 bgmSelect?.addEventListener("change", () => {
   try {
@@ -992,15 +1684,28 @@ async function ensureVoiceBackend() {
   if (!res.ok) {
     throw new Error("Backend belum siap — tunggu sebentar lalu coba lagi");
   }
-  const data = await res.json();
+  let data = await res.json();
+  if (data.gemini_key_set === false && hasByokKey()) {
+    await ensureByokFromStorage();
+    const retry = await fetch("/api/health", { cache: "no-store" });
+    if (retry.ok) {
+      data = await retry.json();
+    }
+  }
   if (data.gemini_key_set === false) {
-    throw new Error("API key belum siap — rebuild APK dengan GEMINI_API_KEY di .env");
+    if (!hasByokKey()) {
+      throw new Error("Masukkan Gemini API key dulu — tap ⚙ Pengaturan.");
+    }
+    throw new Error("API key belum ke server lokal — tunggu sebentar lalu coba lagi.");
   }
   return data;
 }
 
 async function startCall() {
   if (inCall || liveCall) return;
+  if (isEmbeddedApp) {
+    await ensureByokFromStorage();
+  }
   if (isEmbeddedApp && !hasByokKey()) {
     openSettings();
     renderSystem("Masukkan Gemini API key dulu ko — di pengaturan ⚙.");
@@ -1013,6 +1718,7 @@ async function startCall() {
     return;
   }
   await ensureSessionId();
+  dailyCheckInBanner?.classList.add("hidden");
   stopTtsPlayback();
   if (!navigator.mediaDevices?.getUserMedia) {
     renderSystem(
@@ -1131,6 +1837,7 @@ async function endCallUi() {
     endingCall = false;
     const postCall = await fetchPostCallWithRetry();
     if (postCall) showPostCallCard(postCall);
+    else await syncAchievementsAfterCall();
   }
 }
 
@@ -1155,8 +1862,31 @@ function bindPanelActions() {
     btnSettingsSave() {
       void saveSettings();
     },
+    btnMemoryRefresh() {
+      void loadMemoryDashboard();
+    },
+    btnMemoryAdd() {
+      void addManualMemory();
+    },
+    btnMemoryExport() {
+      void exportMemoryJson();
+    },
+    btnMemoryReindex() {
+      void reindexMemoryEmbeddings();
+    },
+    btnMemoryImport() {
+      memoryImportFile?.click();
+    },
+    btnMemoryClearAll() {
+      void clearAllMemory();
+    },
     btnEndCall() {
       void endCallUi();
+    },
+    btnTextToggle() {
+      textCompose?.classList.remove("hidden");
+      btnTextToggle?.classList.add("hidden");
+      input?.focus();
     },
   };
   const pending = window.__personaPendingTaps;
@@ -1211,12 +1941,22 @@ settingsApiKey?.addEventListener("keydown", (e) => {
 });
 
 btnPostCallClose?.addEventListener("click", hidePostCallCard);
-
-btnTextToggle?.addEventListener("click", () => {
-  textCompose?.classList.remove("hidden");
-  btnTextToggle?.classList.add("hidden");
-  input?.focus();
+memoryImportFile?.addEventListener("change", () => {
+  const file = memoryImportFile.files?.[0];
+  if (memoryImportFile) memoryImportFile.value = "";
+  if (file) void importMemoryJsonFile(file);
 });
+btnPostCallUp?.addEventListener("click", () => void sendSessionFeedback("up"));
+btnPostCallDown?.addEventListener("click", () => void sendSessionFeedback("down"));
+ragEnabledToggle?.addEventListener("change", scheduleCompanionPrefsSave);
+ragGeminiToggle?.addEventListener("change", scheduleCompanionPrefsSave);
+ragMinScore?.addEventListener("input", () => {
+  if (ragMinScoreVal && ragMinScore) {
+    ragMinScoreVal.textContent = Number(ragMinScore.value).toFixed(2);
+  }
+  scheduleCompanionPrefsSave();
+});
+
 
 btnResumeYes?.addEventListener("click", async () => {
   const id = resumeBanner?.dataset.sessionId;
@@ -1227,9 +1967,19 @@ btnResumeYes?.addEventListener("click", async () => {
   await loadSessionHistoryFrom(id);
 });
 
+btnDailyCheckInCall?.addEventListener("click", () => {
+  dismissDailyCheckInForToday();
+  if (!inCall) void startCall();
+});
+
+btnDailyCheckInDismiss?.addEventListener("click", () => {
+  dismissDailyCheckInForToday();
+});
+
 btnResumeNo?.addEventListener("click", () => {
   const id = resumeBanner?.dataset.sessionId;
   if (id) {
+    void finalizeSessionMemory(id);
     try {
       localStorage.setItem(RESUME_SKIP_KEY, id);
     } catch {
@@ -1238,6 +1988,15 @@ btnResumeNo?.addEventListener("click", () => {
   }
   resumeBanner?.classList.add("hidden");
   void ensureSessionId();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden" && sessionId && !inCall) {
+    void finalizeSessionMemory(sessionId);
+  }
+  if (document.visibilityState === "visible" && !inCall) {
+    maybeIdleReindexEmbeddings();
+  }
 });
 
 function showWelcomeHint() {
@@ -1252,7 +2011,7 @@ async function loadHealth() {
     const serverReady = data.gemini_key_set !== false;
     const clientReady = hasByokKey();
     const connected = serverReady || (isEmbeddedApp && clientReady);
-    cachedPersonaName = data.persona_name || "Mince";
+    cachedPersonaName = data.persona_name || "Papua Ai";
     statusDot.classList.toggle("offline", !connected);
     modelStatus.textContent = personaLabel();
     defaultLanguage = data.default_language || "id-ID";
@@ -1266,7 +2025,7 @@ async function loadHealth() {
       renderSystem(`${personaLabel()} belum tersambung — cek API key di pengaturan ⚙`);
     }
   } catch {
-    cachedPersonaName = "Mince";
+    cachedPersonaName = "Papua Ai";
     statusDot.classList.add("offline");
     modelStatus.textContent = personaLabel();
     updateCallButtonReady(hasByokKey());
@@ -1312,6 +2071,7 @@ async function loadSessionHistory() {
   await loadHealth();
   if (!sessionId) {
     await checkResumeBanner();
+    await checkDailyCheckInBanner();
   } else {
     await loadSessionHistory();
   }

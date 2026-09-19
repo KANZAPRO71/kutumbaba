@@ -62,11 +62,11 @@ class TestPresetValuesMatchLegacy:
         assert preset.ack_templates.neutral == []
         assert preset.ack_templates.warm == []
 
-    def test_expression_word_limits_match_apply_defaults(self, preset_path: Path):
+    def test_expression_word_limits_match_bundled_preset(self, preset_path: Path):
         preset = load_preset(preset_path)
-        assert preset.max_words_minimal == 20
-        assert preset.max_words_normal == 70
-        assert preset.max_words_expand == 180
+        assert preset.max_words_minimal == 12
+        assert preset.max_words_normal == 15
+        assert preset.max_words_expand == 140
 
 
 class TestPersonaRuntimePresetResolution:
@@ -96,17 +96,14 @@ class TestBehaviorUnchanged:
         assert bdv_preset.speak == bdv_legacy.speak == SpeakAction.RESPOND
         assert preset.warmth == legacy.warmth
 
-    def test_expression_identical_preset_vs_legacy(self, preset_path: Path):
+    def test_expression_uses_preset_word_caps(self, preset_path: Path):
         preset = load_preset(preset_path)
-        legacy = legacy_default_profile()
         text = "Ah capek banget hari ini ya..."
         bdv = decide(BehaviorInput(message=Message.from_text("user", text)))
         expr_preset = apply(preset, bdv, execution_profile=execution_profile(bdv))
-        expr_legacy = apply(legacy, bdv, execution_profile=execution_profile(bdv))
         assert expr_preset.template_ack is None
-        assert expr_legacy.template_ack is None
-        assert expr_preset.max_words == expr_legacy.max_words
-        assert expr_preset.max_sentences == expr_legacy.max_sentences
+        assert expr_preset.max_words == preset.max_words_minimal
+        assert expr_preset.max_sentences == 1
 
     def test_coherence_clamp_identical(self, preset_path: Path):
         preset = load_preset(preset_path)

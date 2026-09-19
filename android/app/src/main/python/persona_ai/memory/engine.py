@@ -18,6 +18,7 @@ MAX_CONTENT_CHARS = 220
 _TYPE_LABELS_PAPUA = {
     "semantic": "fakta",
     "preference": "suka/tidak suka",
+    "relationship": "orang dekat",
     "episodic": "obrolan lalu",
     "manual": "ko simpan",
 }
@@ -25,6 +26,7 @@ _TYPE_LABELS_PAPUA = {
 _TYPE_LABELS_EN = {
     "semantic": "fact",
     "preference": "preference",
+    "relationship": "relationship",
     "episodic": "past chat",
     "manual": "saved note",
 }
@@ -89,6 +91,12 @@ def add_memory(
     )
     store.save(record)
     _log.info("user memory saved type=%s id=%s", memory_type, record.id)
+    try:
+        from persona_ai.memory.embedding_index import index_memory_vector
+
+        index_memory_vector(record)
+    except Exception:
+        _log.debug("memory vector index skipped id=%s", record.id)
     return record
 
 
@@ -175,6 +183,70 @@ def format_memory_block(
 
 def load_memories_for_prompt(user_id: str = DEFAULT_USER_ID) -> list[UserMemoryRecord]:
     return list_memories(user_id, limit=MAX_PROMPT_MEMORIES)
+
+
+def export_user_data(user_id: str = DEFAULT_USER_ID) -> dict[str, Any]:
+    """Portable export of local memory (no session transcripts)."""
+    from persona_ai.conversation.companion_stats import load_companion_stats, stats_for_client
+    from persona_ai.memory.open_loop_engine import list_pending_open_loops
+
+    from persona_ai.conversation.companion_prefs import get_companion_prefs_store, load_companion_prefs
+    from persona_ai.memory.review_engine import list_memory_reviews
+
+    memories = list_memories(user_id, limit=500)
+    loops = list_pending_open_loops(user_id, limit=200)
+    prefs_store = get_companion_prefs_store()
+    reviews = list_memory_reviews(user_id, limit=200)
+    return {
+        "schema_version": "papua_ai_memory_export_v3",
+        "user_id": user_id,
+        "storage_path": memory_storage_path(),
+        "companion": stats_for_client(load_companion_stats()),
+        "companion_prefs": load_companion_prefs().model_dump(),
+        "session_feedback": prefs_store.list_feedback(limit=500),
+        "memory_review_queue": [
+            {
+                "id": r.id,
+                "content": r.content,
+                "memory_type": r.memory_type,
+                "confidence": r.confidence,
+                "created_at": r.created_at,
+            }
+            for r in reviews
+        ],
+        "memories": memory_summary_for_client(memories),
+        "open_loops": [
+            {
+                "id": loop.id,
+                "topic": loop.topic,
+                "content": loop.content,
+                "status": loop.status,
+                "time_hint": loop.time_hint,
+                "created_at": loop.created_at,
+                "updated_at": loop.updated_at,
+            }
+            for loop in loops
+        ],
+    }
+
+
+def clear_all_user_memory(user_id: str = DEFAULT_USER_ID) -> dict[str, int]:
+    from persona_ai.conversation.companion_stats import get_companion_stats_store
+    from persona_ai.memory.open_loop_engine import get_open_loop_store
+    from persona_ai.memory.embedding_store import get_embedding_store
+    from persona_ai.memory.review_engine import get_review_store
+
+    mem_deleted = get_memory_store().delete_all(user_id)
+    loop_deleted = get_open_loop_store().delete_all(user_id)
+    review_deleted = get_review_store().delete_all(user_id)
+    vector_deleted = get_embedding_store().delete_all(user_id)
+    get_companion_stats_store().delete_all()
+    return {
+        "memories_deleted": mem_deleted,
+        "open_loops_deleted": loop_deleted,
+        "review_deleted": review_deleted,
+        "vectors_deleted": vector_deleted,
+    }
 
 
 def memory_summary_for_client(records: list[UserMemoryRecord]) -> list[dict[str, Any]]:

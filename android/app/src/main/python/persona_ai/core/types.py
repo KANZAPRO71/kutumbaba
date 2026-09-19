@@ -145,6 +145,7 @@ class BehaviorInput(BaseModel):
     policy_signals: list[PolicySignal] = Field(default_factory=list)
     voice_pause_ms: Optional[int] = None
     arc: Optional[ConversationArc] = None
+    conversation_mode: str | None = None
 
 
 class AckTemplates(BaseModel):

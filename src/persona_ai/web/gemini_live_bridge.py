@@ -1650,6 +1650,7 @@ def _natural_persist_user_turn(runtime: PersonaRuntime, session_id: str, text: s
     session.messages.append(Message(role="user", text=text))
     session.turn_index += 1
     runtime._store.save(session)
+    runtime._commit_user_turn_memory(session_id, text)
 
 
 def _observe_model_turn_complete(gov: dict, text: str) -> None:
@@ -1872,6 +1873,10 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         live_dialect = "papua"
     if is_papua_dialect(live_dialect):
         voice_cfg = enrich_voice_config_for_papua(voice_cfg)
+    raw_mode = session_payload.get("conversation_mode") or session_payload.get("scenario_id")
+    conversation_mode = (
+        str(raw_mode).strip().lower() if raw_mode is not None and str(raw_mode).strip() else None
+    )
     # No scripted opening steer — avoids double greeting with system instruction.
     opening_prompt = None
     instruction = build_live_voice_instruction(
@@ -1879,6 +1884,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         history=prior_messages,
         dialect=live_dialect,
         post_call=prior_post_call,
+        conversation_mode=conversation_mode,
     )
     prosody_sim = session_payload.get("papua_prosody_sim") or session_payload.get("prosody_sim")
     if prosody_sim and is_papua_dialect(live_dialect):
@@ -1983,13 +1989,17 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         "mau_offer_streak": 0,
         "block_santai_reply": False,
         "last_assistant_opener": "",
-        "conv_ctrl": ConversationController.from_live_mode(live_mode),
+        "conv_ctrl": ConversationController.from_live_mode(
+            live_mode,
+            conversation_mode=conversation_mode,
+        ),
         "flow_ctrl": ConversationFlowController(),
         "assistant_turn_observed": False,
         "agent_reply_epoch": 0,
         "boundary_handled_epoch": -1,
         "conv_steer_deferred": False,
         "embedded_app": bool(session_payload.get("embedded_app")),
+        "conversation_mode": conversation_mode,
         "floor": None,
         "resumption_handle": "",
         "gemini_connected_at": 0.0,
@@ -2061,6 +2071,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                     history=history,
                                     dialect=live_dialect,
                                     post_call=post_call,
+                                    conversation_mode=gov.get("conversation_mode"),
                                 )
                                 resume_handle = try_handle
                                 if try_handle and history_poisoned_by_santai(history):
@@ -2695,6 +2706,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         channel="voice",
                         generate_text=False,
                         voice_pause_ms=gov.get("voice_pause_ms") or None,
+                        conversation_mode=gov.get("conversation_mode"),
                     )
                     decision = decide_live_action(output)
                     plan = plan_live_governance(
@@ -2770,6 +2782,7 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         response_policy=live_response_policy(profile),
                         generate_text=False,
                         voice_pause_ms=gov.get("voice_pause_ms") or None,
+                        conversation_mode=gov.get("conversation_mode"),
                     )
                     decision = decide_live_action(output)
                     plan = plan_live_governance(

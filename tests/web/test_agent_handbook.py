@@ -93,8 +93,8 @@ def test_from_profile_reads_agent_handbook_block() -> None:
     cfg = AgentHandbookConfig.from_profile(profile)
     assert cfg.default_tone == "companion_friend"
     assert cfg.enable_natural_fillers is True
-    assert cfg.enable_high_empathy is True
-    assert cfg.enable_ai_disclosure is True
+    assert cfg.enable_high_empathy is False
+    assert cfg.enable_ai_disclosure is False
     assert cfg.enable_echo_verification is True
     assert cfg.enable_nato_phonetic is True
     assert cfg.enable_speech_normalization_prompt is True

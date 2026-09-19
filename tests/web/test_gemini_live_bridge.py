@@ -670,8 +670,9 @@ def test_echo_after_agent_does_not_open_activity():
     }
     assert not _should_open_user_activity(gov, 0.035, now=10.4)
     assert not _should_open_user_activity(gov, 0.05, now=10.4)
-    assert _should_open_user_activity(gov, 0.08, now=10.4)
-    assert _should_open_user_activity(gov, 0.05, now=11.2)
+    assert not _should_open_user_activity(gov, 0.08, now=10.4)
+    assert _should_open_user_activity(gov, 0.11, now=10.4)
+    assert _should_open_user_activity(gov, 0.05, now=12.5)
 
 
 def test_persona_commits_after_configured_silence():
@@ -689,7 +690,7 @@ def test_persona_commits_after_configured_silence():
     assert not _should_commit_user_activity(gov, voice, now=0.3)
     assert not _should_commit_user_activity(gov, voice, now=0.55)
     assert not _should_commit_user_activity(gov, voice, now=1.15)
-    assert not _should_commit_user_activity(gov, voice, now=1.55)
+    assert _should_commit_user_activity(gov, voice, now=1.55)
     assert _should_commit_user_activity(gov, voice, now=2.05)
 
 
@@ -755,8 +756,10 @@ def test_asr_recovery_does_not_commit_first_partial():
         first_partial_at=3.0,
     )
     assert _transcript_commit_reason(gov, voice, now=3.2) is None
-    assert _transcript_commit_reason(gov, voice, now=3.0 + FINAL_TRANSCRIPT_TIMEOUT_S + 0.05) is None
-    assert _transcript_commit_reason(gov, voice, now=3.8) == "incomplete_utterance"
+    assert (
+        _transcript_commit_reason(gov, voice, now=3.0 + FINAL_TRANSCRIPT_TIMEOUT_S + 0.05)
+        == "incomplete_utterance"
+    )
 
 
 def test_no_transcript_waits_for_asr():
@@ -1070,11 +1073,11 @@ def test_partial_stability_tracks_text_changes():
     assert gov["partial_stable_text"] == "Halo"
     assert gov["first_partial_at"] == 1.0
     assert not _partial_is_stable(gov, now=1.1)
-    assert not _partial_is_stable(gov, now=1.4)
-    assert _partial_is_stable(gov, now=1.55)
+    assert not _partial_is_stable(gov, now=1.37)
+    assert _partial_is_stable(gov, now=1.39)
     _update_partial_stability(gov, "Halo apa", now=1.6)
     assert not _partial_is_stable(gov, now=1.9)
-    assert _partial_is_stable(gov, now=2.15)
+    assert _partial_is_stable(gov, now=2.0)
 
 
 def test_asr_finished_commits_without_waiting_silence_floor():

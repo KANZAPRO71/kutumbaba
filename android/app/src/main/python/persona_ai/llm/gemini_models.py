@@ -29,3 +29,8 @@ def gemini_tts_model() -> str:
 def gemini_post_call_model() -> str:
     """Post-call analytics — Retell Post Call Data Retrieval."""
     return os.environ.get("GEMINI_POST_CALL_MODEL", gemini_text_model())
+
+
+def gemini_embedding_model() -> str:
+    """Memory RAG — optional higher-quality vectors when PERSONA_MEMORY_RAG_GEMINI=1."""
+    return os.environ.get("GEMINI_EMBEDDING_MODEL", "text-embedding-004")

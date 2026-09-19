@@ -56,8 +56,7 @@ def test_opening_greeting_agent_only() -> None:
     cfg = LiveVoiceConfig(start_speaker="agent")
     prompt = cfg.opening_greeting_prompt("Persona")
     assert RETELL_DEFAULT_BEGIN_MESSAGE is None
-    assert prompt is not None
-    assert "Sapa user singkat dan natural" in prompt
+    assert prompt is None
     user_first = LiveVoiceConfig(start_speaker="user")
     assert user_first.opening_greeting_prompt("Persona") is None
 
@@ -66,8 +65,7 @@ def test_resume_prompt_skips_fresh_greeting() -> None:
     cfg = LiveVoiceConfig(start_speaker="agent")
     fresh = cfg.opening_or_resume_prompt("Persona", has_history=False)
     resume = cfg.opening_or_resume_prompt("Persona", has_history=True)
-    assert fresh is not None
-    assert "Sapa user singkat dan natural" in fresh
+    assert fresh is None
     assert resume is None
     user_first = LiveVoiceConfig(start_speaker="user")
     assert user_first.opening_or_resume_prompt("Persona", has_history=True) is None
@@ -79,8 +77,8 @@ def test_from_profile_reads_preset_live_voice() -> None:
     assert cfg.responsiveness == 1.0
     assert cfg.interruption_sensitivity == 1.0
     assert cfg.enable_dynamic_responsiveness is True
-    assert cfg.enable_backchannel is True
-    assert cfg.backchannel_frequency == 0.8
+    assert cfg.enable_backchannel is False
+    assert cfg.backchannel_frequency == 0.0
     assert cfg.begin_message_delay_ms == 1000
     assert cfg.begin_message is None
     assert cfg.speech_flexibility == 0.65
@@ -89,10 +87,10 @@ def test_from_profile_reads_preset_live_voice() -> None:
     assert "tra" in cfg.boosted_keywords
     assert cfg.default_tone == "companion_friend"
     assert cfg.enable_natural_fillers is True
-    assert cfg.enable_high_empathy is True
+    assert cfg.enable_high_empathy is False
     assert cfg.voice_name == "Leda"
     assert cfg.language_code == "id-ID"
-    assert cfg.generation_temperature == 0.65
+    assert cfg.generation_temperature == 0.8
 
 
 def test_defaults_match_retell_agent_dashboard() -> None:

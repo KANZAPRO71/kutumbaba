@@ -81,7 +81,7 @@ def _append_session_memory(
         history,
         post_call=post_call,
         dialect=dialect,
-        include_user_memory=False,
+        include_companion_memory=True,
         recent_verbatim_turns=recent_verbatim_turns,
         filter_filler_loops=recent_verbatim_turns is not None,
     )
@@ -216,6 +216,24 @@ def _papua_audio_system_lines(dialect: str | None, *, language: str = "id") -> l
     return lines
 
 
+def _append_scenario_mode(
+    lines: list[str],
+    *,
+    conversation_mode: str | None,
+    dialect: str | None,
+    language: str,
+) -> None:
+    from persona_ai.conversation.mode_prompt import scenario_prompt_lines
+
+    block = scenario_prompt_lines(
+        conversation_mode,
+        dialect=dialect,
+        language=language,
+    )
+    if block:
+        lines.extend(["", *block])
+
+
 def build_live_voice_instruction(
     profile: PersonalityProfile,
     history: list[Message] | None = None,
@@ -223,6 +241,7 @@ def build_live_voice_instruction(
     dialect: str | None = None,
     post_call: dict | None = None,
     user_memories: list[UserMemoryRecord] | None = None,
+    conversation_mode: str | None = None,
 ) -> str:
     """Baseline Live instruction from the Persona engine — used at session connect."""
     if LiveModeConfig.from_profile(profile).is_natural:
@@ -232,6 +251,7 @@ def build_live_voice_instruction(
             dialect=dialect,
             post_call=post_call,
             user_memories=user_memories,
+            conversation_mode=conversation_mode,
         )
     return _build_governed_live_instruction(
         profile,
@@ -239,6 +259,7 @@ def build_live_voice_instruction(
         dialect=dialect,
         post_call=post_call,
         user_memories=user_memories,
+        conversation_mode=conversation_mode,
     )
 
 
@@ -355,9 +376,10 @@ def _build_natural_live_instruction(
     dialect: str | None = None,
     post_call: dict | None = None,
     user_memories: list[UserMemoryRecord] | None = None,
+    conversation_mode: str | None = None,
 ) -> str:
     """Short S2S prompt — character + few-shot; prosody from Gemini Live voice."""
-    name = profile.display_name or "Mince"
+    name = profile.display_name or "Papua Ai"
     lang = profile.default_language or "id"
     dialect = _effective_live_dialect(dialect, profile)
     papua = is_papua_dialect(dialect) and lang == "id"
@@ -372,11 +394,26 @@ def _build_natural_live_instruction(
             lang_prompt,
             *_natural_voice_compact_lines(profile, dialect=dialect),
         ]
-    lines.extend(time_cfg.prompt_lines(language=lang))
+    lines.extend(time_cfg.prompt_lines(language=lang, dialect=dialect))
     if papua:
         dialect_brief = _natural_dialect_brief_lines(dialect, language=lang)
         if dialect_brief:
             lines.extend(dialect_brief)
+    _append_scenario_mode(
+        lines,
+        conversation_mode=conversation_mode,
+        dialect=dialect,
+        language=lang,
+    )
+    from persona_ai.conversation.mode_prompt import natural_s2s_mode_lines
+
+    natural_extra = natural_s2s_mode_lines(
+        conversation_mode,
+        dialect=dialect,
+        language=lang,
+    )
+    if natural_extra:
+        lines.extend(["", *natural_extra])
     _append_session_memory(
         lines,
         history,
@@ -395,6 +432,7 @@ def _build_governed_live_instruction(
     dialect: str | None = None,
     post_call: dict | None = None,
     user_memories: list[UserMemoryRecord] | None = None,
+    conversation_mode: str | None = None,
 ) -> str:
     """Full Persona governance instruction — steer-before-speak pipeline."""
     name = profile.display_name or "Papua AI"
@@ -433,6 +471,12 @@ def _build_governed_live_instruction(
         engine,
         "",
     ])
+    _append_scenario_mode(
+        lines,
+        conversation_mode=conversation_mode,
+        dialect=dialect,
+        language=lang,
+    )
     dialect_lines = dialect_prompt_lines(dialect, language=lang)
     if dialect_lines:
         header = "Nuansa logat Papua (ringan — jangan campur daerah lain):" if papua else "Speaking style (mandatory on this call):"
@@ -492,6 +536,7 @@ def _build_governed_live_instruction(
         post_call=post_call,
         dialect=dialect,
         user_memories=user_memories,
+        include_companion_memory=user_memories is None,
     )
     if recap:
         lines.extend(["", recap])
@@ -581,6 +626,7 @@ def build_live_engine_instruction(
         post_call=post_call,
         dialect=dialect,
         user_memories=user_memories,
+        include_companion_memory=user_memories is None,
     )
     if recap:
         spoken.extend(

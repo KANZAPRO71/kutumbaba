@@ -31,7 +31,7 @@ def test_needs_live_web_search_skips_short():
 def test_format_web_context_for_steer_papua():
     block = format_web_context_for_steer("Hasil: 2-1", dialect="papua")
     assert "KONTEKS WEB TERBARU" in block
-    assert "sa/ko" in block.lower() or "Papuan" in block
+    assert "ko belum nemu" in block.lower()
 
 
 def test_gemini_live_bridge_imports_live_mode_config():

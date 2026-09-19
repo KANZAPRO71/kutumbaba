@@ -36,7 +36,7 @@ class TestPapuaMops:
 
     def test_mop_prompt_papua_dialect(self):
         lines = mop_prompt_lines("papua", include_session_samples=True)
-        assert any("Koleksi Mop Papua" in line for line in lines)
+        assert any("Sang Raja Mop" in line for line in lines)
         assert any("Mop" in line for line in lines)
 
     def test_mop_prompt_skipped_non_papua(self):

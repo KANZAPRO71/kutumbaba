@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/ic_launcher_logo"
-    android:inset="26%" />
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bird only — same asset as companion orb face (cenderawasih-emblem.png) -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_launcher_emblem"
+    android:inset="20%" />
