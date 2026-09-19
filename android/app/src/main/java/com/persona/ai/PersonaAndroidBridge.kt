@@ -27,7 +27,7 @@ class PersonaAndroidBridge(
             if (byokStore.hasApiKey()) return@runOnUiThread
             byokStore.setApiKey(trimmed)
             Log.i(TAG, "API key synced from web (store was empty)")
-            PersonaServerService.start(activity, trimmed)
+            LocalPersonaServer.start(activity, trimmed)
         }
     }
 

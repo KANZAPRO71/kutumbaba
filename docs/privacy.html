@@ -20,7 +20,7 @@
 <body>
   <div class="wrap">
     <h1>Kebijakan Privasi — Papua AI</h1>
-    <p class="updated">Terakhir diperbarui: 19 September 2026</p>
+    <p class="updated">Terakhir diperbarui: 19 Maret 2026</p>
 
     <p>
       Papua AI (“aplikasi”) adalah teman ngobrol suara yang dikembangkan oleh KANZAPRO71.
@@ -40,6 +40,7 @@
       <li><strong>Memori lokal</strong> — fakta, preferensi, ringkasan sesi, dan “urusan belum selesai” disimpan di perangkat ko (SQLite).</li>
       <li><strong>Gemini API key (BYOK)</strong> — key milik ko, disimpan di perangkat untuk menghubungkan ke Google Gemini.</li>
       <li><strong>Preferensi app</strong> — suara, mode, pengaturan RAG, notifikasi check-in (jika diaktifkan).</li>
+      <li><strong>Lokasi perkiraan</strong> — hanya jika ko izinkan; dipakai untuk konteks situasi (mis. cuaca/gerak), tidak dibagikan ke server developer.</li>
     </ul>
 
     <h2>3. Di mana data disimpan</h2>
@@ -62,6 +63,7 @@
       <li><strong>Mikrofon</strong> — wajib untuk panggilan suara.</li>
       <li><strong>Internet</strong> — koneksi ke Gemini API.</li>
       <li><strong>Notifikasi</strong> — opsional, untuk check-in harian lembut (bisa dimatikan di pengaturan).</li>
+      <li><strong>Lokasi</strong> — opsional; hanya jika ko beri izin di Android.</li>
     </ul>
 
     <h2>6. AI-generated content</h2>
@@ -70,18 +72,45 @@
       Jangan andalkan untuk nasihat medis, hukum, atau keuangan. Ko bisa hapus memori lokal di Pengaturan.
     </p>
 
-    <h2>7. Retensi &amp; penghapusan</h2>
+    <h2 id="penghapusan-data">7. Cara meminta penghapusan data (Papua AI)</h2>
     <p>
-      Hapus data dengan: hapus memori di app, uninstall aplikasi, atau hapus API key di Pengaturan.
+      <strong>Aplikasi:</strong> Papua AI · <strong>Pengembang:</strong> KANZAPRO71.
+      Developer <strong>tidak</strong> menyimpan obrolan ko di server cloud milik developer.
+      Sebagian besar data ada di <strong>HP ko</strong>; ko bisa hapus sendiri tanpa email ke developer.
+    </p>
+    <p><strong>Langkah di perangkat (disarankan):</strong></p>
+    <ol>
+      <li>Buka <strong>Papua AI</strong> → ikon <strong>Pengaturan</strong> (roda gigi).</li>
+      <li><strong>Memori / RAG:</strong> hapus ingatan per item atau kosongkan daftar memori yang ditampilkan.</li>
+      <li><strong>API key:</strong> hapus isi field Gemini API Key lalu simpan, atau ganti key baru.</li>
+      <li><strong>Notifikasi harian:</strong> matikan toggle jika tidak ingin pengingat.</li>
+      <li><strong>Hapus semua data app:</strong> uninstall Papua AI dari Android (Settings → Apps → Papua AI → Uninstall).</li>
+    </ol>
+    <p><strong>Data apa yang dihapus vs disimpan:</strong></p>
+    <ul>
+      <li><strong>Dihapus</strong> saat langkah di atas / uninstall: memori lokal, ringkasan sesi, preferensi app, API key di perangkat, database SQLite app.</li>
+      <li><strong>Tidak disimpan developer:</strong> salinan obrolan di cloud KANZAPRO71 — tidak ada.</li>
+      <li><strong>Google Gemini:</strong> suara/teks yang sudah dikirim ke Gemini API memakai <strong>key ko</strong> tunduk kebijakan &amp; alat Google. Untuk data di sisi Google, kelola lewat
+        <a href="https://myaccount.google.com/">Akun Google</a> / dokumentasi Google AI Studio.</li>
+    </ul>
+    <p><strong>Retensi:</strong> data lokal tetap ada sampai ko hapus atau uninstall. Developer tidak menetapkan periode retensi server untuk obrolan (karena tidak dikumpulkan di server developer).</p>
+    <p>
+      <strong>Bantuan tambahan:</strong> buka
+      <a href="https://github.com/KANZAPRO71/kutumbaba/issues">issue GitHub kutumbaba</a>
+      (cantumkan “Penghapusan data Papua AI”) atau kontak email di listing Play Store.
+    </p>
+
+    <h2>8. Retensi umum</h2>
+    <p>
       Backup Android cloud untuk preferensi BYOK di-exclude dari backup app (lihat aturan backup di APK).
     </p>
 
-    <h2>8. Anak-anak</h2>
+    <h2>9. Anak-anak</h2>
     <p>
       Aplikasi tidak ditargetkan untuk anak di bawah 13 tahun. Orang tua/wali bertanggung jawab atas penggunaan dan API key.
     </p>
 
-    <h2>9. Perubahan</h2>
+    <h2>10. Perubahan</h2>
     <p>
       Kebijakan ini bisa diperbarui. Versi terbaru ada di
       <a href="https://kanzapro71.github.io/kutumbaba/privacy.html">halaman ini</a>.

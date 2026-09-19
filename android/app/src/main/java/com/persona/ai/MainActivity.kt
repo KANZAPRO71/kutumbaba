@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         tvErrorMessage.text = getString(R.string.server_starting)
         tvStatus.text = getString(R.string.status_local_backend)
 
-        PersonaServerService.start(this, byokStore.getApiKey())
+        LocalPersonaServer.start(this, byokStore.getApiKey())
         Thread {
             LocalPersonaServer.waitUntilReady(120_000)
             val localOk = LocalPersonaServer.isHealthy()
