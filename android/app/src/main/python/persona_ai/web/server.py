@@ -194,6 +194,14 @@ class MemoryClearResponse(BaseModel):
     review_deleted: int = 0
 
 
+class BehaviorExperimentCreate(BaseModel):
+    mode: str = Field(min_length=2, max_length=40)
+    lever: str = Field(min_length=2, max_length=120)
+    before_value: str = Field(min_length=1, max_length=80)
+    after_value: str = Field(min_length=1, max_length=80)
+    hypothesis: str = Field(min_length=4, max_length=800)
+
+
 def _reset_runtime() -> None:
     global _runtime, _adapter, _llm_kind, _runtime_error, _retell_bridge
     _runtime = None
@@ -404,10 +412,21 @@ def extract_session_memory(session_id: str) -> dict:
         api_key=api_key or None,
         security_cfg=security_cfg,
     )
+    memory_card = None
+    if payload is not None:
+        from persona_ai.web.session_memory_card import build_session_memory_card
+
+        session = _load_session_or_empty(session_id)
+        memory_card = build_session_memory_card(
+            session_id=session_id,
+            messages=list(session.messages or []) if session else [],
+            post_call=payload,
+        )
     return {
         "session_id": session_id,
         "ok": payload is not None,
         "post_call": payload,
+        "memory_card": memory_card,
     }
 
 
@@ -419,6 +438,23 @@ def get_session_post_call(session_id: str) -> dict:
     if session is None or not session.post_call:
         return {"session_id": session_id, "post_call": None}
     return {"session_id": session_id, "post_call": session.post_call}
+
+
+@app.get("/api/session/{session_id}/memory-card")
+def get_session_memory_card(session_id: str) -> dict:
+    if not session_id or len(session_id) > 128:
+        raise HTTPException(status_code=400, detail="invalid session_id")
+    from persona_ai.web.session_memory_card import build_session_memory_card
+
+    session = _load_session_or_empty(session_id)
+    if session is None:
+        return {"session_id": session_id, "memory_card": None}
+    card = build_session_memory_card(
+        session_id=session_id,
+        messages=list(session.messages or []),
+        post_call=session.post_call,
+    )
+    return {"session_id": session_id, "memory_card": card, "post_call": session.post_call}
 
 
 @app.get("/api/session/{session_id}")
@@ -677,6 +713,102 @@ def list_conversation_modes() -> dict:
 
     modes = [scenario_for_client(s) for s in list_scenarios()]
     return {"default": DEFAULT_SCENARIO_ID, "modes": modes}
+
+
+@app.get("/api/experience-modes")
+def list_experience_modes_api() -> dict:
+    from persona_ai.conversation.experience_modes import (
+        DEFAULT_EXPERIENCE_MODE_ID,
+        experience_mode_for_client,
+        list_experience_modes,
+    )
+
+    modes = [experience_mode_for_client(p) for p in list_experience_modes()]
+    return {"default": DEFAULT_EXPERIENCE_MODE_ID, "modes": modes}
+
+
+@app.get("/api/behavior-debug/today")
+def behavior_debug_today() -> dict:
+    from persona_ai.conversation.behavior_debug_store import get_behavior_debug_store
+
+    return get_behavior_debug_store().dashboard_for_today()
+
+
+@app.get("/api/behavior-config/revision")
+def get_behavior_config_revision() -> dict:
+    from persona_ai.conversation.behavior_config_revision import current_revision
+
+    return {"revision": current_revision()}
+
+
+@app.post("/api/behavior-config/bump")
+def bump_behavior_config_revision() -> dict:
+    from persona_ai.conversation.behavior_config_revision import bump_revision
+
+    return {"revision": bump_revision()}
+
+
+@app.get("/api/behavior-experiments")
+def list_behavior_experiments() -> dict:
+    from persona_ai.conversation.behavior_experiment_store import get_behavior_experiment_store
+
+    return {"experiments": get_behavior_experiment_store().list_all()}
+
+
+@app.post("/api/behavior-experiments")
+def create_behavior_experiment(body: BehaviorExperimentCreate) -> dict:
+    from persona_ai.conversation.behavior_debug_store import get_behavior_debug_store
+    from persona_ai.conversation.behavior_experiment_store import get_behavior_experiment_store
+    from persona_ai.conversation.behavior_tuning import snapshot_for_mode
+    from persona_ai.conversation.experience_modes import normalize_experience_mode
+
+    mode = normalize_experience_mode(body.mode)
+    dash = get_behavior_debug_store().dashboard_for_today()
+    mode_table = (dash.get("eval") or {}).get("mode_table") or []
+    before_metrics = snapshot_for_mode(mode_table, mode) or {}
+    exp = get_behavior_experiment_store().create(
+        mode=mode,
+        lever=body.lever.strip(),
+        before_value=body.before_value.strip(),
+        after_value=body.after_value.strip(),
+        hypothesis=body.hypothesis.strip(),
+        before_metrics=before_metrics,
+    )
+    return {"ok": True, "experiment": exp}
+
+
+@app.post("/api/behavior-experiments/{experiment_id}/complete")
+def complete_behavior_experiment(experiment_id: str) -> dict:
+    from persona_ai.conversation.behavior_debug_store import get_behavior_debug_store
+    from persona_ai.conversation.behavior_experiment_store import get_behavior_experiment_store
+    from persona_ai.conversation.behavior_tuning import snapshot_for_mode
+
+    store = get_behavior_experiment_store()
+    existing = store.get(experiment_id)
+    if not existing:
+        return {"ok": False, "error": "not_found"}
+    mode = str(existing.get("mode") or "")
+    dash = get_behavior_debug_store().dashboard_for_today()
+    mode_table = (dash.get("eval") or {}).get("mode_table") or []
+    after_metrics = snapshot_for_mode(mode_table, mode) or {}
+    exp = store.complete(experiment_id, after_metrics=after_metrics)
+    return {"ok": True, "experiment": exp}
+
+
+@app.post("/api/behavior-experiments/{experiment_id}/revert")
+def revert_behavior_experiment(experiment_id: str) -> dict:
+    from persona_ai.conversation.behavior_experiment_store import get_behavior_experiment_store
+
+    store = get_behavior_experiment_store()
+    existing = store.get(experiment_id)
+    if not existing:
+        return {"ok": False, "error": "not_found"}
+    exp = store.complete(
+        experiment_id,
+        after_metrics=existing.get("before_metrics") or {},
+        status="reverted",
+    )
+    return {"ok": True, "experiment": exp}
 
 
 @app.get("/api/privacy")

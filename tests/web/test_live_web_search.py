@@ -2,9 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from google.genai import types
+
+from persona_ai.plugins.live_dispatch import live_session_tools
+from persona_ai.plugins.registry import invoke_tool
 from persona_ai.web.live_web_search import (
+    LIVE_WEB_SEARCH_TOOL_NAME,
     fetch_live_web_context_sync,
     format_web_context_for_steer,
+    live_async_web_search_enabled,
     needs_live_web_search,
 )
 
@@ -41,3 +47,41 @@ def test_gemini_live_bridge_imports_live_mode_config():
 
 def test_fetch_live_web_context_sync_skips_non_fresh():
     assert fetch_live_web_context_sync("Halo ko apa kabar?", "AIzaSy0123456789012345678901234567890") is None
+
+
+def test_fetch_live_web_context_sync_force_bypasses_needs_heuristic(monkeypatch):
+    calls = {"n": 0}
+
+    def _fake_search(query: str, api_key: str, model: str):
+        calls["n"] += 1
+        return "Hasil uji", []
+
+    monkeypatch.setattr("persona_ai.web.live_web_search._gemini_search_sync", _fake_search)
+    out = fetch_live_web_context_sync(
+        "Halo ko",
+        "AIzaSy0123456789012345678901234567890",
+        force=True,
+    )
+    assert calls["n"] == 1
+    assert out and "Hasil uji" in out
+
+
+def test_live_async_web_search_default_on():
+    assert live_async_web_search_enabled() is True
+
+
+def test_live_session_tools_web_search_non_blocking():
+    tools = live_session_tools(embedded_app=False, async_web_search=True)
+    assert tools is not None
+    decls = tools[0].function_declarations or []
+    names = {d.name for d in decls}
+    assert LIVE_WEB_SEARCH_TOOL_NAME in names
+    web_decl = next(d for d in decls if d.name == LIVE_WEB_SEARCH_TOOL_NAME)
+    assert web_decl.behavior == types.Behavior.NON_BLOCKING
+
+
+def test_web_search_tool_handler_missing_query():
+    from persona_ai.plugins import web_search_live  # noqa: F401
+
+    payload = invoke_tool(LIVE_WEB_SEARCH_TOOL_NAME, {}, {"api_key": "AIzaSy0123456789012345678901234567890"})
+    assert payload.get("ok") is False

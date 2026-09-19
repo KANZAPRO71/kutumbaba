@@ -4,6 +4,14 @@
 
 const API = "/api/chat";
 
+function escapeHtml(text) {
+  return String(text ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 const messages = document.getElementById("messages");
 const input = document.getElementById("input");
 const charCount = document.getElementById("charCount");
@@ -22,6 +30,8 @@ const textFoot = document.getElementById("textFoot");
 const voiceFoot = document.getElementById("voiceFoot");
 const voiceStatus = document.getElementById("voiceStatus");
 const voiceBars = document.getElementById("voiceBars");
+const voiceWaveCanvas = document.getElementById("voiceWaveCanvas");
+const voiceModeStrip = document.getElementById("voiceModeStrip");
 const voiceTimer = document.getElementById("voiceTimer");
 const onboarding = document.getElementById("onboarding");
 const btnOnboardingNext = document.getElementById("btnOnboardingNext");
@@ -38,11 +48,6 @@ const btnDailyCheckInDismiss = document.getElementById("btnDailyCheckInDismiss")
 const DAILY_CHECKIN_DISMISS_KEY = "papua_daily_checkin_dismiss";
 const btnResumeYes = document.getElementById("btnResumeYes");
 const btnResumeNo = document.getElementById("btnResumeNo");
-const postCallCard = document.getElementById("postCallCard");
-const postCallSummary = document.getElementById("postCallSummary");
-const postCallMood = document.getElementById("postCallMood");
-const btnPostCallUp = document.getElementById("btnPostCallUp");
-const btnPostCallDown = document.getElementById("btnPostCallDown");
 const ragEnabledToggle = document.getElementById("ragEnabledToggle");
 const ragMinScore = document.getElementById("ragMinScore");
 const ragMinScoreVal = document.getElementById("ragMinScoreVal");
@@ -50,11 +55,36 @@ const ragGeminiToggle = document.getElementById("ragGeminiToggle");
 const sessionFeedbackStats = document.getElementById("sessionFeedbackStats");
 let lastPostCallSessionId = null;
 let prefsSaveTimer = null;
-const btnPostCallClose = document.getElementById("btnPostCallClose");
 const btnTextToggle = document.getElementById("btnTextToggle");
 const textCompose = document.getElementById("textCompose");
 const companionStage = document.getElementById("companionStage");
 const companionOrbWrap = document.getElementById("companionOrbWrap");
+const experienceModeList = document.getElementById("experienceModeList");
+const experienceTagline = document.getElementById("experienceTagline");
+const heroTagline = document.getElementById("heroTagline");
+
+function syncExperienceTagline(text) {
+  const t = text || "";
+  if (experienceTagline) experienceTagline.textContent = t;
+  if (heroTagline) heroTagline.textContent = t;
+}
+
+function syncWaveform(state) {
+  if (window.PersonaWaveform?.setVisualState) {
+    window.PersonaWaveform.setVisualState(state);
+  }
+}
+
+function startWaveformViz() {
+  if (voiceWaveCanvas && window.PersonaWaveform?.start) {
+    window.PersonaWaveform.start(voiceWaveCanvas);
+    syncWaveform({ mode: "connecting" });
+  }
+}
+
+function stopWaveformViz() {
+  if (window.PersonaWaveform?.stop) window.PersonaWaveform.stop();
+}
 const btnSettings = document.getElementById("btnSettings");
 const settings = document.getElementById("settings");
 const btnSettingsClose = document.getElementById("btnSettingsClose");
@@ -62,6 +92,35 @@ const settingsApiKey = document.getElementById("settingsApiKey");
 const settingsError = document.getElementById("settingsError");
 const settingsKeyStatus = document.getElementById("settingsKeyStatus");
 const btnSettingsSave = document.getElementById("btnSettingsSave");
+const behaviorDebugDay = document.getElementById("behaviorDebugDay");
+const behaviorDebugDetails = document.getElementById("behaviorDebugDetails");
+const companionAchievementsWrap = document.getElementById("companionAchievementsWrap");
+let behaviorDebugLoaded = false;
+const behaviorRecentDecisions = document.getElementById("behaviorRecentDecisions");
+const behaviorModeEvalTable = document.getElementById("behaviorModeEvalTable");
+const behaviorBdvByModeTable = document.getElementById("behaviorBdvByModeTable");
+const behaviorDecisionOutcomesTable = document.getElementById("behaviorDecisionOutcomesTable");
+const behaviorMopByTypeTable = document.getElementById("behaviorMopByTypeTable");
+const behaviorPlannedHoldTable = document.getElementById("behaviorPlannedHoldTable");
+const behaviorPlannedHoldNote = document.getElementById("behaviorPlannedHoldNote");
+const behaviorModeHealth = document.getElementById("behaviorModeHealth");
+const behaviorSessionDistTable = document.getElementById("behaviorSessionDistTable");
+const behaviorExpMode = document.getElementById("behaviorExpMode");
+const behaviorExpLever = document.getElementById("behaviorExpLever");
+const behaviorExpValues = document.getElementById("behaviorExpValues");
+const behaviorExpHypothesis = document.getElementById("behaviorExpHypothesis");
+const btnBehaviorExpStart = document.getElementById("btnBehaviorExpStart");
+const behaviorExperimentsList = document.getElementById("behaviorExperimentsList");
+const behaviorConfigRevision = document.getElementById("behaviorConfigRevision");
+const btnBehaviorConfigBump = document.getElementById("btnBehaviorConfigBump");
+const btnBehaviorDebugRefresh = document.getElementById("btnBehaviorDebugRefresh");
+const BEHAVIOR_MODE_LABELS = {
+  nongkrong: "Nongkrong",
+  mop: "Mop",
+  cerita_tong: "Cerita Tong",
+  teman_malam: "Teman Malam",
+  teman_jalan: "Teman Jalan",
+};
 const memoryStats = document.getElementById("memoryStats");
 const companionAchievements = document.getElementById("companionAchievements");
 const achievementToast = document.getElementById("achievementToast");
@@ -152,6 +211,24 @@ window.__personaUnlockUi = () => {
   }
   ensureUiInteractive();
   void refreshAppHealth();
+};
+
+/** Called from MainActivity.onPause — stop canvas RAF, save CPU/battery in background. */
+window.__personaPauseUi = () => {
+  try {
+    window.PersonaWaveform?.pause?.();
+  } catch {
+    /* ignore */
+  }
+};
+
+/** Called from MainActivity.onResume — resume visualizer if call UI active. */
+window.__personaResumeUi = () => {
+  try {
+    if (inCall) window.PersonaWaveform?.resume?.();
+  } catch {
+    /* ignore */
+  }
 };
 
 function loadByokKey() {
@@ -351,14 +428,21 @@ function setVoiceUi(active) {
   textFoot.classList.toggle("hidden", active);
   voiceFoot.classList.toggle("hidden", !active);
   btnCall.classList.toggle("in-call", active);
-  const label = btnCall.querySelector("span");
-  if (label) label.textContent = active ? "Sedang ngobrol" : "Ngobrol";
+  const label = btnCall.querySelector(".btn-call-label");
+  if (label) label.textContent = active ? "Sedang ngobrol" : "Buka Suara";
   voiceBars.classList.toggle("idle", !active);
   voiceBars.classList.remove("agent-talking", "user-turn");
   if (voiceTimer) voiceTimer.textContent = "0:00";
   if (voiceSelect) voiceSelect.disabled = active;
   voicePickerList?.classList.toggle("is-disabled", active);
   bgmPickerList?.classList.toggle("is-disabled", active);
+  if (active) {
+    startWaveformViz();
+    renderVoiceModeStrip();
+  } else {
+    stopWaveformViz();
+    voiceModeStrip?.classList.add("hidden");
+  }
   if (!active) {
     statusDot.classList.remove("call-active");
     setCompanionOrbState("idle");
@@ -366,42 +450,11 @@ function setVoiceUi(active) {
   updateCompanionStage();
 }
 
-function sentimentLabel(value) {
-  const v = String(value || "").toLowerCase();
-  if (v.includes("posit")) return "Mood: ceria / lega";
-  if (v.includes("neg")) return "Mood: agak berat";
-  return "Mood: netral";
-}
-
-function postCallFields(raw) {
-  if (!raw || typeof raw !== "object") return {};
-  if (raw.data && typeof raw.data === "object") return raw.data;
-  return raw;
-}
-
-function showPostCallCard(data) {
+/** Post-call hook after voice sessions (memory card UI removed). */
+function handlePostCallData(data) {
   if (!data) return;
   lastPostCallSessionId = data.session_id || sessionId || null;
-  if (postCallCard) {
-    const fields = postCallFields(data);
-    const summary =
-      fields.call_summary ||
-      fields.summary ||
-      fields.ringkasan ||
-      "Obrolan singkat tadi — lanjut kapan saja ya.";
-    if (postCallSummary) postCallSummary.textContent = summary;
-    if (postCallMood) {
-      const mood = fields.user_sentiment ? sentimentLabel(fields.user_sentiment) : "";
-      postCallMood.textContent = mood;
-      postCallMood.classList.toggle("hidden", !mood);
-    }
-    postCallCard.classList.remove("hidden");
-  }
   void syncAchievementsAfterCall();
-}
-
-function hidePostCallCard() {
-  postCallCard?.classList.add("hidden");
 }
 
 async function finalizeSessionMemory(sid) {
@@ -426,7 +479,13 @@ async function finalizeSessionMemory(sid) {
     );
     if (!res.ok) return null;
     const body = await res.json();
-    if (body?.post_call) showPostCallCard(body.post_call);
+    if (body?.post_call) {
+      handlePostCallData({
+        session_id: body.session_id,
+        ...body.post_call,
+        memory_card: body.memory_card,
+      });
+    }
     void syncAchievementsAfterCall();
     return body?.post_call || null;
   } catch {
@@ -445,7 +504,11 @@ async function fetchPostCallWithRetry(maxAttempts = 8, delayMs = 1500) {
       if (!res.ok) continue;
       const body = await res.json();
       if (body?.post_call && Object.keys(body.post_call).length) {
-        return body.post_call;
+        return {
+          session_id: body.session_id,
+          ...body.post_call,
+          memory_card: body.memory_card,
+        };
       }
     } catch {
       /* retry */
@@ -473,7 +536,7 @@ async function loadSessionHistoryFrom(id) {
       else renderAssistantText(msg.text, "history");
     }
     if (data.post_call) {
-      showPostCallCard(data.post_call);
+      handlePostCallData(data.post_call);
     }
   } catch {
     /* empty */
@@ -786,26 +849,6 @@ async function saveCompanionPrefsFromForm() {
   }
 }
 
-async function sendSessionFeedback(rating) {
-  const sid = lastPostCallSessionId || sessionId;
-  if (!sid) {
-    hidePostCallCard();
-    return;
-  }
-  try {
-    await fetch("/api/companion/session-feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: sid, rating }),
-    });
-  } catch {
-    /* ignore */
-  }
-  hidePostCallCard();
-  if (rating === "up") showAchievementToast("Makasih feedback-nya — sa ingat.");
-  void loadMemoryDashboard();
-}
-
 async function syncAchievementsAfterCall() {
   try {
     const res = await fetch("/api/companion/stats", { cache: "no-store" });
@@ -813,6 +856,467 @@ async function syncAchievementsAfterCall() {
     const body = await res.json();
     celebrateNewAchievements(body.stats?.achievements || []);
     void loadMemoryDashboard();
+  } catch {
+    /* ignore */
+  }
+}
+
+function behaviorStatRow(label, value) {
+  const li = document.createElement("li");
+  const l = document.createElement("span");
+  l.className = "behavior-stat-label";
+  l.textContent = label;
+  const v = document.createElement("span");
+  v.textContent = String(value ?? "—");
+  li.append(l, v);
+  return li;
+}
+
+function fillEvalTable(table, headers, rows, emptyMsg) {
+  if (!table) return;
+  table.innerHTML = "";
+  if (!rows?.length) {
+    const cap = document.createElement("caption");
+    cap.className = "behavior-eval-empty";
+    cap.textContent = emptyMsg || "Belum ada data.";
+    table.appendChild(cap);
+    return;
+  }
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  headers.forEach((h) => {
+    const th = document.createElement("th");
+    th.textContent = h.label;
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+    headers.forEach((h) => {
+      const td = document.createElement("td");
+      const val = row[h.key];
+      td.textContent = val == null ? "—" : String(val);
+      if (h.num) td.classList.add("num");
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+}
+
+function formatDistBand(dist) {
+  if (!dist || !dist.n) return "—";
+  if (dist.n === 1) return `${dist.median}`;
+  return `${dist.p25}–${dist.p75} (n=${dist.n})`;
+}
+
+function renderBehaviorEval(data) {
+  const ev = data?.eval;
+  if (!ev) return;
+
+  fillEvalTable(
+    behaviorModeEvalTable,
+    [
+      { key: "display_name", label: "Mode" },
+      { key: "turns", label: "Turns", num: true },
+      { key: "avg_assistant_s", label: "Avg assistant", num: true },
+      { key: "listening_percent", label: "Listening", num: true },
+      { key: "questions", label: "Questions", num: true },
+      { key: "mop_percent", label: "MOP %", num: true },
+      { key: "tuning_status", label: "G" },
+    ],
+    (ev.mode_table || []).map((r) => ({
+      ...r,
+      avg_assistant_s: r.turns ? `${r.avg_assistant_s} s` : "—",
+      listening_percent: r.turns ? `${r.listening_percent}%` : "—",
+      mop_percent: r.turns ? `${r.mop_percent}%` : "—",
+      tuning_status:
+        r.tuning_status === "ok"
+          ? "OK"
+          : r.tuning_status === "needs_tuning"
+            ? "TUNE"
+            : "…",
+    })),
+    "Ngobrol live dulu — eval muncul setelah ada turn tercatat.",
+  );
+
+  fillEvalTable(
+    behaviorSessionDistTable,
+    [
+      { key: "display_name", label: "Mode" },
+      { key: "sessions", label: "Sesi", num: true },
+      { key: "listen_band", label: "Listen %", num: true },
+      { key: "asst_band", label: "Asst (s)", num: true },
+      { key: "mop_band", label: "MOP %", num: true },
+      { key: "cb_band", label: "Callback", num: true },
+    ],
+    (ev.mode_table || [])
+      .filter((r) => r.turns > 0)
+      .map((r) => {
+        const d = r.distributions || {};
+        const sess = d.sessions || {};
+        return {
+          display_name: r.display_name,
+          sessions: d.session_count ?? 0,
+          listen_band: formatDistBand(sess.listening_percent),
+          asst_band: formatDistBand(sess.avg_assistant_s),
+          mop_band: formatDistBand(sess.mop_percent),
+          cb_band: formatDistBand(sess.callback_surfaced),
+        };
+      }),
+    "Butuh ≥2 sesi per mode untuk band p25–p75 yang bermakna.",
+  );
+
+  const bdvRows = (ev.mode_table || [])
+    .filter((r) => r.turns > 0)
+    .map((r) => {
+      const d = r.bdv_distribution || {};
+      return {
+        display_name: r.display_name,
+        respond: d.RESPOND ?? 0,
+        ack: d.ACK_ONLY ?? 0,
+        defer: d.DEFER ?? 0,
+        silence: d.SILENCE ?? 0,
+      };
+    });
+  fillEvalTable(
+    behaviorBdvByModeTable,
+    [
+      { key: "display_name", label: "Mode" },
+      { key: "respond", label: "Respond", num: true },
+      { key: "ack", label: "Ack", num: true },
+      { key: "defer", label: "Defer", num: true },
+      { key: "silence", label: "Silence", num: true },
+    ],
+    bdvRows,
+    "BDV per mode muncul setelah turn experience tercatat.",
+  );
+
+  fillEvalTable(
+    behaviorDecisionOutcomesTable,
+    [
+      { key: "decision", label: "Decision" },
+      { key: "count", label: "Count", num: true },
+      { key: "followed", label: "Followed / engaged", num: true },
+    ],
+    (ev.decision_outcomes || []).map((r) => ({
+      decision: r.decision,
+      count: r.count,
+      followed:
+        r.count > 0 && r.followed_label !== "—"
+          ? `${r.followed_count} (${r.followed_percent}%) ${r.followed_label}`
+          : r.followed_label === "—"
+            ? "—"
+            : "0",
+    })),
+    "Belum ada keputusan BDV/callback/MOP.",
+  );
+
+  fillEvalTable(
+    behaviorMopByTypeTable,
+    [
+      { key: "mop_type", label: "MOP type" },
+      { key: "selected", label: "Selected", num: true },
+      { key: "engaged", label: "Engaged", num: true },
+      { key: "ignored", label: "Ignored", num: true },
+      { key: "redirected", label: "Redirected", num: true },
+    ],
+    ev.mop_by_type || [],
+    "Belum ada MOP setup/outcome.",
+  );
+
+  if (behaviorPlannedHoldNote && ev.planned_hold_label) {
+    behaviorPlannedHoldNote.textContent = ev.planned_hold_label;
+  }
+  fillEvalTable(
+    behaviorPlannedHoldTable,
+    [
+      { key: "planned_hold_ms", label: "Planned hold" },
+      { key: "total", label: "N", num: true },
+      { key: "engaged_percent", label: "Engaged %", num: true },
+    ],
+    (ev.planned_hold_outcomes || []).map((r) => ({
+      planned_hold_ms: `${r.planned_hold_ms} ms`,
+      total: r.total,
+      engaged_percent: r.total ? `${r.engaged_percent}%` : "—",
+    })),
+    "Butuh mop_outcome dengan planned_hold_ms.",
+  );
+
+  if (behaviorModeHealth) {
+    behaviorModeHealth.innerHTML = "";
+    const healthRows = ev.mode_health || [];
+    if (!healthRows.some((h) => h.turns > 0)) {
+      const li = document.createElement("li");
+      li.className = "behavior-eval-empty";
+      li.textContent = "Mode health butuh ≥3 turn per mode untuk kontrak penuh.";
+      behaviorModeHealth.appendChild(li);
+    }
+    healthRows.forEach((h) => {
+      if (h.turns <= 0) return;
+      const li = document.createElement("li");
+      const modeRow = (ev.mode_table || []).find((r) => r.mode === h.mode);
+      const g = modeRow?.tuning_status || "…";
+      const title = document.createElement("div");
+      title.className = "behavior-health-title";
+      title.textContent = `${h.display_name || h.mode} · G=${g}`;
+      li.appendChild(title);
+      const tuneNote = modeRow?.tuning_note || "";
+      const contract = document.createElement("div");
+      contract.className = "behavior-health-contract";
+      if (h.contract_ok === true) {
+        contract.classList.add("ok");
+        contract.textContent = tuneNote || "Kontrak OK";
+      } else if (h.contract_ok === false) {
+        contract.classList.add("warn");
+        contract.textContent = tuneNote || "Perlu tuning";
+        (h.checks || []).forEach((c) => {
+          if (c.ok !== false) return;
+          const line = document.createElement("div");
+          line.className = "behavior-decision-line";
+          line.textContent = `✗ ${c.label} — ${c.detail}`;
+          li.appendChild(line);
+        });
+      } else {
+        contract.classList.add("na");
+        contract.textContent = tuneNote || "Butuh lebih banyak sesi";
+      }
+      li.appendChild(contract);
+      behaviorModeHealth.appendChild(li);
+    });
+  }
+}
+
+function renderBehaviorDebugDashboard(data) {
+  if (!data) return;
+  const day = data.day || "";
+  if (behaviorDebugDay) {
+    behaviorDebugDay.textContent = day ? `HARI INI · ${day}` : "HARI INI";
+  }
+
+  renderBehaviorEval(data);
+
+  if (behaviorRecentDecisions) {
+    behaviorRecentDecisions.innerHTML = "";
+    const rows = data.recent_decisions || [];
+    if (!rows.length) {
+      const li = document.createElement("li");
+      li.className = "settings-memory-empty";
+      li.textContent = "Belum ada keputusan — ngobrol live dulu ya.";
+      behaviorRecentDecisions.appendChild(li);
+    } else {
+      rows.forEach((row) => {
+        const li = document.createElement("li");
+        const modeLabel =
+          BEHAVIOR_MODE_LABELS[row.experience_mode] ||
+          row.experience_mode ||
+          "?";
+        const head = document.createElement("div");
+        head.className = "behavior-decision-head";
+        head.textContent = `${row.time || "—"}  ${modeLabel.toUpperCase().replace(/\s+/g, "_")}`;
+        const bdvLine = document.createElement("div");
+        bdvLine.className = "behavior-decision-line";
+        bdvLine.textContent = `BDV: ${row.bdv || "?"}`;
+        li.appendChild(head);
+        li.appendChild(bdvLine);
+        if (row.callback_status && row.callback_status !== "none") {
+          const cl = document.createElement("div");
+          cl.className = "behavior-decision-line";
+          cl.textContent = `CALLBACK: ${row.callback_status}${row.callback_reason ? ` (${row.callback_reason})` : ""}`;
+          li.appendChild(cl);
+        }
+        if (row.mop_status && row.mop_status !== "none") {
+          const ml = document.createElement("div");
+          ml.className = "behavior-decision-line";
+          let mopText = `MOP: ${row.mop_status}`;
+          if (row.mop_phase) mopText += ` · Phase: ${row.mop_phase}`;
+          if (row.mop_type) mopText += ` · Type: ${row.mop_type}`;
+          if (row.hold_ms) mopText += ` · Hold: ${row.hold_ms} ms`;
+          if (row.reaction && row.reaction !== "none") {
+            mopText += ` · Reaction: ${row.reaction}`;
+          }
+          ml.textContent = mopText;
+          li.appendChild(ml);
+        }
+        if (row.reason) {
+          const rl = document.createElement("div");
+          rl.className = "behavior-decision-line";
+          rl.textContent = `Reason: ${row.reason}`;
+          li.appendChild(rl);
+        }
+        behaviorRecentDecisions.appendChild(li);
+      });
+    }
+  }
+}
+
+function formatMetricCompare(label, before, after, suffix = "") {
+  const b = before == null ? "—" : `${before}${suffix}`;
+  const a = after == null ? "—" : `${after}${suffix}`;
+  return `${label}: ${b} → ${a}`;
+}
+
+function renderBehaviorExperiments(experiments) {
+  if (!behaviorExperimentsList) return;
+  behaviorExperimentsList.innerHTML = "";
+  if (!experiments?.length) {
+    const li = document.createElement("li");
+    li.className = "behavior-eval-empty";
+    li.textContent = "Belum ada eksperimen — catat baseline sebelum mengubah satu lever.";
+    behaviorExperimentsList.appendChild(li);
+    return;
+  }
+  experiments.forEach((exp) => {
+    const li = document.createElement("li");
+    const title = document.createElement("div");
+    title.className = "behavior-exp-title";
+    const modeLabel = BEHAVIOR_MODE_LABELS[exp.mode] || exp.mode;
+    const before = exp.before_metrics || {};
+    const after = exp.after_metrics || {};
+    const expId = exp.experiment_id || exp.id;
+    const revBefore = exp.config_revision_before || before.config_revision || "—";
+    const revAfter = exp.config_revision_after || after.config_revision || "—";
+    title.textContent = `${expId} · ${modeLabel} · ${exp.lever} · ${exp.status}`;
+    li.appendChild(title);
+    const hyp = document.createElement("div");
+    hyp.className = "behavior-decision-line";
+    hyp.textContent = exp.hypothesis || "";
+    li.appendChild(hyp);
+    const lever = document.createElement("div");
+    lever.className = "behavior-decision-line";
+    lever.textContent = `Lever: ${exp.before_value} → ${exp.after_value}`;
+    li.appendChild(lever);
+    const revLine = document.createElement("div");
+    revLine.className = "behavior-decision-line";
+    revLine.textContent = `Config: ${revBefore} → ${revAfter}`;
+    li.appendChild(revLine);
+    const lines = [
+      formatMetricCompare("Listen median", before.listening_median, after.listening_median, "%"),
+      formatMetricCompare("Listen p25", before.listening_p25, after.listening_p25, "%"),
+      formatMetricCompare("Questions median", before.questions_median, after.questions_median),
+      formatMetricCompare("MOP median", before.mop_median, after.mop_median, "%"),
+    ];
+    lines.forEach((text) => {
+      const d = document.createElement("div");
+      d.className = "behavior-decision-line";
+      d.textContent = text;
+      li.appendChild(d);
+    });
+    if (exp.status === "active") {
+      const actions = document.createElement("div");
+      actions.className = "behavior-exp-actions";
+      const completeBtn = document.createElement("button");
+      completeBtn.type = "button";
+      completeBtn.className = "settings-memory-refresh";
+      completeBtn.textContent = "Snapshot after (sesi baru selesai)";
+      completeBtn.addEventListener("click", () => void completeBehaviorExperiment(exp.id));
+      actions.appendChild(completeBtn);
+      li.appendChild(actions);
+    }
+    behaviorExperimentsList.appendChild(li);
+  });
+}
+
+async function refreshBehaviorConfigRevision() {
+  try {
+    const res = await fetch("/api/behavior-config/revision", { cache: "no-store" });
+    if (!res.ok) return;
+    const body = await res.json();
+    if (behaviorConfigRevision) {
+      behaviorConfigRevision.textContent = `Config revision: ${body.revision || "g.001"}`;
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+async function bumpBehaviorConfigRevision() {
+  try {
+    const res = await fetch("/api/behavior-config/bump", { method: "POST" });
+    if (!res.ok) return;
+    await refreshBehaviorConfigRevision();
+  } catch {
+    /* ignore */
+  }
+}
+
+async function loadBehaviorExperiments() {
+  try {
+    await refreshBehaviorConfigRevision();
+    const res = await fetch("/api/behavior-experiments", { cache: "no-store" });
+    if (!res.ok) return;
+    const body = await res.json();
+    renderBehaviorExperiments(body.experiments || []);
+  } catch {
+    /* ignore */
+  }
+}
+
+async function startBehaviorExperiment() {
+  const mode = behaviorExpMode?.value || "cerita_tong";
+  const lever = (behaviorExpLever?.value || "").trim();
+  const values = (behaviorExpValues?.value || "").trim();
+  const hypothesis = (behaviorExpHypothesis?.value || "").trim();
+  if (!lever || !values || !hypothesis) return;
+  const parts = values.split("→").map((s) => s.trim());
+  const before_value = parts[0] || "?";
+  const after_value = parts[1] || parts[0] || "?";
+  try {
+    const res = await fetch("/api/behavior-experiments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode,
+        lever,
+        before_value,
+        after_value,
+        hypothesis,
+      }),
+    });
+    if (!res.ok) return;
+    await loadBehaviorExperiments();
+  } catch {
+    /* ignore */
+  }
+}
+
+async function completeBehaviorExperiment(id) {
+  try {
+    const res = await fetch(`/api/behavior-experiments/${encodeURIComponent(id)}/complete`, {
+      method: "POST",
+    });
+    if (!res.ok) return;
+    await loadBehaviorExperiments();
+    void loadBehaviorDebugDashboard(true);
+  } catch {
+    /* ignore */
+  }
+}
+
+function ensureBehaviorDebugLoadHook() {
+  if (!behaviorDebugDetails || behaviorDebugDetails.dataset.hook === "1") return;
+  behaviorDebugDetails.dataset.hook = "1";
+  behaviorDebugDetails.addEventListener("toggle", () => {
+    if (behaviorDebugDetails.open) void loadBehaviorDebugDashboard(true);
+  });
+}
+
+async function loadBehaviorDebugDashboard(force) {
+  if (!behaviorModeEvalTable && !behaviorRecentDecisions && !behaviorDebugDay) {
+    return;
+  }
+  if (!force && behaviorDebugDetails && !behaviorDebugDetails.open) {
+    return;
+  }
+  try {
+    const res = await fetch("/api/behavior-debug/today", { cache: "no-store" });
+    if (!res.ok) return;
+    const data = await res.json();
+    renderBehaviorDebugDashboard(data);
+    behaviorDebugLoaded = true;
+    void loadBehaviorExperiments();
   } catch {
     /* ignore */
   }
@@ -858,12 +1362,11 @@ async function loadMemoryDashboard() {
     const streak = statsBody.stats?.streak_days ?? 0;
     const sessions = statsBody.stats?.total_sessions ?? 0;
     if (memoryStats) {
-      const streakLine =
-        streak > 0 ? ` · 🔥 ${streak} hari streak` : "";
       const reviewN = privacy.review_count ?? reviews.length;
-      const reviewLine = reviewN > 0 ? ` · ${reviewN} perlu konfirmasi` : "";
+      const reviewLine = reviewN > 0 ? ` · ${reviewN} konfirmasi` : "";
+      const streakLine = streak > 0 ? ` · streak ${streak}d` : "";
       memoryStats.textContent =
-        `${privacy.memory_count ?? memories.length} ingatan · ${privacy.open_loop_count ?? loops.length} belum selesai${reviewLine} · ${sessions} panggilan${streakLine}${ragHint} · data di HP ko`;
+        `${privacy.memory_count ?? memories.length} ingatan · ${privacy.open_loop_count ?? loops.length} open loop${reviewLine}${streakLine}`;
     }
 
     if (memoryReviewList) {
@@ -871,7 +1374,7 @@ async function loadMemoryDashboard() {
       if (!reviews.length) {
         const li = document.createElement("li");
         li.className = "settings-memory-empty";
-        li.textContent = "Kosong — saran dari obrolan (confidence rendah) muncul di sini.";
+        li.textContent = "Kosong.";
         memoryReviewList.appendChild(li);
       } else {
         reviews.forEach((item) => {
@@ -900,6 +1403,12 @@ async function loadMemoryDashboard() {
     }
 
     const achievements = statsBody.stats?.achievements || [];
+    const unlockedN = achievements.filter((a) => a.unlocked).length;
+    if (companionAchievementsWrap) {
+      const show = unlockedN > 0;
+      companionAchievementsWrap.classList.toggle("hidden", !show);
+      companionAchievementsWrap.hidden = !show;
+    }
     const fb = statsBody.stats?.session_feedback;
     if (sessionFeedbackStats && fb) {
       const up = fb.up || 0;
@@ -928,7 +1437,7 @@ async function loadMemoryDashboard() {
       if (!memories.length) {
         const li = document.createElement("li");
         li.className = "settings-memory-empty";
-        li.textContent = "Belum ada — tambah manual atau selesai obrolan (extract otomatis).";
+        li.textContent = "Kosong.";
         memoryList.appendChild(li);
       } else {
         memories.forEach((m) => {
@@ -955,7 +1464,7 @@ async function loadMemoryDashboard() {
       if (!loops.length) {
         const li = document.createElement("li");
         li.className = "settings-memory-empty";
-        li.textContent = "Kosong — rencana/janji dari obrolan ko bakal muncul di sini.";
+        li.textContent = "Kosong.";
         openLoopList.appendChild(li);
       } else {
         loops.forEach((loop) => {
@@ -1306,6 +1815,10 @@ function openSettings() {
   renderBgmPickerList();
   updateSettingsKeyStatus();
   void loadMemoryDashboard();
+  ensureBehaviorDebugLoadHook();
+  if (behaviorDebugDetails?.open) {
+    void loadBehaviorDebugDashboard(true);
+  }
   syncDailyReminderToggle();
   settingsError?.classList.add("hidden");
   if (settingsError) {
@@ -1473,16 +1986,53 @@ function setSelectedBgm(mode) {
 }
 
 let cachedConversationModes = null;
+let cachedExperienceModes = null;
+
+const LEGACY_MODE_ALIASES = {
+  casual_chat: "nongkrong",
+  funny: "mop",
+  curhat: "cerita_tong",
+};
+
+function migrateStoredConversationMode() {
+  try {
+    const raw = localStorage.getItem(CONVERSATION_MODE_KEY);
+    if (!raw) return;
+    const mapped = LEGACY_MODE_ALIASES[raw];
+    if (mapped) localStorage.setItem(CONVERSATION_MODE_KEY, mapped);
+  } catch {
+    /* ignore */
+  }
+}
 
 function selectedConversationMode() {
   try {
-    return localStorage.getItem(CONVERSATION_MODE_KEY) || "casual_chat";
+    migrateStoredConversationMode();
+    return localStorage.getItem(CONVERSATION_MODE_KEY) || "nongkrong";
   } catch {
-    return "casual_chat";
+    return "nongkrong";
+  }
+}
+
+async function loadExperienceModesFromApi() {
+  if (cachedExperienceModes?.length) return cachedExperienceModes;
+  try {
+    const res = await fetch("/api/experience-modes");
+    if (!res.ok) return null;
+    const data = await res.json();
+    cachedExperienceModes = Array.isArray(data.modes) ? data.modes : [];
+    return cachedExperienceModes;
+  } catch {
+    return null;
   }
 }
 
 async function loadConversationModesFromApi() {
+  const experience = await loadExperienceModesFromApi();
+  if (experience?.length) {
+    cachedConversationModes = experience;
+    return experience;
+  }
   if (cachedConversationModes?.length) return cachedConversationModes;
   try {
     const res = await fetch("/api/conversation-modes");
@@ -1493,6 +2043,66 @@ async function loadConversationModesFromApi() {
   } catch {
     return null;
   }
+}
+
+function applyExperienceAudioHints(modeMeta) {
+  if (!modeMeta?.audio_bgm) return;
+  const bgm = String(modeMeta.audio_bgm).trim();
+  if (!bgm) return;
+  if (BGM_OPTIONS.some((o) => o.value === bgm)) {
+    setSelectedBgm(bgm);
+  }
+}
+
+function renderVoiceModeStrip() {
+  if (!voiceModeStrip) return;
+  const list = (cachedExperienceModes || []).filter((m) => m?.id);
+  if (list.length < 2) {
+    voiceModeStrip.classList.add("hidden");
+    voiceModeStrip.innerHTML = "";
+    return;
+  }
+  const pick = list.slice(0, 3);
+  const current = selectedConversationMode();
+  voiceModeStrip.classList.remove("hidden");
+  voiceModeStrip.innerHTML = "";
+  for (const m of pick) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "voice-mode-pill";
+    btn.dataset.mode = m.id;
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-selected", m.id === current ? "true" : "false");
+    btn.textContent = m.display_name || m.id;
+    if (m.id === current) btn.classList.add("is-active");
+    btn.addEventListener("click", () => setSelectedConversationMode(m.id, m));
+    voiceModeStrip.appendChild(btn);
+  }
+}
+
+function renderExperienceHome(modes) {
+  if (!experienceModeList) return;
+  const list =
+    modes ||
+    cachedExperienceModes || [
+      { id: "nongkrong", display_name: "Nongkrong", emoji: "🎙️", tagline: "Ngobrol santai." },
+    ];
+  const current = selectedConversationMode();
+  experienceModeList.innerHTML = "";
+  for (const m of list) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "experience-mode-btn";
+    btn.dataset.mode = m.id;
+    btn.setAttribute("role", "option");
+    btn.setAttribute("aria-selected", m.id === current ? "true" : "false");
+    if (m.id === current) btn.classList.add("is-selected");
+    btn.innerHTML = `<span class="mode-emoji">${m.emoji || "🎙️"}</span><span class="mode-copy"><span class="mode-name">${m.display_name || m.id}</span><span class="mode-sub">${m.tagline || ""}</span></span>`;
+    btn.addEventListener("click", () => setSelectedConversationMode(m.id, m));
+    experienceModeList.appendChild(btn);
+  }
+  const active = list.find((x) => x.id === current) || list[0];
+  if (active) syncExperienceTagline(active.tagline || "");
 }
 
 function renderModePickerList(modes) {
@@ -1518,7 +2128,7 @@ function renderModePickerList(modes) {
   }
 }
 
-function setSelectedConversationMode(modeId) {
+function setSelectedConversationMode(modeId, modeMeta) {
   if (!modeId) return;
   if (modeSelect && [...modeSelect.options].some((o) => o.value === modeId)) {
     modeSelect.value = modeId;
@@ -1532,6 +2142,40 @@ function setSelectedConversationMode(modeId) {
     el.classList.toggle("is-selected", el.dataset.mode === modeId);
     el.setAttribute("aria-selected", el.dataset.mode === modeId ? "true" : "false");
   });
+  experienceModeList?.querySelectorAll(".experience-mode-btn[data-mode]").forEach((el) => {
+    el.classList.toggle("is-selected", el.dataset.mode === modeId);
+    el.setAttribute("aria-selected", el.dataset.mode === modeId ? "true" : "false");
+  });
+  voiceModeStrip?.querySelectorAll(".voice-mode-pill[data-mode]").forEach((el) => {
+    el.classList.toggle("is-active", el.dataset.mode === modeId);
+    el.setAttribute("aria-selected", el.dataset.mode === modeId ? "true" : "false");
+  });
+  const meta =
+    modeMeta ||
+    cachedExperienceModes?.find((m) => m.id === modeId) ||
+    cachedConversationModes?.find((m) => m.id === modeId);
+  if (meta?.tagline) syncExperienceTagline(meta.tagline);
+  applyExperienceAudioHints(meta);
+  if (inCall && liveCall?.active) {
+    liveCall.setConversationMode(modeId);
+  } else {
+    notifyNativeExperienceMode(modeId);
+  }
+}
+
+function notifyNativeExperienceMode(modeId) {
+  if (!modeId) return;
+  try {
+    if (typeof PersonaAndroid !== "undefined" && PersonaAndroid.onModeChanged) {
+      PersonaAndroid.onModeChanged(modeId);
+      return;
+    }
+    if (typeof Android !== "undefined" && Android.onModeChanged) {
+      Android.onModeChanged(modeId);
+    }
+  } catch {
+    /* embedded bridge optional */
+  }
 }
 
 async function populateModeOptions() {
@@ -1550,6 +2194,8 @@ async function populateModeOptions() {
     }
   }
   renderModePickerList(modes);
+  renderExperienceHome(modes);
+  if (inCall) renderVoiceModeStrip();
 }
 
 function renderBgmPickerList() {
@@ -1591,6 +2237,12 @@ function setLiveIndicator(on) {
 
 function setVoiceStatus(text) {
   voiceStatus.textContent = text;
+  if (voiceStatus) {
+    voiceStatus.classList.toggle(
+      "is-resuming",
+      typeof text === "string" && text.includes("Menyambung ulang"),
+    );
+  }
 }
 
 function stopTtsPlayback() {
@@ -1732,7 +2384,7 @@ async function startCall() {
   setVoiceUi(true);
   setVoiceStatus("Menyambung…");
   voiceBars.classList.add("idle");
-  hidePostCallCard();
+  syncWaveform({ mode: "connecting" });
   resumeBanner?.classList.add("hidden");
   onboarding?.classList.add("hidden");
   setCompanionOrbState("connecting");
@@ -1749,6 +2401,7 @@ async function startCall() {
         setVoiceStatus("Menyambung…");
         setLiveIndicator(false);
         voiceBars.classList.add("idle");
+        syncWaveform({ mode: "connecting" });
         setCompanionOrbState("connecting");
       } else if (state === "active") {
         setLiveIndicator(true);
@@ -1756,10 +2409,12 @@ async function startCall() {
         setVoiceStatus(agentSpeaking ? `${personaLabel()} lagi ngomong…` : "Cerita aja");
         voiceBars.classList.toggle("agent-talking", agentSpeaking);
         voiceBars.classList.toggle("user-turn", !agentSpeaking);
+        syncWaveform({ mode: agentSpeaking ? "agent" : "user" });
         setCompanionOrbState(agentSpeaking ? "speaking" : "listening");
       } else if (state === "ending") {
         setVoiceStatus("Mengakhiri…");
         voiceBars.classList.add("idle");
+        syncWaveform({ mode: "idle" });
       } else if (state === "idle") {
         resetCallUi();
       }
@@ -1772,13 +2427,14 @@ async function startCall() {
       if (!inCall) return;
       voiceBars.classList.toggle("agent-talking", active);
       voiceBars.classList.toggle("user-turn", !active);
+      syncWaveform({ mode: active ? "agent" : "user" });
       if (liveCall?.active) {
         setVoiceStatus(active ? `${personaLabel()} lagi ngomong…` : "Cerita aja");
         setCompanionOrbState(active ? "speaking" : "listening");
       }
     },
     onPostCall(data) {
-      showPostCallCard(data);
+      handlePostCallData(data);
     },
     onAudioReady() {
       /* mic already live on active — full-duplex call pattern */
@@ -1804,6 +2460,45 @@ async function startCall() {
       if (inCall && liveCall?.active) {
         setVoiceStatus("Cerita aja");
       }
+    },
+    onLinkState(state) {
+      if (!inCall) return;
+      if (state === "resuming" || state === "suspended") {
+        setVoiceStatus("Menyambung ulang…");
+        voiceBars.classList.add("idle");
+        syncWaveform({ mode: "connecting", energy: 0.35 });
+        setCompanionOrbState("connecting");
+        return;
+      }
+      if (state === "disconnected") {
+        setVoiceStatus("Koneksi putus");
+        voiceBars.classList.add("idle");
+        syncWaveform({ mode: "idle" });
+        setCompanionOrbState("idle");
+        renderSystem("Koneksi voice ke server putus — coba tutup dan mulai lagi.");
+        return;
+      }
+      if ((state === "live" || state === "connected") && liveCall?.active) {
+        voiceBars.classList.remove("idle");
+        setLiveIndicator(true);
+        setVoiceStatus(agentSpeaking ? `${personaLabel()} lagi ngomong…` : "Cerita aja");
+        syncWaveform({ mode: agentSpeaking ? "agent" : "user" });
+        setCompanionOrbState(agentSpeaking ? "speaking" : "listening");
+      }
+    },
+    onConversationMode(modeId, changed) {
+      if (!modeId) return;
+      voiceModeStrip?.querySelectorAll(".voice-mode-pill[data-mode]").forEach((el) => {
+        el.classList.toggle("is-active", el.dataset.mode === modeId);
+        el.setAttribute("aria-selected", el.dataset.mode === modeId ? "true" : "false");
+      });
+      if (!changed) return;
+      const meta =
+        cachedExperienceModes?.find((m) => m.id === modeId) ||
+        cachedConversationModes?.find((m) => m.id === modeId);
+      const label = meta?.display_name || modeId;
+      renderSystem(`Mode: ${label}`);
+      if (meta?.tagline) syncExperienceTagline(meta.tagline);
     },
     onError(msg) {
       renderSystem(`Suara: ${msg}`);
@@ -1836,7 +2531,7 @@ async function endCallUi() {
     resetCallUi();
     endingCall = false;
     const postCall = await fetchPostCallWithRetry();
-    if (postCall) showPostCallCard(postCall);
+    if (postCall) handlePostCallData(postCall);
     else await syncAchievementsAfterCall();
   }
 }
@@ -1861,6 +2556,15 @@ function bindPanelActions() {
     },
     btnSettingsSave() {
       void saveSettings();
+    },
+    btnBehaviorDebugRefresh() {
+      void loadBehaviorDebugDashboard(true);
+    },
+    btnBehaviorExpStart() {
+      void startBehaviorExperiment();
+    },
+    btnBehaviorConfigBump() {
+      void bumpBehaviorConfigRevision();
     },
     btnMemoryRefresh() {
       void loadMemoryDashboard();
@@ -1940,14 +2644,11 @@ settingsApiKey?.addEventListener("keydown", (e) => {
   }
 });
 
-btnPostCallClose?.addEventListener("click", hidePostCallCard);
 memoryImportFile?.addEventListener("change", () => {
   const file = memoryImportFile.files?.[0];
   if (memoryImportFile) memoryImportFile.value = "";
   if (file) void importMemoryJsonFile(file);
 });
-btnPostCallUp?.addEventListener("click", () => void sendSessionFeedback("up"));
-btnPostCallDown?.addEventListener("click", () => void sendSessionFeedback("down"));
 ragEnabledToggle?.addEventListener("change", scheduleCompanionPrefsSave);
 ragGeminiToggle?.addEventListener("change", scheduleCompanionPrefsSave);
 ragMinScore?.addEventListener("input", () => {

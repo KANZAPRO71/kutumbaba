@@ -23,6 +23,7 @@ android/local.properties
 *.aab
 *.keystore
 !android/app/debug.keystore
+android/keystore.properties
 
 # IDE / OS
 .idea/

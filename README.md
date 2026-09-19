@@ -46,6 +46,14 @@ API key bisa diganti kapan saja lewat tombol **⚙ Pengaturan** di pojok kanan a
 
 ---
 
+## Dokumentasi arsitektur (developer)
+
+- **[Arsitektur sistem (indeks)](docs/ARCHITECTURE.md)** — stack, alur panggilan, empat pilar, bridge
+- [Live voice — detail empat pilar](src/persona_ai/web/LIVE_ARCHITECTURE.md)
+- [Android — lifecycle, APK size, jaringan](docs/ANDROID_PERFORMANCE.md)
+
+---
+
 ## Build dari source (developer)
 
 ```bat

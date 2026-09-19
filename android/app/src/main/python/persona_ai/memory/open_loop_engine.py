@@ -196,6 +196,37 @@ def commit_open_loops_from_text(
     return []
 
 
+def mark_loop_callback_surfaced(loop_id: str, *, user_id: str = DEFAULT_USER_ID) -> None:
+    store = get_open_loop_store()
+    record = store.get(loop_id, user_id)
+    if record is None:
+        return
+    now = datetime.now(timezone.utc).isoformat()
+    record.last_callback_at = now
+    record.callback_count = int(record.callback_count or 0) + 1
+    store.save(record)
+
+
+def mark_loop_mentioned(loop_id: str, *, user_id: str = DEFAULT_USER_ID) -> None:
+    store = get_open_loop_store()
+    record = store.get(loop_id, user_id)
+    if record is None:
+        return
+    record.last_mentioned_at = datetime.now(timezone.utc).isoformat()
+    store.save(record)
+
+
+def record_loop_callback_outcome(loop_id: str, outcome: str, *, user_id: str = DEFAULT_USER_ID) -> None:
+    store = get_open_loop_store()
+    record = store.get(loop_id, user_id)
+    if record is None:
+        return
+    record.last_callback_outcome = outcome
+    if outcome == "engaged":
+        record.last_mentioned_at = datetime.now(timezone.utc).isoformat()
+    store.save(record)
+
+
 def format_open_loops_block(
     records: list[OpenLoopRecord] | None,
     *,

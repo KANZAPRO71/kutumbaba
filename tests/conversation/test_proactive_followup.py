@@ -41,5 +41,5 @@ def test_message_uses_stored_content(memory_db):
         time_hint="minggu depan",
     )
     msg = message_from_open_loop(loop, language="id")
-    assert "motor bekas" in msg
-    assert "minggu depan" in msg
+    assert "Buka Suara" in msg or "ngobrol" in msg.lower()
+    assert "motor bekas" not in msg

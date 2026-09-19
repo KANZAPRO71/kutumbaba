@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kebijakan Privasi — Papua AI</title>
+  <style>
+    :root { --bg:#0f1419; --text:#e8e6e3; --muted:#9aa5b1; --accent:#c45c26; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+    .updated { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+    p, li { margin-bottom: 0.65rem; }
+    ul { padding-left: 1.25rem; }
+    a { color: #7dd3fc; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Kebijakan Privasi — Papua AI</h1>
+    <p class="updated">Terakhir diperbarui: 19 September 2026</p>
+
+    <p>
+      Papua AI (“aplikasi”) adalah teman ngobrol suara yang dikembangkan oleh KANZAPRO71.
+      Privasi ko penting — ringkasan di bawah ini ditulis plain language untuk Play Store dan pengguna.
+    </p>
+
+    <h2>1. Siapa pengendali data</h2>
+    <p>
+      Pengembang: proyek open source
+      <a href="https://github.com/KANZAPRO71/kutumbaba">KANZAPRO71/kutumbaba</a>.
+      Untuk pertanyaan privasi: buka issue di GitHub atau kontak yang tercantum di listing Play Store.
+    </p>
+
+    <h2>2. Data apa yang diproses</h2>
+    <ul>
+      <li><strong>Suara &amp; obrolan</strong> — audio mikrofon dan teks percakapan diproses untuk fitur ngobrol live.</li>
+      <li><strong>Memori lokal</strong> — fakta, preferensi, ringkasan sesi, dan “urusan belum selesai” disimpan di perangkat ko (SQLite).</li>
+      <li><strong>Gemini API key (BYOK)</strong> — key milik ko, disimpan di perangkat untuk menghubungkan ke Google Gemini.</li>
+      <li><strong>Preferensi app</strong> — suara, mode, pengaturan RAG, notifikasi check-in (jika diaktifkan).</li>
+    </ul>
+
+    <h2>3. Di mana data disimpan</h2>
+    <p>
+      <strong>Backend percakapan berjalan di HP ko</strong> (server lokal di perangkat), bukan di server developer.
+      Memori dan sesi disimpan lokal di perangkat.
+    </p>
+
+    <h2>4. Pihak ketiga</h2>
+    <p>
+      Saat ko ngobrol, konten (suara/teks) dikirim ke <strong>Google Gemini API</strong> menggunakan
+      <strong>API key milik ko</strong>, sesuai
+      <a href="https://policies.google.com/privacy">Kebijakan Privasi Google</a> dan
+      <a href="https://ai.google.dev/gemini-api/terms">Ketentuan Gemini API</a>.
+      Developer Papua AI <strong>tidak</strong> menerima salinan obrolan ko di cloud milik developer.
+    </p>
+
+    <h2>5. Izin perangkat</h2>
+    <ul>
+      <li><strong>Mikrofon</strong> — wajib untuk panggilan suara.</li>
+      <li><strong>Internet</strong> — koneksi ke Gemini API.</li>
+      <li><strong>Notifikasi</strong> — opsional, untuk check-in harian lembut (bisa dimatikan di pengaturan).</li>
+    </ul>
+
+    <h2>6. AI-generated content</h2>
+    <p>
+      Respons dihasilkan oleh model AI (Gemini). Bisa salah atau tidak sesuai konteks.
+      Jangan andalkan untuk nasihat medis, hukum, atau keuangan. Ko bisa hapus memori lokal di Pengaturan.
+    </p>
+
+    <h2>7. Retensi &amp; penghapusan</h2>
+    <p>
+      Hapus data dengan: hapus memori di app, uninstall aplikasi, atau hapus API key di Pengaturan.
+      Backup Android cloud untuk preferensi BYOK di-exclude dari backup app (lihat aturan backup di APK).
+    </p>
+
+    <h2>8. Anak-anak</h2>
+    <p>
+      Aplikasi tidak ditargetkan untuk anak di bawah 13 tahun. Orang tua/wali bertanggung jawab atas penggunaan dan API key.
+    </p>
+
+    <h2>9. Perubahan</h2>
+    <p>
+      Kebijakan ini bisa diperbarui. Versi terbaru ada di
+      <a href="https://kanzapro71.github.io/kutumbaba/privacy.html">halaman ini</a>.
+    </p>
+
+    <p><a href="index.html">← Kembali ke download</a></p>
+  </div>
+</body>
+</html>

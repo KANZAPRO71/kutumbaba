@@ -6,6 +6,7 @@ import android.app.Application
 class PersonaApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        DeviceContextBridge.init(this)
         CheckInScheduler.schedule(this)
     }
 }

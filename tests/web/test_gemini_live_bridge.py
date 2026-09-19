@@ -585,6 +585,11 @@ def test_gemini_barge_in_interrupts_agent_reply():
     assert config.context_window_compression.sliding_window is not None
     resumed = _live_connect_config("hi", voice, resumption_handle="tok_abc")
     assert resumed.session_resumption.handle == "tok_abc"
+    embedded = _live_connect_config("hi", voice, embedded_app=True)
+    assert embedded.tools is not None
+    assert len(embedded.tools) >= 1
+    plain = _live_connect_config("hi", voice, embedded_app=False)
+    assert plain.tools is None
 
 
 def test_gemini_goaway_error_matches_truncated_1008():

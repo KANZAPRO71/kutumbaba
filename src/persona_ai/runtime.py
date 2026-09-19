@@ -89,6 +89,8 @@ class TurnOutput:
     policy_input_blocked: bool = False
     policy_constraints: PolicyConstraintsRef | None = None
     timing: TurnTiming | None = None
+    callback: object | None = None
+    mop: object | None = None
 
 
 class PersonaRuntime:
@@ -404,6 +406,50 @@ class PersonaRuntime:
         voice = bind(bdv, expr, self._profile, session.arc, session.anchor)
         voice = tune_voice_for_mode(voice, conversation_mode=conversation_mode)
 
+        callback_turn = None
+        mop_plan = None
+        mop_state = None
+        if commit_state and channel == "voice":
+            from persona_ai.conversation.callback_gate import evaluate_callback_turn
+
+            prior_user_turns = sum(1 for m in session.messages if m.role == "user")
+            callback_turn = evaluate_callback_turn(
+                user_text=user_text,
+                experience_mode=conversation_mode,
+                session_user_turns=prior_user_turns,
+                bdv_speak=bdv.speak,
+                language=self._profile.default_language or "id",
+                session_id=session.session_id,
+            )
+            if callback_turn.surfaced and callback_turn.steer_fragment:
+                frags = list(voice.prompt_fragments or [])
+                frags.append(callback_turn.steer_fragment)
+                voice = voice.model_copy(update={"prompt_fragments": frags})
+
+            from persona_ai.conversation.mop_engine import plan_mop_turn, record_mop_outcome
+
+            if prior_user_turns > 0:
+                record_mop_outcome(session.session_id, user_text)
+            mop_plan, mop_state = plan_mop_turn(
+                session_id=session.session_id,
+                inp=inp,
+                bdv=bdv,
+                experience_mode=conversation_mode,
+                callback_surfaced_this_turn=bool(callback_turn and callback_turn.surfaced),
+                user_turn_index=session.turn_index + 1,
+            )
+            if mop_plan.steer_fragment and not mop_plan.suppressed:
+                frags = list(voice.prompt_fragments or [])
+                frags.append(mop_plan.steer_fragment)
+                updates: dict[str, object] = {"prompt_fragments": frags}
+                if mop_plan.timing_delay_ms > 0:
+                    updates["timing_delay_ms"] = mop_plan.timing_delay_ms
+                voice = voice.model_copy(update=updates)
+        elif commit_state:
+            from persona_ai.conversation.callback_gate import note_user_mentioned_loops
+
+            note_user_mentioned_loops(user_text)
+
         updated_anchor = session.anchor
         if session.anchor is not None:
             updated_anchor = update_anchor(session.anchor, voice.effective_warmth)
@@ -484,6 +530,8 @@ class PersonaRuntime:
                     policy_input_blocked=pre.input_blocked,
                     policy_constraints=llm_constraints,
                     timing=timing,
+                    callback=None,
+                    mop=None,
                 ),
                 session,
             )
@@ -515,6 +563,26 @@ class PersonaRuntime:
             }
         )
 
+        if channel == "voice":
+            try:
+                from persona_ai.conversation.behavior_debug_store import (
+                    build_turn_decision_snapshot,
+                    get_behavior_debug_store,
+                )
+
+                cb_dict = callback_turn.to_dict() if callback_turn else None
+                mop_dict = mop_plan.to_dict() if mop_plan else None
+                snap = build_turn_decision_snapshot(
+                    experience_mode=conversation_mode,
+                    bdv_speak=bdv.speak.value,
+                    callback=cb_dict,
+                    mop=mop_dict,
+                    session_id=session.session_id,
+                )
+                get_behavior_debug_store().record_turn_decision(snap)
+            except Exception:
+                pass
+
         return (
             TurnOutput(
                 voice=voice,
@@ -530,6 +598,13 @@ class PersonaRuntime:
                 policy_input_blocked=pre.input_blocked,
                 policy_constraints=llm_constraints,
                 timing=timing,
+                callback=callback_turn.to_dict() if callback_turn else None,
+                mop={
+                    **(mop_plan.to_dict() if mop_plan else {}),
+                    "session_state": mop_state.to_dict() if mop_plan else None,
+                }
+                if mop_plan
+                else None,
             ),
             next_session,
         )

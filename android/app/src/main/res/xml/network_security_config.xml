@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Release-safe default: HTTPS only; cleartext only for embedded local server -->
 <network-security-config>
-    <base-config cleartextTrafficPermitted="true">
+    <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system" />
-            <certificates src="user" />
-            <!-- Dev self-signed cert from generate_dev_cert.py — required for wss:// LAN voice -->
-            <certificates src="@raw/persona_ai_cert" />
         </trust-anchors>
     </base-config>
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
     </domain-config>
 </network-security-config>

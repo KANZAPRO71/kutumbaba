@@ -1,10 +1,14 @@
 """WebSocket bridge: browser PCM ↔ PersonaRuntime (brain) ↔ Gemini Live (mouth).
 
+Unified async engine for all four live pillars — see persona_ai/bridge/gemini_live_bridge.py
+and persona_ai/web/LIVE_ARCHITECTURE.md for the integration map.
+
 Persona decides first. Gemini Live only generates after BDV + VoiceDirective land
 in the same user activity as the mic audio — one S2S reply, no GPT, no second
 steer-turn fighting the first. Automatic Gemini VAD is off so the model cannot
-speak before the engine. Avoid send_client_content here — interleaving with mic
-realtime_input breaks transcription (per Gemini Live API).
+speak before the engine. Do not use send_client_content for user turns — only
+situational back-channel (turn_complete=False) via live_context_injection.py.
+Interleaving turn-complete client content with mic realtime_input breaks ASR.
 """
 
 from __future__ import annotations
@@ -43,6 +47,8 @@ from persona_ai.web.persona_live import (
 from persona_ai.web.live_web_search import (
     fetch_live_web_context,
     format_web_context_for_steer,
+    live_async_web_search_enabled,
+    live_web_search_tool_prompt_lines,
     needs_live_web_search,
 )
 from persona_ai.web.live_mode import LiveModeConfig
@@ -571,6 +577,8 @@ def _live_connect_config(
     voice: LiveVoiceConfig,
     *,
     resumption_handle: str | None = None,
+    embedded_app: bool = False,
+    async_web_search: bool = False,
 ) -> types.LiveConnectConfig:
     """Persona owns turn-taking. Gemini must not auto-complete the user turn."""
     input_asr = voice.input_transcription_config()
@@ -604,7 +612,148 @@ def _live_connect_config(
         context_window_compression=types.ContextWindowCompressionConfig(
             sliding_window=types.SlidingWindow(),
         ),
+        tools=_live_session_tools(embedded_app, async_web_search),
     )
+
+
+def _live_session_tools(embedded_app: bool, async_web_search: bool) -> list[types.Tool] | None:
+    try:
+        from persona_ai.plugins.live_dispatch import live_session_tools
+
+        return live_session_tools(
+            embedded_app=embedded_app,
+            async_web_search=async_web_search,
+        )
+    except Exception:
+        _log.exception("live session tools unavailable")
+        return None
+
+
+async def _send_live_tool_responses(
+    session: object,
+    session_send_lock: asyncio.Lock,
+    responses: list[types.FunctionResponse],
+) -> None:
+    if not responses:
+        return
+    async with session_send_lock:
+        await session.send_tool_response(function_responses=responses)
+
+
+def apply_live_conversation_mode_switch(
+    gov: dict,
+    live_mode: LiveModeConfig,
+    mode_raw: str,
+    *,
+    dialect: str | None = None,
+) -> str | None:
+    """Update gov for a new experience mode; return steer/meta body if mode changed."""
+    from persona_ai.web.experience_mode_switch import prepare_live_experience_mode_switch
+
+    d = dialect if dialect is not None else gov.get("dialect")
+    return prepare_live_experience_mode_switch(gov, live_mode, mode_raw, dialect=d)
+
+
+async def _deliver_experience_mode_steer(
+    session: object,
+    session_send_lock: asyncio.Lock,
+    steer: str,
+) -> None:
+    from persona_ai.web.live_mode_meta_injection import (
+        inject_experience_mode_meta,
+        live_meta_inject_enabled,
+    )
+
+    if live_meta_inject_enabled():
+        await inject_experience_mode_meta(session, session_send_lock, steer)
+    else:
+        await _steer_gemini_session(session, steer, send_lock=session_send_lock)
+
+
+async def apply_mid_call_experience_mode(
+    session: object,
+    session_send_lock: asyncio.Lock,
+    gov: dict,
+    live_mode: LiveModeConfig,
+    mode_raw: str,
+    *,
+    dialect: str | None = None,
+) -> bool:
+    """Instant mode switch — send_client_content meta (default) or realtime steer fallback."""
+    steer = apply_live_conversation_mode_switch(
+        gov, live_mode, mode_raw, dialect=dialect
+    )
+    if not steer:
+        return False
+    if not _live_session_idle(gov):
+        gov["pending_conversation_mode_steer"] = steer
+        _log.info(
+            "experience mode steer deferred (pipeline busy) -> %s",
+            gov.get("conversation_mode"),
+        )
+        return True
+    try:
+        await _deliver_experience_mode_steer(session, session_send_lock, steer)
+        gov["last_gemini_send"] = time.monotonic()
+        gov.pop("pending_conversation_mode_steer", None)
+    except Exception:
+        gov["pending_conversation_mode_steer"] = steer
+        _log.exception("experience mode steer delivery failed")
+        raise
+    return True
+
+
+async def _flush_pending_experience_mode_steer(
+    gov: dict,
+    session,
+    *,
+    send_lock: asyncio.Lock,
+    reason: str = "",
+) -> None:
+    steer = (gov.pop("pending_conversation_mode_steer", None) or "").strip()
+    if not steer:
+        return
+    if not _live_session_idle(gov):
+        gov["pending_conversation_mode_steer"] = steer
+        return
+    try:
+        await _deliver_experience_mode_steer(session, send_lock, steer)
+        gov["last_gemini_send"] = time.monotonic()
+        _log.info("deferred experience mode steer sent reason=%s", reason)
+    except Exception:
+        gov["pending_conversation_mode_steer"] = steer
+        _log.exception("deferred experience mode steer failed")
+
+
+async def _execute_live_tool_calls(
+    session: object,
+    session_send_lock: asyncio.Lock,
+    gov: dict,
+    calls: list[object],
+) -> None:
+    """Run plugin handlers off the receive loop; reply via send_tool_response."""
+    from persona_ai.plugins.live_dispatch import function_responses_for_calls
+
+    if not calls:
+        return
+    try:
+        responses = await asyncio.to_thread(function_responses_for_calls, calls, gov)
+        await _send_live_tool_responses(session, session_send_lock, responses)
+    except Exception:
+        _log.exception("live tool execution failed names=%s", [getattr(c, "name", "") for c in calls])
+
+
+def _spawn_live_tool_call(
+    session: object,
+    session_send_lock: asyncio.Lock,
+    gov: dict,
+    tool_call: object,
+) -> None:
+    """Fire-and-forget — gemini_to_client keeps reading audio while tools run."""
+    calls = list(getattr(tool_call, "function_calls", None) or [])
+    if not calls:
+        return
+    asyncio.create_task(_execute_live_tool_calls(session, session_send_lock, gov, calls))
 
 
 _GEMINI_RECONNECT_CLOSE_CODES = frozenset(
@@ -671,6 +820,8 @@ async def _connect_live_with_fallback(
     security_cfg: LiveSecurityConfig,
     *,
     resumption_handle: str | None = None,
+    embedded_app: bool = False,
+    async_web_search: bool = False,
 ):
     """Try primary voice, then Retell automatic fallback voice on connect failure."""
     candidates = [voice_cfg]
@@ -680,7 +831,11 @@ async def _connect_live_with_fallback(
     last_exc: Exception | None = None
     for candidate in candidates:
         config = _live_connect_config(
-            instruction, candidate, resumption_handle=resumption_handle
+            instruction,
+            candidate,
+            resumption_handle=resumption_handle,
+            embedded_app=embedded_app,
+            async_web_search=async_web_search,
         )
         connect_cm = client.aio.live.connect(model=model, config=config)
         try:
@@ -1446,27 +1601,15 @@ def _should_close_audio_gate(gov: dict, *, now: float | None = None) -> bool:
 
 
 def _answer_in_flight(gov: dict) -> bool:
-    """True while Persona is steering or Gemini is still producing the governed reply."""
-    if gov.get("pending") or gov.get("awaiting_steered_turn"):
-        return True
-    if gov.get("awaiting_turn_complete"):
-        return True
-    if gov.get("model_generating") and not (
-        gov.get("activity_end_for_asr") or gov.get("awaiting_asr_recovery")
-    ):
-        return True
-    final_task = gov.get("final_task")
-    return final_task is not None and not final_task.done()
+    from persona_ai.web.live_pipeline_state import answer_in_flight
+
+    return answer_in_flight(gov)
 
 
 def _live_session_idle(gov: dict) -> bool:
-    return not (
-        gov.get("user_activity_open")
-        or gov.get("gemini_activity_open")
-        or gov.get("model_generating")
-        or _answer_in_flight(gov)
-        or gov.get("pending")
-    )
+    from persona_ai.web.live_pipeline_state import live_pipeline_idle
+
+    return live_pipeline_idle(gov)
 
 
 def _apply_barge_in(gov: dict, *, soft: bool = False) -> None:
@@ -1653,6 +1796,51 @@ def _natural_persist_user_turn(runtime: PersonaRuntime, session_id: str, text: s
     runtime._commit_user_turn_memory(session_id, text)
 
 
+def _sync_mop_from_output(gov: dict, output: object) -> None:
+    try:
+        from persona_ai.web.experience_turn_observer import (
+            note_behavior_session_callback,
+            note_behavior_session_mop,
+        )
+
+        cb = getattr(output, "callback", None)
+        if isinstance(cb, dict) and cb.get("surfaced"):
+            note_behavior_session_callback(gov)
+        mop = getattr(output, "mop", None)
+        if isinstance(mop, dict) and not mop.get("suppressed"):
+            phase = mop.get("phase")
+            if phase in {"SETUP", "HOLD", "PUNCHLINE"}:
+                note_behavior_session_mop(gov)
+    except Exception:
+        pass
+    mop = getattr(output, "mop", None)
+    if not isinstance(mop, dict) or mop.get("suppressed"):
+        return
+    gov["mop_phase_this_turn"] = mop.get("phase")
+    if mop.get("reaction_after_turn"):
+        gov["mop_expect_reaction"] = mop.get("reaction") or "laugh_short"
+
+
+def _apply_mop_reaction_after_assistant(gov: dict, assistant_text: str | None) -> None:
+    if not gov.get("mop_expect_reaction") and gov.get("mop_phase_this_turn") != "PUNCHLINE":
+        return
+    try:
+        from persona_ai.conversation.mop_engine import on_assistant_mop_complete
+
+        reaction = on_assistant_mop_complete(
+            str(gov.get("_telemetry_session_id") or ""),
+            assistant_text or "",
+            experience_mode=gov.get("conversation_mode"),
+        )
+        if reaction in {"laugh_short", "soft_laugh"}:
+            gov["laugh_track_pending"] = True
+    except Exception:
+        _log.exception("mop reaction cue failed")
+    finally:
+        gov["mop_expect_reaction"] = None
+        gov["mop_phase_this_turn"] = None
+
+
 def _observe_model_turn_complete(gov: dict, text: str) -> None:
     """Sidecar hook 1 — observe full assistant transcript after turn completes."""
     if not gov.get("natural_mode"):
@@ -1737,6 +1925,18 @@ async def _on_safe_turn_boundary(
             reason,
             len(finalized),
         )
+        try:
+            from persona_ai.web.experience_turn_observer import record_experience_turn
+
+            record_experience_turn(
+                gov,
+                runtime=gov.get("_telemetry_runtime"),
+                session_id=str(gov.get("_telemetry_session_id") or ""),
+                assistant_text=finalized,
+            )
+        except Exception:
+            _log.exception("experience turn telemetry failed")
+        _apply_mop_reaction_after_assistant(gov, finalized)
     yield_turn(reason)
     conv = gov.get("conv_ctrl")
     if (
@@ -1750,6 +1950,12 @@ async def _on_safe_turn_boundary(
             reason,
             bool(gov.get("conv_steer_deferred")),
         )
+    await _flush_pending_experience_mode_steer(
+        gov,
+        session,
+        send_lock=send_lock,
+        reason=reason,
+    )
 
 
 async def _flush_pending_conversation_steer(
@@ -1877,6 +2083,10 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
     conversation_mode = (
         str(raw_mode).strip().lower() if raw_mode is not None and str(raw_mode).strip() else None
     )
+    if conversation_mode:
+        from persona_ai.conversation.experience_modes import normalize_experience_mode
+
+        conversation_mode = normalize_experience_mode(conversation_mode)
     # No scripted opening steer — avoids double greeting with system instruction.
     opening_prompt = None
     instruction = build_live_voice_instruction(
@@ -1893,6 +2103,9 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         sim_lines = prosody_sim_prompt_lines(live_dialect, prosody_sim)
         if sim_lines:
             instruction = f"{instruction}\n\n" + "\n".join(sim_lines)
+    async_web_search = live_async_web_search_enabled()
+    if async_web_search:
+        instruction = f"{instruction}\n\n" + "\n".join(live_web_search_tool_prompt_lines())
     _log.info(
         "live session voice=%s lang=%s dialect=%s session=%s history=%s resume=%s",
         voice_cfg.voice_name,
@@ -1999,14 +2212,25 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         "boundary_handled_epoch": -1,
         "conv_steer_deferred": False,
         "embedded_app": bool(session_payload.get("embedded_app")),
+        "async_web_search": async_web_search,
+        "_gemini_api_key": api_key,
         "conversation_mode": conversation_mode,
+        "_telemetry_runtime": runtime,
+        "_telemetry_session_id": session_id,
         "floor": None,
         "resumption_handle": "",
         "gemini_connected_at": 0.0,
         "go_away_at": 0.0,
         "gemini_resuming": False,
         "resume_times": [],
+        "link_state": "connected",
     }
+    try:
+        from persona_ai.web.experience_turn_observer import init_experience_stats
+
+        init_experience_stats(gov, conversation_mode=conversation_mode)
+    except Exception:
+        _log.exception("experience stats init failed")
     if opening_prompt is None:
         gov["accept_mic"] = True
         gov["mic_pacing_reset"] = True
@@ -2018,11 +2242,44 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
     try:
         _latency_mark(gov, "connect_start")
         async with _connect_live_with_fallback(
-            client, model, instruction, voice_cfg, security_cfg
+            client,
+            model,
+            instruction,
+            voice_cfg,
+            security_cfg,
+            embedded_app=bool(gov.get("embedded_app")),
+            async_web_search=bool(gov.get("async_web_search")),
         ) as (raw_session, voice_cfg, live_cm):
             session = _SwappableLiveSession(raw_session)
             gov["gemini_connected_at"] = time.monotonic()
             session_send_lock = asyncio.Lock()
+            _live_loop = asyncio.get_running_loop()
+
+            async def _apply_mode_from_native(mode_id: str) -> None:
+                changed = await apply_mid_call_experience_mode(
+                    session,
+                    session_send_lock,
+                    gov,
+                    live_mode,
+                    mode_id,
+                    dialect=live_dialect,
+                )
+                if changed:
+                    enqueue_browser(
+                        {
+                            "type": "conversation_mode",
+                            "mode": gov.get("conversation_mode"),
+                            "changed": True,
+                        }
+                    )
+
+            from persona_ai.web.live_session_hub import register_live_session
+
+            register_live_session(
+                _live_loop,
+                _apply_mode_from_native,
+                initial_mode=str(gov.get("conversation_mode") or ""),
+            )
             resume_lock = asyncio.Lock()
             audio_queue: asyncio.Queue[bytes | None] = asyncio.Queue(maxsize=64)
             # Never await browser WS inside session.receive() — that stalls Gemini
@@ -2050,9 +2307,27 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     ]
                     if len(recent) >= 4:
                         _log.error("gemini resume rate-limited (%s)", reason)
+                        from persona_ai.web.live_resilience import (
+                            LINK_DISCONNECTED,
+                            emit_link_state,
+                            gov_set_link_state,
+                        )
+
+                        gov_set_link_state(gov, LINK_DISCONNECTED)
+                        emit_link_state(enqueue_browser, LINK_DISCONNECTED)
                         return False
                     gov["resume_times"] = recent + [now]
                     gov["gemini_resuming"] = True
+                    from persona_ai.web.live_resilience import (
+                        LINK_RESUMING,
+                        LINK_SUSPENDED,
+                        emit_link_state,
+                        gov_set_link_state,
+                    )
+
+                    gov_set_link_state(gov, LINK_SUSPENDED)
+                    emit_link_state(enqueue_browser, LINK_RESUMING)
+                    emit_link_state(enqueue_browser, LINK_SUSPENDED)
                     handle = (gov.get("resumption_handle") or "").strip() or None
                     handles: list[str | None] = [handle, None] if handle else [None]
                     try:
@@ -2073,6 +2348,11 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                     post_call=post_call,
                                     conversation_mode=gov.get("conversation_mode"),
                                 )
+                                if gov.get("async_web_search"):
+                                    setup_instruction = (
+                                        f"{setup_instruction}\n\n"
+                                        + "\n".join(live_web_search_tool_prompt_lines())
+                                    )
                                 resume_handle = try_handle
                                 if try_handle and history_poisoned_by_santai(history):
                                     resume_handle = None
@@ -2083,6 +2363,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                     setup_instruction,
                                     voice_cfg,
                                     resumption_handle=resume_handle,
+                                    embedded_app=bool(gov.get("embedded_app")),
+                                    async_web_search=bool(gov.get("async_web_search")),
                                 )
                                 new_cm = client.aio.live.connect(model=model, config=config)
                                 try:
@@ -2120,6 +2402,16 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                     "yes" if try_handle else "fresh",
                                     len(history),
                                 )
+                                from persona_ai.web.live_resilience import (
+                                    LINK_CONNECTED,
+                                    LINK_LIVE,
+                                    emit_link_state,
+                                    gov_set_link_state,
+                                )
+
+                                gov_set_link_state(gov, LINK_CONNECTED)
+                                emit_link_state(enqueue_browser, LINK_LIVE)
+                                emit_link_state(enqueue_browser, LINK_CONNECTED)
                                 enqueue_browser(
                                     {
                                         "type": "notice",
@@ -2129,6 +2421,14 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                 return True
                             if last_exc is not None:
                                 _log.exception("gemini live resume failed (%s)", reason)
+                            from persona_ai.web.live_resilience import (
+                                LINK_DISCONNECTED,
+                                emit_link_state,
+                                gov_set_link_state,
+                            )
+
+                            gov_set_link_state(gov, LINK_DISCONNECTED)
+                            emit_link_state(enqueue_browser, LINK_DISCONNECTED)
                             return False
                     finally:
                         gov["gemini_resuming"] = False
@@ -2299,6 +2599,14 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                 if isinstance(started, (int, float)):
                     duration_ms = int((time.monotonic() - started) * 1000)
                 sid = session_ref["id"]
+                try:
+                    from persona_ai.web.experience_turn_observer import (
+                        log_session_behavior_summary,
+                    )
+
+                    log_session_behavior_summary(gov, session_id=sid)
+                except Exception:
+                    pass
 
                 async def _run() -> None:
                     try:
@@ -2313,13 +2621,33 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                             security_cfg=security_cfg,
                         )
                         if result:
-                            data = result.get("data") or {}
+                            from persona_ai.web.experience_turn_observer import (
+                                merge_stats_into_post_call,
+                            )
+                            from persona_ai.web.session_memory_card import (
+                                build_session_memory_card,
+                            )
+                            from persona_ai.web.persona_live import load_session_messages
+
+                            merged = merge_stats_into_post_call(result, gov) or result
+                            if merged is not result:
+                                runtime.record_post_call_data(sid, merged)
+                            data = merged.get("data") or {}
+                            messages = load_session_messages(runtime, sid) or []
+                            memory_card = build_session_memory_card(
+                                session_id=sid,
+                                messages=messages,
+                                post_call=merged,
+                                experience_mode=gov.get("conversation_mode"),
+                            )
                             enqueue_browser(
                                 {
                                     "type": "post_call_data",
                                     "session_id": sid,
                                     "data": data,
-                                    "model": result.get("model"),
+                                    "model": merged.get("model"),
+                                    "post_call": merged,
+                                    "memory_card": memory_card,
                                 }
                             )
                             schedule_webhook(
@@ -2709,6 +3037,13 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         conversation_mode=gov.get("conversation_mode"),
                     )
                     decision = decide_live_action(output)
+                    _sync_mop_from_output(gov, output)
+                    try:
+                        from persona_ai.web.experience_turn_observer import note_governance_bdv
+
+                        note_governance_bdv(gov, decision.bdv)
+                    except Exception:
+                        pass
                     plan = plan_live_governance(
                         output, decision, profile, history=thread, live_mode=live_mode,
                         dialect=live_dialect, post_call=post_call,
@@ -2746,7 +3081,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
 
                 web_steer_extra = ""
                 if (
-                    not gov.get("natural_mode")
+                    not gov.get("async_web_search")
+                    and not gov.get("natural_mode")
                     and not gov.get("greeting_phase")
                     and needs_live_web_search(normalized)
                 ):
@@ -2785,6 +3121,13 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         conversation_mode=gov.get("conversation_mode"),
                     )
                     decision = decide_live_action(output)
+                    _sync_mop_from_output(gov, output)
+                    try:
+                        from persona_ai.web.experience_turn_observer import note_governance_bdv
+
+                        note_governance_bdv(gov, decision.bdv)
+                    except Exception:
+                        pass
                     plan = plan_live_governance(
                         output,
                         decision,
@@ -2965,6 +3308,12 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                 dropped = _drop_queued_audio(browser_out)
                 set_floor("user", reason=reason)
                 enqueue_browser({"type": "interrupt"})
+                try:
+                    from persona_ai.web.experience_turn_observer import note_interruption
+
+                    note_interruption(gov)
+                except Exception:
+                    pass
                 _log.info("%s — flushed agent audio (dropped %s frames)", reason, dropped)
 
             def schedule_final_governance(transcript: str, *, persist: bool = True) -> str:
@@ -3193,6 +3542,37 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         if kind == "client_ready":
                             client_ready.set()
                             continue
+                        if kind in ("conversation_mode", "set_conversation_mode"):
+                            raw_mode = payload.get("conversation_mode") or payload.get("mode")
+                            if raw_mode is not None and str(raw_mode).strip():
+                                changed = await apply_mid_call_experience_mode(
+                                    session,
+                                    session_send_lock,
+                                    gov,
+                                    live_mode,
+                                    str(raw_mode),
+                                    dialect=live_dialect,
+                                )
+                                if changed:
+                                    _log.info(
+                                        "conversation_mode -> %s (meta inject)",
+                                        gov.get("conversation_mode"),
+                                    )
+                                    from persona_ai.web.live_session_hub import (
+                                        note_mode_applied_via_websocket,
+                                    )
+
+                                    note_mode_applied_via_websocket(
+                                        str(gov.get("conversation_mode") or "")
+                                    )
+                                enqueue_browser(
+                                    {
+                                        "type": "conversation_mode",
+                                        "mode": gov.get("conversation_mode"),
+                                        "changed": changed,
+                                    }
+                                )
+                            continue
                         if kind == "barge_in":
                             note_user_activity()
                             mark_user_speech_start(gov)
@@ -3298,6 +3678,11 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                     update = getattr(msg, "session_resumption_update", None)
                     if update is not None:
                         _store_resumption_handle(gov, update)
+
+                    tool_call = getattr(msg, "tool_call", None)
+                    if tool_call is not None:
+                        _spawn_live_tool_call(session, session_send_lock, gov, tool_call)
+                        continue
 
                     go_away = getattr(msg, "go_away", None)
                     if go_away is not None:
@@ -3485,6 +3870,14 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                                             text,
                                         )
                                         if gov.get("natural_mode") and text.strip():
+                                            try:
+                                                from persona_ai.web.experience_turn_observer import (
+                                                    note_user_turn_final,
+                                                )
+
+                                                note_user_turn_final(gov)
+                                            except Exception:
+                                                pass
                                             conv = gov.get("conv_ctrl")
                                             if isinstance(conv, ConversationController):
                                                 conv.observe_user_turn(text.strip())
@@ -4182,6 +4575,13 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
             asr_watchdog = asyncio.create_task(asr_stuck_watchdog())
             natural_audio_watchdog = asyncio.create_task(natural_agent_audio_watchdog())
             watchdog = asyncio.create_task(call_session_watchdog())
+            context_heartbeat = None
+            if gov.get("embedded_app"):
+                from persona_ai.web.live_context_injection import situational_context_heartbeat
+
+                context_heartbeat = asyncio.create_task(
+                    situational_context_heartbeat(session, session_send_lock, gov, stop)
+                )
             _log.info("live bridge tasks started (persona-first turn commit)")
             _latency_mark(gov, "session_active")
             emit_latency("connect", turn_id=0)
@@ -4202,6 +4602,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                 schedule_webhook("call_started", build_live_call(status="ongoing"))
                 gov["webhook_call_started_sent"] = True
             await stop.wait()
+            if context_heartbeat is not None:
+                context_heartbeat.cancel()
             try:
                 audio_queue.put_nowait(None)
             except asyncio.QueueFull:
@@ -4217,6 +4619,8 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
             asr_watchdog.cancel()
             natural_audio_watchdog.cancel()
             watchdog.cancel()
+            if context_heartbeat is not None:
+                context_heartbeat.cancel()
             keepalive.cancel()
             forward_in.cancel()
             forward_out.cancel()
@@ -4244,6 +4648,12 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
         except Exception:
             pass
     finally:
+        try:
+            from persona_ai.web.live_session_hub import unregister_live_session
+
+            unregister_live_session()
+        except Exception:
+            pass
         _last_transcript.pop(session_ref["id"], None)
         if webhook_cfg.should_emit("call_ended") and not gov.get("webhook_call_ended_sent"):
             end_reason = str(gov.get("call_end_reason") or "session_end")
@@ -4289,14 +4699,34 @@ async def handle_live_websocket(ws: WebSocket, runtime: PersonaRuntime) -> None:
                         security_cfg=security_cfg,
                     )
                     if result:
-                        data = result.get("data") or {}
+                        from persona_ai.web.experience_turn_observer import (
+                            merge_stats_into_post_call,
+                        )
+                        from persona_ai.web.session_memory_card import (
+                            build_session_memory_card,
+                        )
+                        from persona_ai.web.persona_live import load_session_messages
+
+                        merged = merge_stats_into_post_call(result, gov) or result
+                        if merged is not result:
+                            runtime.record_post_call_data(session_ref["id"], merged)
+                        data = merged.get("data") or {}
+                        messages = load_session_messages(runtime, session_ref["id"]) or []
+                        memory_card = build_session_memory_card(
+                            session_id=session_ref["id"],
+                            messages=messages,
+                            post_call=merged,
+                            experience_mode=gov.get("conversation_mode"),
+                        )
                         try:
                             await ws.send_json(
                                 {
                                     "type": "post_call_data",
                                     "session_id": session_ref["id"],
                                     "data": data,
-                                    "model": result.get("model"),
+                                    "model": merged.get("model"),
+                                    "post_call": merged,
+                                    "memory_card": memory_card,
                                 }
                             )
                         except Exception:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
 from datetime import datetime, timezone
 from typing import Any
@@ -34,6 +35,23 @@ _EXCLUDE = re.compile(
 
 _SEARCH_FALLBACK_MODEL = "gemini-2.0-flash"
 _SEARCH_TIMEOUT_S = 8.0
+
+LIVE_WEB_SEARCH_TOOL_NAME = "search_web_for_user"
+
+
+def live_async_web_search_enabled() -> bool:
+    """When true, web search runs via Live NON_BLOCKING tool (not governance steer inject)."""
+    raw = os.environ.get("PERSONA_LIVE_ASYNC_WEB_SEARCH", "1").strip().lower()
+    return raw not in ("0", "false", "no", "off")
+
+
+def live_web_search_tool_prompt_lines() -> list[str]:
+    return [
+        "Info web terbaru (berita, skor, cuaca, harga, politik):",
+        f"- Panggil tool `{LIVE_WEB_SEARCH_TOOL_NAME}` dengan query singkat.",
+        "- Sambil menunggu hasil, boleh bilang singkat ko lagi cek — jangan mengarang.",
+        "- Setelah field context dari tool, jawab hanya dari situ.",
+    ]
 
 
 def needs_live_web_search(query: str) -> bool:
@@ -145,8 +163,9 @@ def fetch_live_web_context_sync(
     *,
     model: str | None = None,
     _allow_fallback_model: bool = True,
+    force: bool = False,
 ) -> str | None:
-    if not needs_live_web_search(query):
+    if not force and not needs_live_web_search(query):
         return None
     if not api_key or len(api_key.strip()) < 8:
         return None

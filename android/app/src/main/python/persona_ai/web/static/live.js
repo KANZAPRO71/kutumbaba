@@ -9,8 +9,13 @@ const WS_TIMEOUT_MS = 30000;
 /** ~100 ms PCM @ 16 kHz — keeps WS/Gemini load sane vs AudioWorklet 128-sample quanta. */
 const MIC_BATCH_SAMPLES = 1600;
 /** Playback safety margin — absorbs WS/network jitter between audio chunks. */
-const PLAYBACK_LOOKAHEAD_S = 0.10;
+const PLAYBACK_LOOKAHEAD_S = 0.1;
+const PLAYBACK_LOOKAHEAD_SUSPENDED_S = 0.18;
 const PLAYBACK_UNDERRUN_SLIP_S = 0.012;
+/** Hold a few agent PCM chunks before scheduling — smooths cellular jitter (WebView playback). */
+const JITTER_MIN_CHUNKS = 3;
+const JITTER_MIN_CHUNKS_SUSPENDED = 1;
+const JITTER_MAX_CHUNKS = 24;
 const MIN_PLAYABLE_PCM_BYTES = 480; // ~10 ms @ 24 kHz mono s16le
 const BARGE_IN_SUSTAINED_FRAMES = 28;
 const BARGE_IN_MIN_RMS = 0.042;
@@ -113,9 +118,10 @@ const CONVERSATION_MODE_KEY = "papua_conversation_mode";
 function loadConversationMode() {
   try {
     const raw = localStorage.getItem(CONVERSATION_MODE_KEY);
-    return raw && String(raw).trim() ? String(raw).trim() : "casual_chat";
+    if (raw === "casual_chat") return "nongkrong";
+    return raw && String(raw).trim() ? String(raw).trim() : "nongkrong";
   } catch {
-    return "casual_chat";
+    return "nongkrong";
   }
 }
 const BGM_MODES = { off: "off", disko: "disko_tanah", hiphop: "hiphop_papua" };
@@ -280,6 +286,7 @@ class GeminiLiveCall {
     onError,
     onGovernance,
     onNotice,
+    onLinkState,
     onPostCall,
     onAudioReady,
     onMicStatus,
@@ -294,6 +301,7 @@ class GeminiLiveCall {
     this.onError = onError || (() => {});
     this.onGovernance = onGovernance || (() => {});
     this.onNotice = onNotice || (() => {});
+    this.onLinkState = onLinkState || (() => {});
     this.onPostCall = onPostCall || (() => {});
     this.onAudioReady = onAudioReady || (() => {});
     this.onMicStatus = onMicStatus || (() => {});
@@ -351,6 +359,9 @@ class GeminiLiveCall {
     this._disconnectNotified = false;
     this._bgm = null;
     this._wsGeneration = 0;
+    this._linkState = "connected";
+    this._playbackLookaheadS = PLAYBACK_LOOKAHEAD_S;
+    this._jitterQueue = [];
   }
 
   _detachSocket(ws) {
@@ -394,6 +405,13 @@ class GeminiLiveCall {
       }
     }
     throw lastErr || new Error("WebSocket gagal terhubung");
+  }
+
+  setConversationMode(modeId) {
+    const mode = modeId != null ? String(modeId).trim() : "";
+    if (!mode || !this.ws || this.ws.readyState !== WebSocket.OPEN) return false;
+    this.ws.send(JSON.stringify({ type: "conversation_mode", conversation_mode: mode }));
+    return true;
   }
 
   _connectWebSocketOnce(wsGeneration, pending) {
@@ -537,6 +555,7 @@ class GeminiLiveCall {
     this._bargeInHighFrames = 0;
     this._bargeSpeechSince = 0;
     this._audioQueue = [];
+    this._jitterQueue = [];
     if (!soft) {
       this._dropAgentAudioUntil = performance.now() + DROP_AGENT_AUDIO_MS;
     } else {
@@ -1133,7 +1152,31 @@ class GeminiLiveCall {
   async _flushAudioQueue() {
     const queued = this._audioQueue.splice(0);
     for (const msg of queued) {
-      await this._playPcm(msg.data, parseSampleRate(msg.mime) || OUTPUT_RATE);
+      this._queueOrPlayAudio(msg);
+    }
+    this._maybeDrainJitterBuffer(true);
+  }
+
+  _jitterMinChunks() {
+    return this._linkState === "suspended" || this._linkState === "resuming"
+      ? JITTER_MIN_CHUNKS_SUSPENDED
+      : JITTER_MIN_CHUNKS;
+  }
+
+  _maybeDrainJitterBuffer(flushAll = false) {
+    if (!this._audioReady || !this.audioCtx) return;
+    const min = this._jitterMinChunks();
+    while (
+      this._jitterQueue.length > 0 &&
+      (flushAll || this._jitterQueue.length >= min)
+    ) {
+      const msg = this._jitterQueue.shift();
+      if (!msg?.data) continue;
+      this._playbackChain = this._playbackChain
+        .then(() => this._playPcm(msg.data, parseSampleRate(msg.mime) || OUTPUT_RATE))
+        .catch((err) => {
+          console.warn("playback failed", err);
+        });
     }
   }
 
@@ -1151,11 +1194,11 @@ class GeminiLiveCall {
       this._audioQueue.push(msg);
       return;
     }
-    this._playbackChain = this._playbackChain
-      .then(() => this._playPcm(msg.data, parseSampleRate(msg.mime) || OUTPUT_RATE))
-      .catch((err) => {
-        console.warn("playback failed", err);
-      });
+    if (this._jitterQueue.length >= JITTER_MAX_CHUNKS) {
+      this._jitterQueue.shift();
+    }
+    this._jitterQueue.push(msg);
+    this._maybeDrainJitterBuffer(false);
   }
 
   _applyFloor(speaker, reason) {
@@ -1275,6 +1318,27 @@ class GeminiLiveCall {
           this.onNotice(msg.message);
         }
         break;
+      case "conversation_mode":
+        if (msg.mode && typeof this.onConversationMode === "function") {
+          this.onConversationMode(msg.mode, msg.changed);
+        }
+        break;
+      case "link_state":
+        if (msg.state) {
+          const st = String(msg.state);
+          if (st === "resuming" || st === "suspended") {
+            this._linkState = "suspended";
+            this._playbackLookaheadS = PLAYBACK_LOOKAHEAD_SUSPENDED_S;
+          } else if (st === "live" || st === "connected") {
+            this._linkState = "connected";
+            this._playbackLookaheadS = PLAYBACK_LOOKAHEAD_S;
+            this._maybeDrainJitterBuffer(true);
+          } else if (st === "disconnected") {
+            this._linkState = "disconnected";
+          }
+          this.onLinkState(st);
+        }
+        break;
       case "error":
         {
           const msgText = msg.message || "";
@@ -1327,8 +1391,13 @@ class GeminiLiveCall {
         this.stop();
         break;
       case "post_call_data":
-        if (msg.data) {
-          this.onPostCall(msg.data);
+        if (msg.data || msg.memory_card) {
+          this.onPostCall({
+            session_id: msg.session_id,
+            data: msg.data,
+            memory_card: msg.memory_card,
+            post_call: msg.post_call,
+          });
         }
         if (typeof console !== "undefined" && console.info) {
           console.info("[persona post-call]", msg.data);
@@ -1370,9 +1439,10 @@ class GeminiLiveCall {
     const now = this.audioCtx.currentTime;
     // Keep a continuous timeline. Resetting playTime on turn_complete used to
     // insert a lookahead gap mid-sentence whenever Gemini split one reply.
+    const lookahead = this._playbackLookaheadS || PLAYBACK_LOOKAHEAD_S;
     const start = hadQueue
       ? Math.max(this.playTime, now + PLAYBACK_UNDERRUN_SLIP_S)
-      : now + PLAYBACK_LOOKAHEAD_S;
+      : now + lookahead;
     src.start(start);
     this.playTime = start + buffer.duration;
   }

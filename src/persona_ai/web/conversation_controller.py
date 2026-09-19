@@ -204,7 +204,19 @@ class ConversationController:
     SIMILARITY_MILD = 0.38
 
     _MODE_STEER_ENABLED = frozenset(
-        {"curhat", "study", "funny", "brainstorm", "story", "roleplay"}
+        {
+            "nongkrong",
+            "mop",
+            "cerita_tong",
+            "teman_malam",
+            "teman_jalan",
+            "curhat",
+            "study",
+            "funny",
+            "brainstorm",
+            "story",
+            "roleplay",
+        }
     )
 
     def __init__(
@@ -216,8 +228,13 @@ class ConversationController:
     ) -> None:
         self.steer_cooldown = max(0.0, steer_cooldown)
         self.deliver_steer = deliver_steer
-        self.conversation_mode = (conversation_mode or "casual_chat").strip().lower()
+        self.conversation_mode = (conversation_mode or "nongkrong").strip().lower()
         self.state = ControllerState()
+
+    def _steer_template_mode(self) -> str:
+        from persona_ai.conversation.experience_modes import live_steer_profile_for_mode
+
+        return live_steer_profile_for_mode(self.conversation_mode)
 
     @classmethod
     def from_live_mode(
@@ -226,7 +243,9 @@ class ConversationController:
         *,
         conversation_mode: str | None = None,
     ) -> ConversationController:
-        mode = (conversation_mode or "casual_chat").strip().lower()
+        from persona_ai.conversation.experience_modes import normalize_experience_mode
+
+        mode = normalize_experience_mode(conversation_mode or "nongkrong")
         cooldown = float(getattr(live_mode, "slip_nudge_cooldown_s", cls.STEER_COOLDOWN))
         if getattr(live_mode, "is_natural", False):
             if mode in cls._MODE_STEER_ENABLED:
@@ -483,8 +502,15 @@ class ConversationController:
         return None
 
     def _decide_mode_extra(self, analysis: dict[str, int]) -> str | None:
-        if self.conversation_mode == "curhat":
-            if analysis.get("word_count", 0) > 75:
+        steer = self._steer_template_mode()
+        max_words = 75
+        from persona_ai.conversation.experience_modes import get_experience_profile
+
+        profile = get_experience_profile(self.conversation_mode)
+        if profile is not None:
+            max_words = max(18, profile.live.max_response_words + 20)
+        if steer == "curhat" or self.conversation_mode in {"cerita_tong", "teman_malam", "teman_jalan", "curhat"}:
+            if analysis.get("word_count", 0) > max_words:
                 return DriftCategory.TOO_LONG
             if (
                 analysis.get("offering_question", 0) > 0
@@ -496,7 +522,7 @@ class ConversationController:
         if self.conversation_mode == "study":
             if analysis.get("word_count", 0) > 120:
                 return DriftCategory.TOO_LONG
-        if self.conversation_mode == "funny":
+        if self.conversation_mode in {"mop", "funny"}:
             if analysis.get("word_count", 0) > 85:
                 return DriftCategory.TOO_LONG
             if (
@@ -539,7 +565,24 @@ class ConversationController:
         return None
 
     def choose_steer(self, category: str) -> str:
-        if self.conversation_mode == "curhat":
+        steer = self._steer_template_mode()
+        if self.conversation_mode == "cerita_tong" and category == DriftCategory.TOO_LONG:
+            return (
+                "Mode cerita tong: dengar dulu — 'hmm', 'terus?', atau satu kalimat pendek; "
+                "jangan monolog atau saran kecuali ko minta."
+            )
+        if self.conversation_mode == "teman_jalan":
+            if category in {DriftCategory.TOO_LONG, DriftCategory.QUESTION_LOOP}:
+                return (
+                    "Mode teman jalan: satu frasa singkat saja — ko sedang berjalan, "
+                    "jangan tanya panjang atau rangkai kalimat."
+                )
+        if self.conversation_mode == "teman_malam" and category == DriftCategory.TOO_LONG:
+            return (
+                "Mode teman malam: suara pelan & pendek — hangat tapi tidak ramai, "
+                "bukan presenter energi tinggi."
+            )
+        if self.conversation_mode == "curhat" or steer == "curhat":
             if category == DriftCategory.TOO_LONG:
                 return (
                     "Mode curhat: dengar dulu — satu kalimat pendek saja, tanpa saran "
@@ -555,10 +598,10 @@ class ConversationController:
                     "Mode curhat: bukan asisten layanan — teman yang mendengar, "
                     "bukan motivator atau konselor."
                 )
-        if self.conversation_mode == "funny":
+        if self.conversation_mode == "mop" or self.conversation_mode == "funny":
             if category == DriftCategory.TOO_LONG:
                 return (
-                    "Mode lucu: punchline singkat — jangan monolog atau stand-up panjang."
+                    "Mode mop/lucu: punchline singkat — jangan monolog atau stand-up panjang."
                 )
             if category == DriftCategory.QUESTION_LOOP:
                 return (

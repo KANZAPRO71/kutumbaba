@@ -14,7 +14,6 @@
     /* Critical — hide blocking overlays before external CSS loads (WebView Android) */
     .onboarding-overlay.hidden,
     .settings-overlay.hidden,
-    .post-call-card.hidden,
     .voice-foot.hidden,
     .text-compose.hidden { display: none !important; pointer-events: none !important; }
     .panel-overlay { display: none !important; }
@@ -106,9 +105,9 @@
     })();
   </script>
 
-  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=clash-display@500,600&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/static/styles.css?v=36" />
+  <link rel="stylesheet" href="/static/styles.css?v=75" />
 
 </head>
 
@@ -120,11 +119,13 @@
 
       <div class="panel-head-top">
 
-        <div class="panel-title">
+        <div class="panel-title panel-title-brand">
+
+          <span class="brand-chip" aria-hidden="true">01010</span>
 
           <span class="status-dot" id="statusDot"></span>
 
-          <span id="modelStatus">Papua Ai</span>
+          <span class="brand-wordmark" id="modelStatus">Papua AI</span>
 
         </div>
 
@@ -138,11 +139,13 @@
 
       <div class="panel-actions panel-actions-call">
 
-        <button class="btn-call btn-call-primary" id="btnCall" type="button" aria-label="Ngobrol suara" data-persona-action="btnCall" onclick="window.__personaUiTap('btnCall')">
+        <button class="btn-call btn-call-primary btn-call-luxe" id="btnCall" type="button" aria-label="Ngobrol suara" data-persona-action="btnCall" onclick="window.__personaUiTap('btnCall')">
 
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          <span class="btn-call-glow" aria-hidden="true"></span>
 
-          <span>Ngobrol</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+
+          <span class="btn-call-label">Buka Suara</span>
 
         </button>
 
@@ -383,6 +386,12 @@
 
         </div>
 
+        <div class="companion-hero-meta">
+
+          <p class="companion-hero-tagline" id="heroTagline" aria-live="polite"></p>
+
+        </div>
+
       </div>
 
 
@@ -421,11 +430,13 @@
 
     <footer class="panel-foot voice-foot hidden" id="voiceFoot">
 
-      <div class="voice-call-meta">
+      <div class="voice-glass-panel voice-call-meta">
 
         <span class="voice-timer" id="voiceTimer">0:00</span>
 
-        <div class="voice-bars" id="voiceBars" aria-hidden="true">
+        <canvas id="voiceWaveCanvas" class="voice-wave-canvas" aria-hidden="true"></canvas>
+
+        <div class="voice-bars voice-bars-fallback" id="voiceBars" aria-hidden="true">
 
           <span></span><span></span><span></span><span></span><span></span>
 
@@ -435,7 +446,9 @@
 
       <div class="voice-status" id="voiceStatus">Menyambung…</div>
 
-      <button class="btn-end-call" id="btnEndCall" type="button" data-persona-action="btnEndCall" onclick="window.__personaUiTap('btnEndCall')">Akhiri</button>
+      <div class="voice-mode-strip hidden" id="voiceModeStrip" role="tablist" aria-label="Mode ngobrol cepat"></div>
+
+      <button class="btn-end-call btn-end-call-luxe" id="btnEndCall" type="button" data-persona-action="btnEndCall" onclick="window.__personaUiTap('btnEndCall')">Akhiri</button>
 
     </footer>
 
@@ -444,6 +457,8 @@
     <div class="settings-overlay hidden" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
 
       <div class="settings-sheet">
+
+        <div class="settings-grabber" aria-hidden="true"></div>
 
         <header class="settings-header">
 
@@ -460,6 +475,14 @@
         <div class="settings-body">
 
           <div class="onboarding-field settings-field">
+            <span class="onboarding-field-label">Mode ngobrol</span>
+            <div class="experience-mode-list experience-mode-list-settings" id="experienceModeList" role="listbox" aria-label="Mode ngobrol"></div>
+            <p class="settings-note settings-note-compact" id="experienceTagline" aria-live="polite"></p>
+          </div>
+
+          <div class="settings-divider" aria-hidden="true"></div>
+
+          <div class="onboarding-field settings-field">
 
             <span class="onboarding-field-label">Pilihan suara</span>
 
@@ -473,12 +496,10 @@
 
           </div>
 
-          <p class="settings-note">Suara dipakai pas ngobrol live — bisa ganti kapan saja.</p>
-
           <div class="settings-divider" aria-hidden="true"></div>
 
           <div class="onboarding-field settings-field">
-            <span class="onboarding-field-label">Musik latar tongkrongan (BGM)</span>
+            <span class="onboarding-field-label">Musik latar (BGM)</span>
             <select id="bgmSelect" class="voice-select" hidden aria-hidden="true" tabindex="-1">
               <option value="off" selected>Mati — tanpa BGM (disarankan untuk voice)</option>
               <option value="disko_tanah">Disko Tanah — pelan ala tongkrongan</option>
@@ -486,87 +507,152 @@
             </select>
             <div id="bgmPickerList" class="settings-picker-list" role="listbox" aria-label="Musik latar"></div>
           </div>
-          <p class="settings-note">Default mati agar suara Gemini bersih. Nyalakan BGM kalau mau suasana tongkrongan; punchline Mop → jedag-jedug + tertawa penonton.</p>
+          <p class="settings-note settings-note-compact">BGM default mati — nyalakan kalau mau suasana tongkrongan.</p>
+
+          <details class="settings-collapsible">
+            <summary>Logat &amp; Mop (lanjutan)</summary>
+            <div class="settings-mop-block settings-sim-block">
+              <label class="settings-field settings-range-field">
+                <span>Tempo <strong id="simTempoVal">1.0</strong></span>
+                <input type="range" id="simTempo" min="0.5" max="1.5" step="0.05" value="1" />
+              </label>
+              <label class="settings-field settings-range-field">
+                <span>Nada <strong id="simPitchVal">1.0</strong></span>
+                <input type="range" id="simPitch" min="0.5" max="1.5" step="0.05" value="1" />
+              </label>
+              <label class="settings-field settings-range-field">
+                <span>Frekuensi Mop <strong id="simMopVal">0.6</strong></span>
+                <input type="range" id="simMopFreq" min="0" max="1" step="0.05" value="0.6" />
+              </label>
+            </div>
+          </details>
 
           <div class="settings-divider" aria-hidden="true"></div>
 
-          <div class="settings-mop-block settings-sim-block">
-            <h3 class="settings-subtitle">Simulator Logat Papua</h3>
-            <p class="settings-mop-desc">Atur gaya bicara Raja Mop — langsung ke otak AI pas ngobrol live.</p>
+          <details class="settings-collapsible" id="behaviorDebugDetails">
+            <summary>Eval behavior (developer)</summary>
+            <div class="settings-behavior-debug-block" id="behaviorDebugBlock">
+              <p class="settings-status" id="behaviorDebugDay">HARI INI</p>
+              <div class="behavior-eval-table-wrap" id="behaviorModeEvalWrap">
+                <table class="behavior-eval-table" id="behaviorModeEvalTable" aria-label="Perbandingan mode"></table>
+              </div>
+              <div class="behavior-eval-table-wrap" id="behaviorSessionDistWrap">
+                <table class="behavior-eval-table" id="behaviorSessionDistTable" aria-label="Distribusi per sesi"></table>
+              </div>
+              <ul class="settings-behavior-health settings-behavior-health-compact" id="behaviorModeHealth" aria-live="polite"></ul>
+              <ul class="settings-behavior-decisions" id="behaviorRecentDecisions" aria-live="polite"></ul>
+              <button type="button" class="settings-memory-refresh" id="btnBehaviorDebugRefresh" data-persona-action="btnBehaviorDebugRefresh">Muat ulang</button>
 
-            <label class="settings-field settings-range-field">
-              <span>Tempo bicara <strong id="simTempoVal">1.0</strong></span>
-              <input type="range" id="simTempo" min="0.5" max="1.5" step="0.05" value="1" />
-            </label>
+              <details class="settings-collapsible settings-collapsible-nested">
+                <summary>Telemetry detail</summary>
+                <div class="behavior-eval-table-wrap" id="behaviorBdvByModeWrap">
+                  <table class="behavior-eval-table" id="behaviorBdvByModeTable" aria-label="BDV per mode"></table>
+                </div>
+                <div class="behavior-eval-table-wrap" id="behaviorDecisionOutcomesWrap">
+                  <table class="behavior-eval-table" id="behaviorDecisionOutcomesTable" aria-label="Keputusan dan outcome"></table>
+                </div>
+                <div class="behavior-eval-table-wrap" id="behaviorMopByTypeWrap">
+                  <table class="behavior-eval-table" id="behaviorMopByTypeTable" aria-label="MOP per tipe"></table>
+                </div>
+                <p class="settings-note settings-note-compact" id="behaviorPlannedHoldNote"></p>
+                <div class="behavior-eval-table-wrap" id="behaviorPlannedHoldWrap">
+                  <table class="behavior-eval-table" id="behaviorPlannedHoldTable" aria-label="Planned hold outcome"></table>
+                </div>
+              </details>
 
-            <label class="settings-field settings-range-field">
-              <span>Ayunan nada <strong id="simPitchVal">1.0</strong></span>
-              <input type="range" id="simPitch" min="0.5" max="1.5" step="0.05" value="1" />
-            </label>
-
-            <label class="settings-field settings-range-field">
-              <span>Frekuensi Mop <strong id="simMopVal">0.6</strong></span>
-              <input type="range" id="simMopFreq" min="0" max="1" step="0.05" value="0.6" />
-            </label>
-          </div>
+              <details class="settings-collapsible settings-collapsible-nested">
+                <summary>Eksperimen tuning</summary>
+                <label class="onboarding-field settings-field">
+                  <span class="onboarding-field-label">Mode</span>
+                  <select id="behaviorExpMode" class="voice-select">
+                    <option value="cerita_tong">Cerita Tong</option>
+                    <option value="teman_jalan">Teman Jalan</option>
+                    <option value="mop">Mop</option>
+                    <option value="teman_malam">Teman Malam</option>
+                    <option value="nongkrong">Nongkrong</option>
+                  </select>
+                </label>
+                <label class="onboarding-field settings-field">
+                  <span class="onboarding-field-label">Lever</span>
+                  <input type="text" class="onboarding-input" id="behaviorExpLever" placeholder="question_budget" maxlength="120" />
+                </label>
+                <label class="onboarding-field settings-field">
+                  <span class="onboarding-field-label">Before → after</span>
+                  <input type="text" class="onboarding-input" id="behaviorExpValues" placeholder="1 → 0" maxlength="80" />
+                </label>
+                <label class="onboarding-field settings-field">
+                  <span class="onboarding-field-label">Hipotesis</span>
+                  <input type="text" class="onboarding-input" id="behaviorExpHypothesis" placeholder="…" maxlength="800" />
+                </label>
+                <p class="settings-status" id="behaviorConfigRevision">Revision …</p>
+                <div class="settings-memory-actions">
+                  <button type="button" class="settings-memory-refresh" id="btnBehaviorExpStart" data-persona-action="btnBehaviorExpStart">Baseline</button>
+                  <button type="button" class="settings-memory-refresh" id="btnBehaviorConfigBump" data-persona-action="btnBehaviorConfigBump">Bump revision</button>
+                </div>
+                <ul class="settings-behavior-experiments" id="behaviorExperimentsList" aria-live="polite"></ul>
+              </details>
+            </div>
+          </details>
 
           <div class="settings-divider" aria-hidden="true"></div>
 
           <div class="settings-memory-block">
-            <h3 class="settings-subtitle">Ingatan lokal</h3>
-            <p class="settings-note">Fakta &amp; urusan belum selesai — cuma di HP ko. Tra ke server developer; ngobrol pakai Gemini key ko sendiri.</p>
+            <h3 class="settings-subtitle">Ingatan</h3>
             <p class="settings-status" id="memoryStats">Memuat…</p>
-            <div class="settings-rag-block">
-              <label class="settings-field settings-toggle-field">
-                <span class="onboarding-field-label">RAG ingatan (relevansi obrolan)</span>
-                <input type="checkbox" id="ragEnabledToggle" checked />
-              </label>
-              <label class="settings-field settings-range-field">
-                <span>Ketatnya gatekeeper <strong id="ragMinScoreVal">0.18</strong></span>
-                <input type="range" id="ragMinScore" min="0.05" max="0.5" step="0.01" value="0.18" />
-              </label>
-              <label class="settings-field settings-toggle-field">
-                <span class="onboarding-field-label">Embed Gemini (perlu API key)</span>
-                <input type="checkbox" id="ragGeminiToggle" />
-              </label>
-              <p class="settings-note" id="sessionFeedbackStats"></p>
+            <label class="settings-field settings-toggle-field">
+              <span class="onboarding-field-label">RAG ingatan</span>
+              <input type="checkbox" id="ragEnabledToggle" checked />
+            </label>
+            <details class="settings-collapsible settings-collapsible-nested">
+              <summary>RAG &amp; backup lanjutan</summary>
+              <div class="settings-rag-block">
+                <label class="settings-field settings-range-field">
+                  <span>Gatekeeper <strong id="ragMinScoreVal">0.18</strong></span>
+                  <input type="range" id="ragMinScore" min="0.05" max="0.5" step="0.01" value="0.18" />
+                </label>
+                <label class="settings-field settings-toggle-field">
+                  <span class="onboarding-field-label">Embed Gemini</span>
+                  <input type="checkbox" id="ragGeminiToggle" />
+                </label>
+              </div>
+              <div class="settings-memory-actions">
+                <button type="button" class="settings-memory-refresh" id="btnMemoryReindex" data-persona-action="btnMemoryReindex">Rebuild RAG</button>
+                <button type="button" class="settings-memory-refresh" id="btnMemoryImport" data-persona-action="btnMemoryImport">Import</button>
+                <input type="file" id="memoryImportFile" accept="application/json,.json" class="hidden" />
+                <button type="button" class="settings-memory-refresh" id="btnMemoryExport" data-persona-action="btnMemoryExport">Export</button>
+                <button type="button" class="settings-memory-danger" id="btnMemoryClearAll" data-persona-action="btnMemoryClearAll">Hapus semua</button>
+              </div>
+            </details>
+            <div id="companionAchievementsWrap" class="hidden" hidden>
+              <h4 class="settings-memory-heading">Lencana</h4>
+              <ul class="settings-achievement-list" id="companionAchievements" aria-live="polite"></ul>
             </div>
-            <h4 class="settings-memory-heading">Lencana tongkrong</h4>
-            <ul class="settings-achievement-list" id="companionAchievements" aria-live="polite"></ul>
-            <h4 class="settings-memory-heading">Perlu konfirmasi ko</h4>
+            <h4 class="settings-memory-heading">Perlu konfirmasi</h4>
             <ul class="settings-memory-list" id="memoryReviewList" aria-live="polite"></ul>
             <h4 class="settings-memory-heading">Yang sa ingat</h4>
             <ul class="settings-memory-list" id="memoryList" aria-live="polite"></ul>
             <h4 class="settings-memory-heading">Belum selesai</h4>
             <ul class="settings-memory-list" id="openLoopList" aria-live="polite"></ul>
             <label class="onboarding-field settings-field">
-              <span class="onboarding-field-label">Tambah ingatan manual</span>
-              <input type="text" class="onboarding-input" id="memoryManualInput" maxlength="500" placeholder="Mis. Nama ko Budi, suka reggae" autocomplete="off" />
+              <span class="onboarding-field-label">Tambah ingatan</span>
+              <input type="text" class="onboarding-input" id="memoryManualInput" maxlength="500" placeholder="Mis. Nama ko Budi" autocomplete="off" />
             </label>
-            <button type="button" class="btn-memory-add" id="btnMemoryAdd" data-persona-action="btnMemoryAdd">Simpan ingatan</button>
-            <p class="onboarding-error hidden" id="memoryAddError">Teks kependekan — tulis sedikit lagi.</p>
-            <div class="settings-memory-actions">
-              <button type="button" class="settings-memory-refresh" id="btnMemoryRefresh" data-persona-action="btnMemoryRefresh">Muat ulang</button>
-              <button type="button" class="settings-memory-refresh" id="btnMemoryReindex" data-persona-action="btnMemoryReindex">Rebuild index RAG</button>
-              <button type="button" class="settings-memory-refresh" id="btnMemoryImport" data-persona-action="btnMemoryImport">Import JSON backup</button>
-              <input type="file" id="memoryImportFile" accept="application/json,.json" class="hidden" />
-              <button type="button" class="settings-memory-refresh" id="btnMemoryExport" data-persona-action="btnMemoryExport">Export JSON (ingatan + stats)</button>
-              <button type="button" class="settings-memory-danger" id="btnMemoryClearAll" data-persona-action="btnMemoryClearAll">Hapus semua ingatan</button>
-            </div>
+            <button type="button" class="btn-memory-add" id="btnMemoryAdd" data-persona-action="btnMemoryAdd">Simpan</button>
+            <p class="onboarding-error hidden" id="memoryAddError">Tulis sedikit lagi.</p>
+            <button type="button" class="settings-memory-refresh" id="btnMemoryRefresh" data-persona-action="btnMemoryRefresh">Muat ulang ingatan</button>
+            <p class="settings-note hidden" id="sessionFeedbackStats" aria-hidden="true"></p>
           </div>
 
           <div class="settings-divider" aria-hidden="true"></div>
 
-          <label class="settings-field settings-range-field">
-            <span>Pengingat harian (Android)</span>
+          <label class="settings-field settings-toggle-field">
+            <span class="onboarding-field-label">Pengingat harian</span>
             <input type="checkbox" id="dailyReminderToggle" checked />
           </label>
-          <p class="settings-note">Notifikasi lembut ~ sekali sehari kalau belum ngobrol. Bisa dimatikan kapan saja.</p>
 
           <div class="settings-divider" aria-hidden="true"></div>
 
-          <p class="settings-desc">Gemini API key ko disimpan cuma di HP ini — tra dibagi ke server lain.</p>
-
+          <h3 class="settings-subtitle">Gemini API</h3>
           <p class="settings-status" id="settingsKeyStatus">Belum ada API key</p>
 
           <a class="onboarding-link settings-link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Buka Google AI Studio</a>
@@ -581,7 +667,10 @@
 
           <p class="onboarding-error hidden" id="settingsError">Key tra valid — cek lagi ya ko.</p>
 
-          <button type="button" class="btn-onboarding-continue settings-save" id="btnSettingsSave" data-persona-action="btnSettingsSave" onclick="window.__personaUiTap('btnSettingsSave')">Simpan</button>
+          <p class="settings-desc settings-desc-compact">
+            <a class="onboarding-link settings-link" href="https://kanzapro71.github.io/kutumbaba/privacy.html" target="_blank" rel="noopener noreferrer">Kebijakan privasi</a>
+          </p>
+          <button type="button" class="btn-onboarding-continue settings-save" id="btnSettingsSave" data-persona-action="btnSettingsSave" onclick="window.__personaUiTap('btnSettingsSave')">Simpan key</button>
 
         </div>
 
@@ -593,31 +682,13 @@
 
     <div class="achievement-toast hidden" id="achievementToast" role="status" aria-live="polite"></div>
 
-    <div class="post-call-card hidden" id="postCallCard">
-
-      <p class="post-call-label">Tadi kita ngobrol tentang</p>
-
-      <p class="post-call-summary" id="postCallSummary"></p>
-
-      <p class="post-call-mood" id="postCallMood"></p>
-
-      <p class="post-call-label">Obrolan tadi enak?</p>
-      <div class="post-call-feedback">
-        <button type="button" class="btn-post-call-feedback" id="btnPostCallUp" aria-label="Mantap">👍</button>
-        <button type="button" class="btn-post-call-feedback" id="btnPostCallDown" aria-label="Kurang">👎</button>
-      </div>
-
-      <button type="button" class="btn-post-call-close" id="btnPostCallClose">OK</button>
-
-    </div>
-
-
-
   </div>
 
-  <script src="/static/live.js?v=71"></script>
+  <script src="/static/waveform-viz.js?v=76"></script>
 
-  <script src="/static/app.js?v=65"></script>
+  <script src="/static/live.js?v=75"></script>
+
+  <script src="/static/app.js?v=77"></script>
 
 </body>
 

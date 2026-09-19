@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.ConsoleMessage
 import android.webkit.PermissionRequest
 import android.webkit.SslErrorHandler
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "PersonaAI"
         private const val PERMISSION_REQUEST_MIC = 101
         private const val PERMISSION_REQUEST_NOTIFICATIONS = 102
+        private const val PERMISSION_REQUEST_LOCATION = 103
     }
 
     private lateinit var webView: WebView
@@ -42,6 +44,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnRetry: Button
 
     private lateinit var byokStore: ByokStore
+    private lateinit var conversationModeStore: ConversationModeStore
+    private lateinit var personaAndroidBridge: PersonaAndroidBridge
     private val papuaAiViewModel: PapuaAiViewModel by viewModels()
     private var pendingPermissionRequest: PermissionRequest? = null
     private var bootstrapping = false
@@ -52,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         byokStore = ByokStore(this)
+        conversationModeStore = ConversationModeStore(this)
         copyApiKeyFromWebEnv()
 
         webView = findViewById(R.id.webView)
@@ -64,6 +69,7 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         setupBackNavigation()
         checkMicrophonePermission()
+        maybeRequestLocationPermission()
         maybeRequestNotificationPermission()
         bootstrapAndLoad()
     }
@@ -170,9 +176,12 @@ class MainActivity : AppCompatActivity() {
         webView.isClickable = true
         webView.requestFocus()
 
+        personaAndroidBridge =
+            PersonaAndroidBridge(this, byokStore, papuaAiViewModel, conversationModeStore)
+        webView.addJavascriptInterface(personaAndroidBridge, "PersonaAndroid")
         webView.addJavascriptInterface(
-            PersonaAndroidBridge(this, byokStore, papuaAiViewModel),
-            "PersonaAndroid",
+            AndroidWebCompatBridge(personaAndroidBridge),
+            "Android",
         )
 
         webView.webChromeClient = object : WebChromeClient() {
@@ -216,7 +225,12 @@ class MainActivity : AppCompatActivity() {
                 handler: SslErrorHandler?,
                 error: SslError?
             ) {
-                handler?.proceed()
+                if (BuildConfig.DEBUG) {
+                    handler?.proceed()
+                } else {
+                    Log.e(TAG, "SSL error (blocked in release): ${error?.primaryError}")
+                    handler?.cancel()
+                }
             }
 
             override fun onReceivedError(
@@ -313,6 +327,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun maybeRequestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ),
+            PERMISSION_REQUEST_LOCATION,
+        )
+    }
+
     private fun maybeRequestNotificationPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         if (!CheckInScheduler.remindersEnabled(this)) return
@@ -345,8 +375,78 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        pauseWebContent()
+        webView.onPause()
+        webView.pauseTimers()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        webView.onResume()
+        webView.resumeTimers()
+        resumeWebContent()
+    }
+
     override fun onDestroy() {
-        webView.destroy()
+        if (isFinishing) {
+            destroyWebViewSafely()
+        }
         super.onDestroy()
+    }
+
+    private fun pauseWebContent() {
+        webView.evaluateJavascript(
+            """
+            (function(){
+              try {
+                if (window.__personaPauseUi) window.__personaPauseUi(false);
+              } catch (e) {}
+            })();
+            """.trimIndent(),
+            null,
+        )
+    }
+
+    private fun resumeWebContent() {
+        webView.evaluateJavascript(
+            """
+            (function(){
+              try {
+                if (window.__personaResumeUi) window.__personaResumeUi();
+              } catch (e) {}
+            })();
+            """.trimIndent(),
+            null,
+        )
+    }
+
+    /** Tear down WebView + JS bridges to avoid Activity/WebView leaks (finishing only). */
+    private fun destroyWebViewSafely() {
+        pauseWebContent()
+        try {
+            webView.removeJavascriptInterface("PersonaAndroid")
+            webView.removeJavascriptInterface("Android")
+        } catch (e: Exception) {
+            Log.w(TAG, "removeJavascriptInterface: ${e.message}")
+        }
+        try {
+            webView.loadUrl("about:blank")
+            webView.stopLoading()
+            webView.webChromeClient = null
+            webView.webViewClient = WebViewClient()
+            (webView.parent as? ViewGroup)?.removeView(webView)
+            webView.destroy()
+        } catch (e: Exception) {
+            Log.w(TAG, "WebView destroy: ${e.message}")
+        }
+        try {
+            val py = com.chaquo.python.Python.getInstance()
+            py.getModule("persona_ai.plugins.webview_bridge")
+                .callAttr("on_app_lifecycle", "destroy")
+        } catch (e: Exception) {
+            Log.d(TAG, "webview_bridge destroy hook: ${e.message}")
+        }
     }
 }

@@ -82,10 +82,9 @@ def evaluate_daily_checkin(profile: PersonalityProfile) -> DailyCheckIn:
 
     loop = latest_pending_open_loop()
     if loop is not None:
-        message = message_from_open_loop(loop, language=lang)
-        live_hint = live_hint_from_open_loop(loop, language=lang)
-        follow_up_kind = "open_loop"
+        follow_up_kind = "open_loop_pending"
         open_loop_id = loop.id
+        live_hint = live_hint_from_open_loop(loop, language=lang)
 
     show = not talked_today
     return DailyCheckIn(

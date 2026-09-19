@@ -26,6 +26,10 @@ class OpenLoopRecord(BaseModel):
     created_at: str = ""
     updated_at: str = ""
     resolved_at: str | None = None
+    last_callback_at: str | None = None
+    callback_count: int = 0
+    last_mentioned_at: str | None = None
+    last_callback_outcome: str | None = None
 
     def touch(self) -> None:
         now = datetime.now(timezone.utc).isoformat()

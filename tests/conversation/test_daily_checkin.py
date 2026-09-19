@@ -85,5 +85,6 @@ def test_checkin_uses_open_loop_content(memory_db):
         inst.now.return_value = datetime(2026, 9, 19, 8, 30, tzinfo=timezone.utc)
         result = evaluate_daily_checkin(profile)
     assert result.show is True
-    assert result.follow_up_kind == "open_loop"
-    assert "rapat dengan tim desain" in result.message
+    assert result.follow_up_kind == "open_loop_pending"
+    assert "rapat dengan tim desain" not in result.message
+    assert result.live_hint and "rapat" in result.live_hint.lower()

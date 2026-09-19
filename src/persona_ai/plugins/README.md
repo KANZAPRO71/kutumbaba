@@ -10,6 +10,12 @@ Extensibility tanpa fork core.
 - `on_llm_tools` — function calling
 - `on_response_post`
 
+## Implemented
+
+- **device_context** — `get_location_snapshot`, `get_device_status` (Android Chaquopy → `DeviceContextBridge`)
+- **web_search_live** — `search_live_web` (NON_BLOCKING)
+- Arsitektur async: [LIVE_ASYNC_TOOLS.md](./LIVE_ASYNC_TOOLS.md)
+
 ## Contoh plugin (nanti)
 
 - `healthcare-intake`

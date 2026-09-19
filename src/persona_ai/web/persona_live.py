@@ -155,6 +155,19 @@ def _plan_natural_governance(
             ),
         )
 
+    voice = output.voice if isinstance(output.voice, VoiceDirective) else None
+    if voice and voice.prompt_fragments:
+        steer_lines = [
+            f
+            for f in voice.prompt_fragments
+            if "CALLBACK" in f or f.startswith("MOP ")
+        ]
+        if steer_lines and decision.bdv in ("RESPOND", "ACK_ONLY"):
+            return LiveGovernancePlan(
+                steer_mode=LiveSteerMode.STEER,
+                steer_prompt=steer_lines[-1],
+            )
+
     return LiveGovernancePlan(
         steer_mode=LiveSteerMode.ALLOW,
         steer_prompt=None,
