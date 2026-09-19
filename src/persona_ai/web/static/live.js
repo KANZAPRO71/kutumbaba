@@ -359,6 +359,7 @@ class GeminiLiveCall {
     this._disconnectNotified = false;
     this._bgm = null;
     this._wsGeneration = 0;
+    this._lastVizLevelAt = 0;
     this._linkState = "connected";
     this._playbackLookaheadS = PLAYBACK_LOOKAHEAD_S;
     this._jitterQueue = [];
@@ -1039,7 +1040,21 @@ class GeminiLiveCall {
     wait();
   }
 
+  _reportMicLevel(input) {
+    if (!input?.length) return;
+    const now = performance.now();
+    if (now - this._lastVizLevelAt < 28) return;
+    this._lastVizLevelAt = now;
+    let sum = 0;
+    for (let i = 0; i < input.length; i += 1) {
+      sum += input[i] * input[i];
+    }
+    const rms = Math.sqrt(sum / input.length);
+    window.PersonaWaveform?.pushMicLevel?.(rms);
+  }
+
   _sendMicPcm(input) {
+    this._reportMicLevel(input);
     if (!this._micEnabled) return;
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this._isActive) return;
     // Natural S2S: full-duplex mic — server-side echo filter; needed for barge-in.

@@ -581,8 +581,9 @@ html, body {
 .voice-wave-canvas {
   flex: 1;
   min-width: 0;
-  height: 40px;
+  height: 52px;
   display: block;
+  filter: drop-shadow(0 0 10px rgba(129, 140, 248, 0.15));
 }
 
 .voice-bars-fallback {
